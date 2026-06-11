@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils";
 
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div className="min-h-screen">
-      <AppSidebar />
+      <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
 
       {/* Mobile sidebar drawer */}
       <div className={cn("fixed inset-0 z-50 lg:hidden", mobileOpen ? "pointer-events-auto" : "pointer-events-none")}>
@@ -23,7 +25,6 @@ export function AppShell() {
             </button>
             <div className="lg:hidden">
               <div className="glass-nav h-full">
-                {/* re-render sidebar inside drawer */}
                 <MobileSidebar onNavigate={() => setMobileOpen(false)} />
               </div>
             </div>
@@ -31,8 +32,8 @@ export function AppShell() {
         </div>
       </div>
 
-      <div className="lg:pl-72">
-        <Topbar onMenuClick={() => setMobileOpen(true)} />
+      <div className={cn("transition-[padding] duration-300", collapsed ? "lg:pl-20" : "lg:pl-72")}>
+        <Topbar onMenuClick={() => setMobileOpen(true)} onToggleSidebar={() => setCollapsed((c) => !c)} />
         <main className="p-4 lg:p-8">
           <Outlet />
         </main>
@@ -42,10 +43,9 @@ export function AppShell() {
 }
 
 function MobileSidebar({ onNavigate }: { onNavigate: () => void }) {
-  // Reuse AppSidebar markup by forcing it into static position via a wrapper.
   return (
     <div className="[&>aside]:static [&>aside]:flex [&>aside]:h-full [&>aside]:w-72">
-      <AppSidebar onNavigate={onNavigate} />
+      <AppSidebar onNavigate={onNavigate} collapsed={false} />
     </div>
   );
 }
