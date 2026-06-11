@@ -1,9 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ScanLine, ShoppingCart, CreditCard, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_app/pos")({
-  head: () => ({ meta: [{ title: "Point of Sale — Lumen ERP" }] }),
-  component: () => (
+  head: () => ({ meta: [{ title: "Point of Sale — DeveleERP" }] }),
+  component: PosPage,
+});
+
+function PosPage() {
+  const router = useRouter();
+  return (
     <div className="flex min-h-[70vh] items-center justify-center">
       <div className="glass-panel relative max-w-2xl overflow-hidden rounded-3xl p-12 text-center">
         <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-linear-to-br from-emerald-400/40 to-transparent blur-2xl" />
@@ -30,13 +35,16 @@ export const Route = createFileRoute("/_app/pos")({
             </div>
           </div>
 
-          <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30">
-            Back to Dashboard
-          </Link>
+          <button
+            onClick={() => router.history.back()}
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30"
+          >
+            Back
+          </button>
 
           <p className="mt-4 text-xs text-muted-foreground">Coming soon</p>
         </div>
       </div>
     </div>
-  ),
-});
+  );
+}

@@ -2,15 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { products, currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_app/products/catalog")({
-  head: () => ({ meta: [{ title: "Products & Services — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Products & Services — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Products & Services" description="Catalog, brands, and product codes."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Product</button>} />
+        actions={
+          <div className="flex items-center gap-2">
+            <ExportMenu />
+            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Product</button>
+          </div>
+        } />
       <TabbedPage tabs={[
         { key: "products", label: "Products / Services", render: () => (
           <DataTable data={products} columns={[

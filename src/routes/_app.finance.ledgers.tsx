@@ -2,13 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { transactions, currency } from "@/lib/mock";
 
 export const Route = createFileRoute("/_app/finance/ledgers")({
-  head: () => ({ meta: [{ title: "Ledgers — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Ledgers — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Ledgers" description="Journal entries, general ledger, and ledger registration." />
+      <PageHeader title="Ledgers" description="Journal entries, general ledger, and ledger registration."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "record", label: "Record DR/CR", render: () => (
           <DataTable data={transactions.slice(0, 12)} columns={[

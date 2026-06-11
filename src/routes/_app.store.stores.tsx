@@ -2,12 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 
 export const Route = createFileRoute("/_app/store/stores")({
-  head: () => ({ meta: [{ title: "Stores — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Stores — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Stores & Conversions" description="Physical store locations and conversion formulas." />
+      <PageHeader title="Stores & Conversions" description="Physical store locations and conversion formulas."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "stores", label: "Stores", render: () => (
           <DataTable data={[

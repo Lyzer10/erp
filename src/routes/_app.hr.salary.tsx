@@ -2,13 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { staff, currency } from "@/lib/mock";
 
 export const Route = createFileRoute("/_app/hr/salary")({
-  head: () => ({ meta: [{ title: "Salary — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Salary — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Salary" description="Salary ranges and individual payslips." />
+      <PageHeader title="Salary" description="Salary ranges and individual payslips."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "range", label: "Salary Ranges", render: () => (
           <DataTable data={[

@@ -4,15 +4,15 @@ import { TabbedPage } from "@/components/erp/TabbedPage";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { EChart } from "@/components/charts/EChart";
 import { DataTable } from "@/components/erp/DataTable";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { customers, products, currency } from "@/lib/mock";
-import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/_app/sales/reports")({
-  head: () => ({ meta: [{ title: "Sales Reports — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Sales Reports — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Sales Reports" description="Analyze revenue across customers, products, and categories."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm font-medium backdrop-blur hover:bg-white/80"><Download className="h-4 w-4" />Export PDF</button>} />
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "summary", label: "Summary", render: () => (
           <GlassCard>

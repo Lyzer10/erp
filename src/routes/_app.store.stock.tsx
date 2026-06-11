@@ -4,13 +4,15 @@ import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { EChart } from "@/components/charts/EChart";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { products, currency } from "@/lib/mock";
 
 export const Route = createFileRoute("/_app/store/stock")({
-  head: () => ({ meta: [{ title: "Stock — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Stock — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Stock" description="Stock levels, movements, adjustments, and conversions." />
+      <PageHeader title="Stock" description="Stock levels, movements, adjustments, and conversions."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "report", label: "Stock Report", render: () => (
           <DataTable data={products} columns={[

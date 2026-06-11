@@ -3,12 +3,14 @@ import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 
 export const Route = createFileRoute("/_app/hr/leave")({
-  head: () => ({ meta: [{ title: "Leave — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Leave — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Leave Management" description="Leave requests, types, and on-behalf submissions." />
+      <PageHeader title="Leave Management" description="Leave requests, types, and on-behalf submissions."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "requests", label: "Leave Requests", render: () => (
           <DataTable data={Array.from({length:12},(_,i)=>({ id:`LV-${500+i}`, employee:["John","Maria","David","Aisha","Peter"][i%5], type:["Annual","Sick","Compassionate","Maternity"][i%4], from:`2026-06-${String(i+1).padStart(2,"0")}`, days:2+i%5, status:["Pending","Approved","Rejected"][i%3] }))}

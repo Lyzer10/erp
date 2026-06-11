@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+﻿import { useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 
@@ -25,6 +25,7 @@ interface Props {
 }
 
 export function InvoiceForm({ variant }: Props) {
+  const router = useRouter();
   const isInvoice = variant === "invoice";
   const title = isInvoice ? "Create Invoice" : "Create Proforma";
   const submitLabel = isInvoice ? "Submit Invoice" : "Submit Proforma";
@@ -61,13 +62,13 @@ export function InvoiceForm({ variant }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Link
-            to="/sales/invoices"
+          <button
+            onClick={() => router.history.back()}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
             aria-label="Back"
           >
             <ArrowLeft className="h-4 w-4" />
-          </Link>
+          </button>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         </div>
       </div>

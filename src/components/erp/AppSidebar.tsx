@@ -1,8 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+﻿import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LayoutDashboard, Users, Receipt, Package, Wallet, UserCog, Warehouse,
-  Settings, ScanLine, ChevronDown, Sparkles, ChevronsLeft, ChevronsRight,
+  Settings, ScanLine, ChevronDown, ChevronsLeft, ChevronsRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -86,9 +86,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             !collapsed && "flex-1",
           )}
         >
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-linear-to-br from-blue-500 to-emerald-500 text-white shadow-lg shadow-blue-500/20">
-            <Sparkles className="h-5 w-5" />
-          </div>
+          <img src="/devele-logo.jpg" alt="DeveleICT" className="h-9 w-9 shrink-0 rounded-xl object-contain" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold leading-tight tracking-tight">DeveleERP</p>

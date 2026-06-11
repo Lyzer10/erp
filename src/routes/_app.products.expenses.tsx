@@ -3,15 +3,21 @@ import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { expenses, currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_app/products/expenses")({
-  head: () => ({ meta: [{ title: "Expenses — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Expenses — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Expenses" description="Categorize and register company expenses."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Register Expense</button>} />
+        actions={
+          <div className="flex items-center gap-2">
+            <ExportMenu />
+            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Register Expense</button>
+          </div>
+        } />
       <TabbedPage tabs={[
         { key: "categories", label: "Categories", render: () => (
           <DataTable data={["Rent","Utilities","Salaries","Marketing","Travel","Office Supplies"].map((c, k) => ({ code: `EC-${10+k}`, name: c, count: 3+k, total: 1200 + k*900 }))}

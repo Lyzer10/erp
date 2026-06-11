@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { currency } from "@/lib/mock";
 
 const make = (prefix: string, n = 10) => Array.from({ length: n }, (_, i) => ({
@@ -12,7 +13,7 @@ const make = (prefix: string, n = 10) => Array.from({ length: n }, (_, i) => ({
 }));
 
 export const Route = createFileRoute("/_app/store/transfers")({
-  head: () => ({ meta: [{ title: "Store Transfers — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Store Transfers — DeveleERP" }] }),
   component: () => {
     const cols = [
       { key: "id", header: "Ref" }, { key: "from", header: "From" }, { key: "to", header: "To" },
@@ -22,7 +23,8 @@ export const Route = createFileRoute("/_app/store/transfers")({
     ];
     return (
       <div className="space-y-6">
-        <PageHeader title="Store Transfers" description="Transfers between branches, stores, and receipts." />
+        <PageHeader title="Store Transfers" description="Transfers between branches, stores, and receipts."
+          actions={<ExportMenu />} />
         <TabbedPage tabs={[
           { key: "ib", label: "Inter Branch", render: () => <DataTable data={make("IBT")} columns={cols} /> },
           { key: "is", label: "Inter Store", render: () => <DataTable data={make("IST")} columns={cols} /> },

@@ -4,17 +4,23 @@ import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
 import { GlassCard } from "@/components/erp/GlassCard";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { Plus, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/users")({
-  head: () => ({ meta: [{ title: "Users — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Users — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Users & Access" description="Manage users, departments, and password resets."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add User</button>} />
+        actions={
+          <div className="flex items-center gap-2">
+            <ExportMenu />
+            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add User</button>
+          </div>
+        } />
       <TabbedPage tabs={[
         { key: "users", label: "Users List", render: () => (
-          <DataTable data={Array.from({length:12},(_,i)=>({ id:`U-${1000+i}`, name:["Aisha Otieno","John Mwangi","Maria Banda","David Kumar"][i%4], email:`user${i}@lumen.co`, role:["Admin","Manager","Cashier","Accountant"][i%4], department:["IT","Sales","Finance","HR"][i%4], status:["Active","Active","Inactive"][i%3] }))}
+          <DataTable data={Array.from({length:12},(_,i)=>({ id:`U-${1000+i}`, name:["Aisha Otieno","John Mwangi","Maria Banda","David Kumar"][i%4], email:`user${i}@devele.co`, role:["Admin","Manager","Cashier","Accountant"][i%4], department:["IT","Sales","Finance","HR"][i%4], status:["Active","Active","Inactive"][i%3] }))}
             columns={[{ key:"id", header:"ID" }, { key:"name", header:"Name" }, { key:"email", header:"Email" },
               { key:"role", header:"Role" }, { key:"department", header:"Department" },
               { key:"status", header:"Status", render:(r)=><StatusPill status={r.status} /> }]} />

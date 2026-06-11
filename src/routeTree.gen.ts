@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
@@ -39,9 +40,16 @@ import { Route as AppFinanceBankCashRouteImport } from './routes/_app.finance.ba
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminSettingsRouteImport } from './routes/_app.admin.settings'
 import { Route as AppSalesInvoicesIndexRouteImport } from './routes/_app.sales.invoices.index'
+import { Route as AppProductsPurchaseOrdersIndexRouteImport } from './routes/_app.products.purchase-orders.index'
 import { Route as AppSalesInvoicesProformaRouteImport } from './routes/_app.sales.invoices.proforma'
 import { Route as AppSalesInvoicesNewRouteImport } from './routes/_app.sales.invoices.new'
+import { Route as AppProductsPurchaseOrdersNewRouteImport } from './routes/_app.products.purchase-orders.new'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -198,6 +206,12 @@ const AppSalesInvoicesIndexRoute = AppSalesInvoicesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppSalesInvoicesRoute,
 } as any)
+const AppProductsPurchaseOrdersIndexRoute =
+  AppProductsPurchaseOrdersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppProductsPurchaseOrdersRoute,
+  } as any)
 const AppSalesInvoicesProformaRoute =
   AppSalesInvoicesProformaRouteImport.update({
     id: '/proforma',
@@ -209,9 +223,16 @@ const AppSalesInvoicesNewRoute = AppSalesInvoicesNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AppSalesInvoicesRoute,
 } as any)
+const AppProductsPurchaseOrdersNewRoute =
+  AppProductsPurchaseOrdersNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppProductsPurchaseOrdersRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/login': typeof LoginRoute
   '/pos': typeof AppPosRoute
   '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
@@ -227,7 +248,7 @@ export interface FileRoutesByFullPath {
   '/hr/staff': typeof AppHrStaffRoute
   '/products/catalog': typeof AppProductsCatalogRoute
   '/products/expenses': typeof AppProductsExpensesRoute
-  '/products/purchase-orders': typeof AppProductsPurchaseOrdersRoute
+  '/products/purchase-orders': typeof AppProductsPurchaseOrdersRouteWithChildren
   '/products/self-service': typeof AppProductsSelfServiceRoute
   '/sales/customer-statement': typeof AppSalesCustomerStatementRoute
   '/sales/inter-branch': typeof AppSalesInterBranchRoute
@@ -239,11 +260,14 @@ export interface FileRoutesByFullPath {
   '/store/stock': typeof AppStoreStockRoute
   '/store/stores': typeof AppStoreStoresRoute
   '/store/transfers': typeof AppStoreTransfersRoute
+  '/products/purchase-orders/new': typeof AppProductsPurchaseOrdersNewRoute
   '/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
+  '/products/purchase-orders/': typeof AppProductsPurchaseOrdersIndexRoute
   '/sales/invoices/': typeof AppSalesInvoicesIndexRoute
 }
 export interface FileRoutesByTo {
+  '/login': typeof LoginRoute
   '/pos': typeof AppPosRoute
   '/': typeof AppIndexRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -260,7 +284,6 @@ export interface FileRoutesByTo {
   '/hr/staff': typeof AppHrStaffRoute
   '/products/catalog': typeof AppProductsCatalogRoute
   '/products/expenses': typeof AppProductsExpensesRoute
-  '/products/purchase-orders': typeof AppProductsPurchaseOrdersRoute
   '/products/self-service': typeof AppProductsSelfServiceRoute
   '/sales/customer-statement': typeof AppSalesCustomerStatementRoute
   '/sales/inter-branch': typeof AppSalesInterBranchRoute
@@ -271,13 +294,16 @@ export interface FileRoutesByTo {
   '/store/stock': typeof AppStoreStockRoute
   '/store/stores': typeof AppStoreStoresRoute
   '/store/transfers': typeof AppStoreTransfersRoute
+  '/products/purchase-orders/new': typeof AppProductsPurchaseOrdersNewRoute
   '/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
+  '/products/purchase-orders': typeof AppProductsPurchaseOrdersIndexRoute
   '/sales/invoices': typeof AppSalesInvoicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
   '/_app/pos': typeof AppPosRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/settings': typeof AppAdminSettingsRoute
@@ -294,7 +320,7 @@ export interface FileRoutesById {
   '/_app/hr/staff': typeof AppHrStaffRoute
   '/_app/products/catalog': typeof AppProductsCatalogRoute
   '/_app/products/expenses': typeof AppProductsExpensesRoute
-  '/_app/products/purchase-orders': typeof AppProductsPurchaseOrdersRoute
+  '/_app/products/purchase-orders': typeof AppProductsPurchaseOrdersRouteWithChildren
   '/_app/products/self-service': typeof AppProductsSelfServiceRoute
   '/_app/sales/customer-statement': typeof AppSalesCustomerStatementRoute
   '/_app/sales/inter-branch': typeof AppSalesInterBranchRoute
@@ -306,14 +332,17 @@ export interface FileRoutesById {
   '/_app/store/stock': typeof AppStoreStockRoute
   '/_app/store/stores': typeof AppStoreStoresRoute
   '/_app/store/transfers': typeof AppStoreTransfersRoute
+  '/_app/products/purchase-orders/new': typeof AppProductsPurchaseOrdersNewRoute
   '/_app/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/_app/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
+  '/_app/products/purchase-orders/': typeof AppProductsPurchaseOrdersIndexRoute
   '/_app/sales/invoices/': typeof AppSalesInvoicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/pos'
     | '/admin/settings'
     | '/admin/users'
@@ -341,11 +370,14 @@ export interface FileRouteTypes {
     | '/store/stock'
     | '/store/stores'
     | '/store/transfers'
+    | '/products/purchase-orders/new'
     | '/sales/invoices/new'
     | '/sales/invoices/proforma'
+    | '/products/purchase-orders/'
     | '/sales/invoices/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/login'
     | '/pos'
     | '/'
     | '/admin/settings'
@@ -362,7 +394,6 @@ export interface FileRouteTypes {
     | '/hr/staff'
     | '/products/catalog'
     | '/products/expenses'
-    | '/products/purchase-orders'
     | '/products/self-service'
     | '/sales/customer-statement'
     | '/sales/inter-branch'
@@ -373,12 +404,15 @@ export interface FileRouteTypes {
     | '/store/stock'
     | '/store/stores'
     | '/store/transfers'
+    | '/products/purchase-orders/new'
     | '/sales/invoices/new'
     | '/sales/invoices/proforma'
+    | '/products/purchase-orders'
     | '/sales/invoices'
   id:
     | '__root__'
     | '/_app'
+    | '/login'
     | '/_app/pos'
     | '/_app/'
     | '/_app/admin/settings'
@@ -407,17 +441,27 @@ export interface FileRouteTypes {
     | '/_app/store/stock'
     | '/_app/store/stores'
     | '/_app/store/transfers'
+    | '/_app/products/purchase-orders/new'
     | '/_app/sales/invoices/new'
     | '/_app/sales/invoices/proforma'
+    | '/_app/products/purchase-orders/'
     | '/_app/sales/invoices/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -628,6 +672,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSalesInvoicesIndexRouteImport
       parentRoute: typeof AppSalesInvoicesRoute
     }
+    '/_app/products/purchase-orders/': {
+      id: '/_app/products/purchase-orders/'
+      path: '/'
+      fullPath: '/products/purchase-orders/'
+      preLoaderRoute: typeof AppProductsPurchaseOrdersIndexRouteImport
+      parentRoute: typeof AppProductsPurchaseOrdersRoute
+    }
     '/_app/sales/invoices/proforma': {
       id: '/_app/sales/invoices/proforma'
       path: '/proforma'
@@ -642,8 +693,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSalesInvoicesNewRouteImport
       parentRoute: typeof AppSalesInvoicesRoute
     }
+    '/_app/products/purchase-orders/new': {
+      id: '/_app/products/purchase-orders/new'
+      path: '/new'
+      fullPath: '/products/purchase-orders/new'
+      preLoaderRoute: typeof AppProductsPurchaseOrdersNewRouteImport
+      parentRoute: typeof AppProductsPurchaseOrdersRoute
+    }
   }
 }
+
+interface AppProductsPurchaseOrdersRouteChildren {
+  AppProductsPurchaseOrdersNewRoute: typeof AppProductsPurchaseOrdersNewRoute
+  AppProductsPurchaseOrdersIndexRoute: typeof AppProductsPurchaseOrdersIndexRoute
+}
+
+const AppProductsPurchaseOrdersRouteChildren: AppProductsPurchaseOrdersRouteChildren =
+  {
+    AppProductsPurchaseOrdersNewRoute: AppProductsPurchaseOrdersNewRoute,
+    AppProductsPurchaseOrdersIndexRoute: AppProductsPurchaseOrdersIndexRoute,
+  }
+
+const AppProductsPurchaseOrdersRouteWithChildren =
+  AppProductsPurchaseOrdersRoute._addFileChildren(
+    AppProductsPurchaseOrdersRouteChildren,
+  )
 
 interface AppSalesInvoicesRouteChildren {
   AppSalesInvoicesNewRoute: typeof AppSalesInvoicesNewRoute
@@ -677,7 +751,7 @@ interface AppRouteChildren {
   AppHrStaffRoute: typeof AppHrStaffRoute
   AppProductsCatalogRoute: typeof AppProductsCatalogRoute
   AppProductsExpensesRoute: typeof AppProductsExpensesRoute
-  AppProductsPurchaseOrdersRoute: typeof AppProductsPurchaseOrdersRoute
+  AppProductsPurchaseOrdersRoute: typeof AppProductsPurchaseOrdersRouteWithChildren
   AppProductsSelfServiceRoute: typeof AppProductsSelfServiceRoute
   AppSalesCustomerStatementRoute: typeof AppSalesCustomerStatementRoute
   AppSalesInterBranchRoute: typeof AppSalesInterBranchRoute
@@ -708,7 +782,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHrStaffRoute: AppHrStaffRoute,
   AppProductsCatalogRoute: AppProductsCatalogRoute,
   AppProductsExpensesRoute: AppProductsExpensesRoute,
-  AppProductsPurchaseOrdersRoute: AppProductsPurchaseOrdersRoute,
+  AppProductsPurchaseOrdersRoute: AppProductsPurchaseOrdersRouteWithChildren,
   AppProductsSelfServiceRoute: AppProductsSelfServiceRoute,
   AppSalesCustomerStatementRoute: AppSalesCustomerStatementRoute,
   AppSalesInterBranchRoute: AppSalesInterBranchRoute,
@@ -726,6 +800,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

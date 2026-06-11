@@ -5,6 +5,7 @@ import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { EChart } from "@/components/charts/EChart";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { products, currency } from "@/lib/mock";
 import { ArrowLeftRight } from "lucide-react";
 
@@ -19,11 +20,16 @@ const transfers = Array.from({ length: 14 }, (_, i) => ({
 }));
 
 export const Route = createFileRoute("/_app/sales/inter-branch")({
-  head: () => ({ meta: [{ title: "Inter-Branch — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Inter-Branch — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Inter-Branch Operations" description="Transfer stock between branches and track receipts."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><ArrowLeftRight className="h-4 w-4" />New Transfer</button>} />
+        actions={
+          <div className="flex items-center gap-2">
+            <ExportMenu />
+            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><ArrowLeftRight className="h-4 w-4" />New Transfer</button>
+          </div>
+        } />
       <TabbedPage tabs={[
         { key: "transfer", label: "Create Transfer", render: () => (
           <GlassCard>

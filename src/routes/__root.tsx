@@ -57,10 +57,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumen ERP — Enterprise Suite" },
+      { title: "DeveleERP — Enterprise Suite" },
       { name: "description", content: "Modern ERP for sales, inventory, finance, HR & payroll." },
-      { name: "author", content: "Lumen" },
-      { property: "og:title", content: "Lumen ERP" },
+      { name: "author", content: "DeveleICT" },
+      { property: "og:title", content: "DeveleERP" },
       { property: "og:description", content: "Modern ERP for sales, inventory, finance, HR & payroll." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -4,14 +4,16 @@ import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
 import { GlassCard } from "@/components/erp/GlassCard";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { currency } from "@/lib/mock";
 import { Check } from "lucide-react";
 
 export const Route = createFileRoute("/_app/finance/reconciliation")({
-  head: () => ({ meta: [{ title: "Bank Reconciliation — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Bank Reconciliation — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Bank Reconciliation" description="Match bank statements with ledger transactions." />
+      <PageHeader title="Bank Reconciliation" description="Match bank statements with ledger transactions."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "prepare", label: "Prepare Reconciliation", render: () => (
           <GlassCard>

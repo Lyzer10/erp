@@ -4,6 +4,7 @@ import { TabbedPage } from "@/components/erp/TabbedPage";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { DataTable } from "@/components/erp/DataTable";
 import { EChart } from "@/components/charts/EChart";
+import { ExportMenu } from "@/components/erp/ExportMenu";
 import { currency } from "@/lib/mock";
 
 const pnl = [
@@ -14,10 +15,11 @@ const pnl = [
 ];
 
 export const Route = createFileRoute("/_app/finance/reports")({
-  head: () => ({ meta: [{ title: "Financial Reports — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Financial Reports — DeveleERP" }] }),
   component: () => (
     <div className="space-y-6">
-      <PageHeader title="Financial Reports" description="P&L, Cash Book, Trial Balance, Balance Sheet, and more." />
+      <PageHeader title="Financial Reports" description="P&L, Cash Book, Trial Balance, Balance Sheet, and more."
+        actions={<ExportMenu />} />
       <TabbedPage tabs={[
         { key: "pnl", label: "Gross P&L", render: () => (
           <div className="grid gap-6 lg:grid-cols-2">
