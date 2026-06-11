@@ -5,6 +5,7 @@ import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { currency } from "@/lib/mock";
+import { Check } from "lucide-react";
 
 export const Route = createFileRoute("/_app/finance/reconciliation")({
   head: () => ({ meta: [{ title: "Bank Reconciliation — Lumen ERP" }] }),
