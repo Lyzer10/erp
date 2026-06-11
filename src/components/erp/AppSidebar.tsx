@@ -86,7 +86,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             !collapsed && "flex-1",
           )}
         >
-          <img src="/devele-logo.jpg" alt="DeveleICT" className="h-14 w-14 shrink-0 object-contain" style={{ mixBlendMode: "multiply" }} />
+          <img src="/devele-logo.png" alt="DeveleICT" className="h-14 w-14 shrink-0 object-contain" />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold leading-tight tracking-tight">DeveleERP</p>
@@ -138,7 +138,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
           to="/pos"
           onClick={onNavigate}
           title="Point of Sale"
-          style={{ marginTop: "6px" }}
+          style={{ marginTop: "14px" }}
           className={cn(
             "flex items-center rounded-xl text-sm font-medium transition",
             collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
