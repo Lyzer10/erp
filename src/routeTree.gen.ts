@@ -38,6 +38,7 @@ import { Route as AppFinanceChartOfAccountsRouteImport } from './routes/_app.fin
 import { Route as AppFinanceBankCashRouteImport } from './routes/_app.finance.bank-cash'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppAdminSettingsRouteImport } from './routes/_app.admin.settings'
+import { Route as AppSalesInvoicesIndexRouteImport } from './routes/_app.sales.invoices.index'
 import { Route as AppSalesInvoicesProformaRouteImport } from './routes/_app.sales.invoices.proforma'
 import { Route as AppSalesInvoicesNewRouteImport } from './routes/_app.sales.invoices.new'
 
@@ -192,6 +193,11 @@ const AppAdminSettingsRoute = AppAdminSettingsRouteImport.update({
   path: '/admin/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSalesInvoicesIndexRoute = AppSalesInvoicesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSalesInvoicesRoute,
+} as any)
 const AppSalesInvoicesProformaRoute =
   AppSalesInvoicesProformaRouteImport.update({
     id: '/proforma',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/store/transfers': typeof AppStoreTransfersRoute
   '/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
+  '/sales/invoices/': typeof AppSalesInvoicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/pos': typeof AppPosRoute
@@ -257,7 +264,6 @@ export interface FileRoutesByTo {
   '/products/self-service': typeof AppProductsSelfServiceRoute
   '/sales/customer-statement': typeof AppSalesCustomerStatementRoute
   '/sales/inter-branch': typeof AppSalesInterBranchRoute
-  '/sales/invoices': typeof AppSalesInvoicesRouteWithChildren
   '/sales/receipts': typeof AppSalesReceiptsRoute
   '/sales/reports': typeof AppSalesReportsRoute
   '/stakeholders/customers': typeof AppStakeholdersCustomersRoute
@@ -267,6 +273,7 @@ export interface FileRoutesByTo {
   '/store/transfers': typeof AppStoreTransfersRoute
   '/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
+  '/sales/invoices': typeof AppSalesInvoicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -301,6 +308,7 @@ export interface FileRoutesById {
   '/_app/store/transfers': typeof AppStoreTransfersRoute
   '/_app/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/_app/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
+  '/_app/sales/invoices/': typeof AppSalesInvoicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -335,6 +343,7 @@ export interface FileRouteTypes {
     | '/store/transfers'
     | '/sales/invoices/new'
     | '/sales/invoices/proforma'
+    | '/sales/invoices/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/pos'
@@ -357,7 +366,6 @@ export interface FileRouteTypes {
     | '/products/self-service'
     | '/sales/customer-statement'
     | '/sales/inter-branch'
-    | '/sales/invoices'
     | '/sales/receipts'
     | '/sales/reports'
     | '/stakeholders/customers'
@@ -367,6 +375,7 @@ export interface FileRouteTypes {
     | '/store/transfers'
     | '/sales/invoices/new'
     | '/sales/invoices/proforma'
+    | '/sales/invoices'
   id:
     | '__root__'
     | '/_app'
@@ -400,6 +409,7 @@ export interface FileRouteTypes {
     | '/_app/store/transfers'
     | '/_app/sales/invoices/new'
     | '/_app/sales/invoices/proforma'
+    | '/_app/sales/invoices/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -611,6 +621,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/sales/invoices/': {
+      id: '/_app/sales/invoices/'
+      path: '/'
+      fullPath: '/sales/invoices/'
+      preLoaderRoute: typeof AppSalesInvoicesIndexRouteImport
+      parentRoute: typeof AppSalesInvoicesRoute
+    }
     '/_app/sales/invoices/proforma': {
       id: '/_app/sales/invoices/proforma'
       path: '/proforma'
@@ -631,11 +648,13 @@ declare module '@tanstack/react-router' {
 interface AppSalesInvoicesRouteChildren {
   AppSalesInvoicesNewRoute: typeof AppSalesInvoicesNewRoute
   AppSalesInvoicesProformaRoute: typeof AppSalesInvoicesProformaRoute
+  AppSalesInvoicesIndexRoute: typeof AppSalesInvoicesIndexRoute
 }
 
 const AppSalesInvoicesRouteChildren: AppSalesInvoicesRouteChildren = {
   AppSalesInvoicesNewRoute: AppSalesInvoicesNewRoute,
   AppSalesInvoicesProformaRoute: AppSalesInvoicesProformaRoute,
+  AppSalesInvoicesIndexRoute: AppSalesInvoicesIndexRoute,
 }
 
 const AppSalesInvoicesRouteWithChildren =
@@ -711,3 +730,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

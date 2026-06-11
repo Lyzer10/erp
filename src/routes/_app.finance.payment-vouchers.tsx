@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_app/finance/payment-vouchers")({
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Payment Vouchers" description="Authorize and track outgoing payments."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />New Voucher</button>} />
+        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />New Voucher</button>} />
       <DataTable data={vouchers} columns={[
         { key: "id", header: "Voucher #" }, { key: "payee", header: "Payee" },
         { key: "account", header: "Account" }, { key: "date", header: "Date" },

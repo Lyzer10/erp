@@ -134,7 +134,7 @@ function PayrollPage() {
         title="Payroll Management"
         description="Prepare, approve, and complete payroll cycles."
         actions={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md">
+          <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md">
             <Play className="h-4 w-4" /> Run Payroll
           </button>
         }

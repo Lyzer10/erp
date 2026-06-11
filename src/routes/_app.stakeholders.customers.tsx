@@ -3,11 +3,17 @@ import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { StatusPill } from "@/components/erp/StatusPill";
-import { Plus, Eye, Pencil, Trash2, FileSpreadsheet, FileText, Search, Inbox, Download, Upload } from "lucide-react";
+import { Plus, Eye, Pencil, Trash2, FileSpreadsheet, FileText, Search, Inbox, Download, Upload, ChevronDown } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const tzs = (n: number) => "TZS " + new Intl.NumberFormat("en-US").format(n);
 
@@ -18,11 +24,11 @@ type Customer = {
 };
 
 const customersMock: Customer[] = [
-  { id: 1, name: "Acme Trading Ltd",   phone: "+255 712 000 001", tin: "100-200-300", vrn: "40-123456-E", email: "acme@email.com",   region: "Dar es Salaam", address: "Ilala",        branch: "Head Office", balance: 4_200_000, status: "Active" },
-  { id: 2, name: "Skyline Holdings",   phone: "+255 754 000 002", tin: "100-200-301", vrn: "40-123457-E", email: "sky@email.com",    region: "Arusha",        address: "CBD",          branch: "Branch A",    balance: 1_800_000, status: "Active" },
-  { id: 3, name: "Bluepeak Industries",phone: "+255 765 000 003", tin: "100-200-302", vrn: "—",           email: "blue@email.com",   region: "Mwanza",        address: "Nyamagana",    branch: "Branch B",    balance:   950_000, status: "Inactive" },
-  { id: 4, name: "Greenfield Co.",     phone: "+255 713 000 004", tin: "100-200-303", vrn: "40-123458-E", email: "green@email.com",  region: "Dodoma",        address: "City Centre",  branch: "Head Office", balance:   320_000, status: "Active" },
-  { id: 5, name: "Harbor Logistics",   phone: "+255 744 000 005", tin: "100-200-304", vrn: "—",           email: "harbor@email.com", region: "Tanga",         address: "Port Area",    branch: "Branch C",    balance:         0, status: "Active" },
+  { id: 1, name: "Acme Trading Ltd",    phone: "+255 712 000 001", tin: "100-200-300", vrn: "40-123456-E", email: "acme@email.com",   region: "Dar es Salaam", address: "Ilala",        branch: "Head Office", balance: 4_200_000, status: "Active" },
+  { id: 2, name: "Skyline Holdings",    phone: "+255 754 000 002", tin: "100-200-301", vrn: "40-123457-E", email: "sky@email.com",    region: "Arusha",        address: "CBD",          branch: "Branch A",    balance: 1_800_000, status: "Active" },
+  { id: 3, name: "Bluepeak Industries", phone: "+255 765 000 003", tin: "100-200-302", vrn: "—",           email: "blue@email.com",   region: "Mwanza",        address: "Nyamagana",    branch: "Branch B",    balance:   950_000, status: "Inactive" },
+  { id: 4, name: "Greenfield Co.",      phone: "+255 713 000 004", tin: "100-200-303", vrn: "40-123458-E", email: "green@email.com",  region: "Dodoma",        address: "City Centre",  branch: "Head Office", balance:   320_000, status: "Active" },
+  { id: 5, name: "Harbor Logistics",    phone: "+255 744 000 005", tin: "100-200-304", vrn: "—",           email: "harbor@email.com", region: "Tanga",         address: "Port Area",    branch: "Branch C",    balance:         0, status: "Active" },
 ];
 
 const advancesMock = [
@@ -32,7 +38,7 @@ const advancesMock = [
 ];
 
 export const Route = createFileRoute("/_app/stakeholders/customers")({
-  head: () => ({ meta: [{ title: "Customers — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Customers — DeveleERP" }] }),
   component: CustomersPage,
 });
 
@@ -43,17 +49,40 @@ function CustomersPage() {
         title="Customers"
         description="Manage customers, advances, and imports."
         actions={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
-            <Plus className="h-4 w-4" /> New Customer
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportMenu />
+            <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+              <Plus className="h-4 w-4" /> New Customer
+            </button>
+          </div>
         }
       />
       <TabbedPage tabs={[
-        { key: "list",    label: "Customers List",   render: () => <CustomersList /> },
+        { key: "list",    label: "Customers List",    render: () => <CustomersList /> },
         { key: "advance", label: "Customer Advances", render: () => <AdvancesTable /> },
-        { key: "import",  label: "Import Customers", render: () => <ImportCard title="Import Customers" templateName="CUSTOMERS TEMPLATE" /> },
+        { key: "import",  label: "Import Customers",  render: () => <ImportCard title="Import Customers" templateName="CUSTOMERS TEMPLATE" /> },
       ]} />
     </div>
+  );
+}
+
+function ExportMenu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+          Export <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-36">
+        <DropdownMenuItem className="gap-2 cursor-pointer">
+          <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> Excel
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2 cursor-pointer">
+          <FileText className="h-4 w-4 text-rose-600" /> PDF
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -62,6 +91,7 @@ function CustomersList() {
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [toDelete, setToDelete] = useState<Customer | null>(null);
+  const [viewing, setViewing] = useState<Customer | null>(null);
 
   const filtered = useMemo(() => {
     const lc = q.toLowerCase();
@@ -78,36 +108,26 @@ function CustomersList() {
   return (
     <div className="glass-card overflow-hidden p-0">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/40 p-4">
-        <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700">
-            <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
-          </button>
-          <button className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-700">
-            <FileText className="h-3.5 w-3.5" /> PDF
-          </button>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-muted-foreground">
-            Show
-            <select
-              value={perPage}
-              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs"
-            >
-              {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-            entries
-          </label>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1); }}
-              placeholder="Search..."
-              className="w-56 rounded-md border border-slate-200 bg-white py-1.5 pl-8 pr-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
-            />
-          </div>
+      <div className="flex flex-wrap items-center justify-end gap-3 border-b border-white/40 p-4">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Show
+          <select
+            value={perPage}
+            onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs"
+          >
+            {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+          entries
+        </label>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1); }}
+            placeholder="Search..."
+            className="w-56 rounded-md border border-slate-200 bg-white py-1.5 pl-8 pr-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
         </div>
       </div>
 
@@ -115,7 +135,7 @@ function CustomersList() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              {["#","Customer Name","Phone Number","TIN Number","VRN","Email","Region","Address","Branch","Balance","Status","Action"].map((h) => (
+              {["#", "Customer Name", "Phone", "Email", "Region", "Balance", "Status", "Action"].map((h) => (
                 <th key={h} className={`whitespace-nowrap px-3 py-3 font-medium ${h === "Balance" ? "text-right" : h === "Action" || h === "Status" ? "text-center" : "text-left"}`}>{h}</th>
               ))}
             </tr>
@@ -123,7 +143,7 @@ function CustomersList() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={12} className="px-3 py-12 text-center text-muted-foreground">
+                <td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">
                   <Inbox className="mx-auto mb-2 h-8 w-8 opacity-40" />
                   No data available
                 </td>
@@ -133,17 +153,13 @@ function CustomersList() {
                 <td className="px-3 py-3 text-slate-500">{start + i + 1}</td>
                 <td className="whitespace-nowrap px-3 py-3 font-medium text-foreground">{c.name}</td>
                 <td className="whitespace-nowrap px-3 py-3">{c.phone}</td>
-                <td className="whitespace-nowrap px-3 py-3">{c.tin}</td>
-                <td className="whitespace-nowrap px-3 py-3">{c.vrn}</td>
                 <td className="whitespace-nowrap px-3 py-3">{c.email}</td>
                 <td className="whitespace-nowrap px-3 py-3">{c.region}</td>
-                <td className="whitespace-nowrap px-3 py-3">{c.address}</td>
-                <td className="whitespace-nowrap px-3 py-3">{c.branch}</td>
                 <td className="whitespace-nowrap px-3 py-3 text-right font-semibold">{tzs(c.balance)}</td>
                 <td className="px-3 py-3 text-center"><StatusPill status={c.status} /></td>
                 <td className="px-3 py-3">
                   <div className="flex items-center justify-center gap-1">
-                    <IconBtn title="View" onClick={() => {}} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn title="View" onClick={() => setViewing(c)} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
                     <IconBtn title="Edit" onClick={() => {}} tone="amber"><Pencil className="h-3.5 w-3.5" /></IconBtn>
                     <IconBtn title="Delete" onClick={() => setToDelete(c)} tone="rose"><Trash2 className="h-3.5 w-3.5" /></IconBtn>
                   </div>
@@ -167,6 +183,34 @@ function CustomersList() {
         </div>
       </div>
 
+      {/* View dialog */}
+      <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Customer Details</DialogTitle>
+          </DialogHeader>
+          {viewing && (
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Status</span>
+                <StatusPill status={viewing.status} />
+              </div>
+              <DetailRow label="Name"    value={viewing.name} />
+              <DetailRow label="Phone"   value={viewing.phone} />
+              <DetailRow label="Email"   value={viewing.email} />
+              <DetailRow label="Region"  value={viewing.region} />
+              <DetailRow label="Balance" value={tzs(viewing.balance)} />
+              <div className="my-2 h-px bg-slate-100" />
+              <DetailRow label="TIN Number" value={viewing.tin} />
+              <DetailRow label="VRN"        value={viewing.vrn} />
+              <DetailRow label="Address"    value={viewing.address} />
+              <DetailRow label="Branch"     value={viewing.branch} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm */}
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -181,6 +225,15 @@ function CustomersList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="w-28 shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span className="text-right text-sm font-medium text-foreground">{value}</span>
     </div>
   );
 }
@@ -255,11 +308,7 @@ export function ImportCard({ title, templateName }: { title: string; templateNam
 function IconBtn({
   children, title, onClick, tone,
 }: { children: React.ReactNode; title: string; onClick: () => void; tone: "blue" | "amber" | "rose" }) {
-  const tones = {
-    blue: "text-blue-600 hover:bg-blue-50",
-    amber: "text-amber-600 hover:bg-amber-50",
-    rose: "text-rose-600 hover:bg-rose-50",
-  };
+  const tones = { blue: "text-blue-600 hover:bg-blue-50", amber: "text-amber-600 hover:bg-amber-50", rose: "text-rose-600 hover:bg-rose-50" };
   return (
     <button onClick={onClick} title={title} className={`rounded-md p-1.5 transition ${tones[tone]}`}>{children}</button>
   );

@@ -10,23 +10,32 @@ export function AppShell() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
 
       {/* Mobile sidebar drawer */}
       <div className={cn("fixed inset-0 z-50 lg:hidden", mobileOpen ? "pointer-events-auto" : "pointer-events-none")}>
-        <div className={cn("absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity",
-          mobileOpen ? "opacity-100" : "opacity-0")} onClick={() => setMobileOpen(false)} />
-        <div className={cn("absolute inset-y-0 left-0 w-72 transition-transform",
-          mobileOpen ? "translate-x-0" : "-translate-x-full")}>
+        <div
+          className={cn(
+            "absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300",
+            mobileOpen ? "opacity-100" : "opacity-0",
+          )}
+          onClick={() => setMobileOpen(false)}
+        />
+        <div className={cn(
+          "absolute inset-y-0 left-0 w-72 transition-transform duration-300",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+        )}>
           <div className="relative h-full">
-            <button onClick={() => setMobileOpen(false)} className="absolute right-3 top-3 z-10 rounded-lg bg-white/70 p-1.5">
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute right-3 top-3 z-10 rounded-lg bg-white/80 p-1.5 text-slate-600 shadow-sm backdrop-blur transition hover:bg-white"
+              aria-label="Close menu"
+            >
               <X className="h-4 w-4" />
             </button>
-            <div className="lg:hidden">
-              <div className="glass-nav h-full">
-                <MobileSidebar onNavigate={() => setMobileOpen(false)} />
-              </div>
+            <div className="glass-nav h-full lg:hidden">
+              <MobileSidebar onNavigate={() => setMobileOpen(false)} />
             </div>
           </div>
         </div>
@@ -42,7 +51,7 @@ export function AppShell() {
   );
 }
 
-function MobileSidebar({ onNavigate }: { onNavigate: () => void }) {
+function MobileSidebar({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
   return (
     <div className="[&>aside]:static [&>aside]:flex [&>aside]:h-full [&>aside]:w-72">
       <AppSidebar onNavigate={onNavigate} collapsed={false} />

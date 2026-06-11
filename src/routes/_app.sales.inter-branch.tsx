@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_app/sales/inter-branch")({
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Inter-Branch Operations" description="Transfer stock between branches and track receipts."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><ArrowLeftRight className="h-4 w-4" />New Transfer</button>} />
+        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><ArrowLeftRight className="h-4 w-4" />New Transfer</button>} />
       <TabbedPage tabs={[
         { key: "transfer", label: "Create Transfer", render: () => (
           <GlassCard>

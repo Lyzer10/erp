@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_app/hr/staff")({
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Staff" description="Employee directory, attendance, and bulk uploads."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Staff</button>} />
+        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Staff</button>} />
       <TabbedPage tabs={[
         { key: "list", label: "Staff List", render: () => (
           <DataTable data={staff} columns={[

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_app/admin/users")({
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Users & Access" description="Manage users, departments, and password resets."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add User</button>} />
+        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add User</button>} />
       <TabbedPage tabs={[
         { key: "users", label: "Users List", render: () => (
           <DataTable data={Array.from({length:12},(_,i)=>({ id:`U-${1000+i}`, name:["Aisha Otieno","John Mwangi","Maria Banda","David Kumar"][i%4], email:`user${i}@lumen.co`, role:["Admin","Manager","Cashier","Accountant"][i%4], department:["IT","Sales","Finance","HR"][i%4], status:["Active","Active","Inactive"][i%3] }))}
@@ -25,14 +25,14 @@ export const Route = createFileRoute("/_app/admin/users")({
         )},
         { key: "reset", label: "Reset Password", render: () => (
           <GlassCard className="max-w-md">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-emerald-500/10">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-linear-to-br from-blue-500/20 to-emerald-500/10">
               <KeyRound className="h-6 w-6 text-blue-600" />
             </div>
             <h3 className="mt-3 text-lg font-semibold">Reset User Password</h3>
             <p className="mt-1 text-sm text-muted-foreground">Select a user and send them a temporary password.</p>
             <div className="mt-4 space-y-3">
               <select className="w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm"><option>Select user...</option><option>John Mwangi</option><option>Maria Banda</option></select>
-              <button className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md">Send Reset Link</button>
+              <button className="w-full rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md">Send Reset Link</button>
             </div>
           </GlassCard>
         )},

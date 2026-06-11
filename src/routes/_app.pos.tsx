@@ -6,10 +6,10 @@ export const Route = createFileRoute("/_app/pos")({
   component: () => (
     <div className="flex min-h-[70vh] items-center justify-center">
       <div className="glass-panel relative max-w-2xl overflow-hidden rounded-3xl p-12 text-center">
-        <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-gradient-to-br from-emerald-400/40 to-transparent blur-2xl" />
-        <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/40 to-transparent blur-2xl" />
+        <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-linear-to-br from-emerald-400/40 to-transparent blur-2xl" />
+        <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-linear-to-br from-blue-400/40 to-transparent blur-2xl" />
         <div className="relative">
-          <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white shadow-2xl shadow-emerald-500/40">
+          <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-linear-to-br from-blue-500 to-emerald-500 text-white shadow-2xl shadow-emerald-500/40">
             <ScanLine className="h-10 w-10" />
           </div>
           <h1 className="mt-6 text-3xl font-bold tracking-tight">Point of Sale</h1>
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_app/pos")({
             </div>
           </div>
 
-          <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30">
+          <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30">
             Back to Dashboard
           </Link>
 

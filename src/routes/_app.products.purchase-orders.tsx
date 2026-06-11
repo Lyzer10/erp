@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/products/purchase-orders")({
     return (
       <div className="space-y-6">
         <PageHeader title="Purchase Orders (LPO)" description="Create, approve, and reject local purchase orders."
-          actions={<button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Create LPO</button>} />
+          actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Create LPO</button>} />
         <TabbedPage tabs={[
           { key: "all", label: "All", render: () => <DataTable data={purchaseOrders} columns={cols} /> },
           { key: "approved", label: "Approved", render: () => <DataTable data={purchaseOrders.filter(p => p.status === "Approved")} columns={cols} /> },

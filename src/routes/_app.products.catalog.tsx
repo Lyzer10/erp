@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_app/products/catalog")({
   component: () => (
     <div className="space-y-6">
       <PageHeader title="Products & Services" description="Catalog, brands, and product codes."
-        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Product</button>} />
+        actions={<button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Product</button>} />
       <TabbedPage tabs={[
         { key: "products", label: "Products / Services", render: () => (
           <DataTable data={products} columns={[

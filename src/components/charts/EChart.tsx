@@ -1,6 +1,6 @@
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 const palette = ["#3b82f6", "#10b981", "#f59e0b", "#a855f7", "#06b6d4", "#ef4444"];
 
@@ -11,6 +11,12 @@ interface Props {
 }
 
 export function EChart({ option, height = 280, className }: Props) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const merged = useMemo<EChartsOption>(
     () => ({
       color: palette,
@@ -30,6 +36,10 @@ export function EChart({ option, height = 280, className }: Props) {
     [option],
   );
 
+  if (!isClient) {
+    return <div style={{ height, width: "100%" }} className={className} />;
+  }
+
   return (
     <ReactECharts
       option={merged}
@@ -41,3 +51,4 @@ export function EChart({ option, height = 280, className }: Props) {
 }
 
 export const chartPalette = palette;
+
