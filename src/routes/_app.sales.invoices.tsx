@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_app/sales/invoices")({
         <PageHeader title="Invoices" description="Create and manage invoices, proformas, credit notes, and cash sales."
           actions={<>
             <button className="inline-flex items-center gap-2 rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm font-medium backdrop-blur hover:bg-white/80"><FileText className="h-4 w-4" />Merge Invoices</button>
-            <button className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Create Invoice</button>
+            <Link to="/sales/invoices/new" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700"><Plus className="h-4 w-4" />New Invoice</Link>
           </>} />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <KpiCard label="Total Issued" value={currency(invoices.reduce((s, i) => s + i.amount, 0))} icon={Receipt} tint="blue" />
@@ -34,7 +34,14 @@ export const Route = createFileRoute("/_app/sales/invoices")({
         </div>
         <TabbedPage tabs={[
           { key: "all", label: "All Invoices", render: () => <DataTable data={byType("Invoice")} columns={cols} /> },
-          { key: "proforma", label: "Proforma", render: () => <DataTable data={byType("Proforma")} columns={cols} /> },
+          { key: "proforma", label: "Proforma", render: () => (
+            <div className="space-y-3">
+              <div className="flex justify-end">
+                <Link to="/sales/invoices/proforma" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"><Plus className="h-4 w-4" />New Proforma</Link>
+              </div>
+              <DataTable data={byType("Proforma")} columns={cols} />
+            </div>
+          ) },
           { key: "credit", label: "Credit Notes", render: () => <DataTable data={byType("Credit Note")} columns={cols} /> },
           { key: "cash", label: "Cash Sales", render: () => <DataTable data={byType("Cash Sale")} columns={cols} /> },
         ]} />
