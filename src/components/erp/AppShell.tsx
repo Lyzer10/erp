@@ -46,6 +46,13 @@ export function AppShell() {
         <main className="p-4 lg:p-8">
           <Outlet />
         </main>
+        <footer className="border-t border-slate-100 px-4 py-4 lg:px-8">
+          <p className="text-center text-xs text-muted-foreground">
+            Copyright © 2026{" "}
+            <span className="font-semibold text-blue-600">DeveleERP Accounting Software.</span>{" "}
+            All rights reserved.
+          </p>
+        </footer>
       </div>
     </div>
   );
