@@ -55,14 +55,6 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
         <Menu className="h-5 w-5" />
       </button>
 
-      <button
-        onClick={onToggleSidebar}
-        className="hidden rounded-lg p-2 text-muted-foreground transition hover:bg-white/60 hover:text-foreground lg:inline-flex"
-        aria-label="Toggle sidebar"
-      >
-        <PanelLeft className="h-5 w-5" />
-      </button>
-
       {/* Quick actions */}
       <div className="hidden items-center gap-2 md:flex">
         <Link
@@ -98,7 +90,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
 
       {/* Right side */}
       <div className="ml-auto flex items-center gap-3">
-        <div className="hidden flex-col items-end text-right leading-tight md:flex">
+        <div className="hidden items-center text-right gap-2 md:flex">
           <span className="text-xs font-semibold text-foreground">{dateLabel}</span>
           <span className="text-[11px] text-muted-foreground">{timeLabel}</span>
         </div>
