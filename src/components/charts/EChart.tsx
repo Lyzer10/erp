@@ -1,6 +1,9 @@
-import ReactECharts from "echarts-for-react";
+import { lazy, Suspense, useMemo } from "react";
 import type { EChartsOption } from "echarts";
-import { useMemo, useState, useEffect } from "react";
+
+// Dynamic import so the ~800 KB ECharts bundle is NOT in the initial JS chunk.
+// It only fetches after the page first paints, eliminating the load-time lag.
+const ReactECharts = lazy(() => import("echarts-for-react"));
 
 const palette = ["#3b82f6", "#10b981", "#f59e0b", "#a855f7", "#06b6d4", "#ef4444"];
 
@@ -10,13 +13,16 @@ interface Props {
   className?: string;
 }
 
+function ChartSkeleton({ height }: { height: number | string }) {
+  return (
+    <div
+      style={{ height, width: "100%" }}
+      className="animate-pulse rounded-xl bg-slate-100"
+    />
+  );
+}
+
 export function EChart({ option, height = 280, className }: Props) {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const merged = useMemo<EChartsOption>(
     () => ({
       color: palette,
@@ -36,19 +42,16 @@ export function EChart({ option, height = 280, className }: Props) {
     [option],
   );
 
-  if (!isClient) {
-    return <div style={{ height, width: "100%" }} className={className} />;
-  }
-
   return (
-    <ReactECharts
-      option={merged}
-      style={{ height, width: "100%" }}
-      className={className}
-      opts={{ renderer: "svg" }}
-    />
+    <Suspense fallback={<ChartSkeleton height={height} />}>
+      <ReactECharts
+        option={merged}
+        style={{ height, width: "100%" }}
+        className={className}
+        opts={{ renderer: "svg" }}
+      />
+    </Suspense>
   );
 }
 
 export const chartPalette = palette;
-
