@@ -5,6 +5,7 @@ import { DataTable } from "@/components/erp/DataTable";
 import { StatusPill } from "@/components/erp/StatusPill";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { currency } from "@/lib/mock";
+import { Check } from "lucide-react";
 
 export const Route = createFileRoute("/_app/finance/reconciliation")({
   head: () => ({ meta: [{ title: "Bank Reconciliation — Lumen ERP" }] }),
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/_app/finance/reconciliation")({
             <DataTable searchable={false} pageSize={20} data={Array.from({length:8},(_,i)=>({ date:`2026-06-${String(i+1).padStart(2,"0")}`, ref:`TXN-${100+i}`, desc:["Deposit","Withdrawal","Cheque","Transfer"][i%4], amount: 500+i*220, matched:i%2===0 }))}
               columns={[{ key:"date", header:"Date" }, { key:"ref", header:"Reference" }, { key:"desc", header:"Description" },
                 { key:"amount", header:"Amount", align:"right", render:(r)=>currency(r.amount) },
-                { key:"matched", header:"Match", render:(r)=>r.matched ? <span className="text-emerald-600">✓ Matched</span> : <button className="text-blue-600 hover:underline">Match</button> }]} />
+                { key:"matched", header:"Match", render:(r)=>r.matched ? <span className="inline-flex items-center gap-1 text-emerald-600"><Check className="h-3.5 w-3.5" /> Matched</span> : <button className="text-blue-600 hover:underline">Match</button> }]} />
           </GlassCard>
         )},
         { key: "list", label: "Reconciliation List", render: () => (
