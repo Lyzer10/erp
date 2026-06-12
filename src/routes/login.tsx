@@ -21,7 +21,12 @@ function LoginPage() {
     setTimeout(() => {
       setLoading(false);
       const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30 days vs 1 day
-      document.cookie = `is_logged_in=true; path=/; max-age=${maxAge}`;
+      try {
+        document.cookie = `is_logged_in=true; path=/; max-age=${maxAge}; SameSite=Lax`;
+        localStorage.setItem("is_logged_in", "true");
+      } catch {
+        // storage may be blocked in some embedded contexts
+      }
       navigate({ to: "/" });
     }, 800);
   }
