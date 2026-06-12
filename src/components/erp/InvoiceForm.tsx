@@ -2,7 +2,7 @@ import { useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { FormShell } from "@/components/erp/FormShell";
-
+import { useTranslate } from "@/lib/i18n";
 
 const tzs = (n: number) => "TZS " + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
@@ -35,9 +35,16 @@ function genId() {
 
 export function InvoiceForm({ variant }: Props) {
   const router = useRouter();
+  const { t, lang } = useTranslate();
   const isInvoice = variant === "invoice";
-  const title = isInvoice ? "Create Invoice" : "Create Proforma";
-  const submitLabel = isInvoice ? "Submit Invoice" : "Submit Proforma";
+  
+  const title = isInvoice 
+    ? (lang === "en" ? "Create Invoice" : "Tengeneza Ankara") 
+    : (lang === "en" ? "Create Proforma" : "Tengeneza Proforma");
+
+  const submitLabel = isInvoice 
+    ? (lang === "en" ? "Submit Invoice" : "Wasilisha Ankara") 
+    : (lang === "en" ? "Submit Proforma" : "Wasilisha Proforma");
 
   const [items, setItems] = useState<LineItem[]>([
     { id: genId(), productId: "", description: "", qty: 1, price: 0 },
@@ -66,6 +73,18 @@ export function InvoiceForm({ variant }: Props) {
     updateItem(id, { productId: pid, price: p?.price ?? 0 });
   };
 
+  const localizedProductName = (name: string) => {
+    if (lang === "en") return name;
+    const map: Record<string, string> = {
+      "Premium Coffee 1kg": "Kahawa ya Kwanza 1kg",
+      "Organic Sugar 2kg": "Sukari ya Asili 2kg",
+      "Hand Sanitizer 500ml": "Sanitaiza ya Mikono 500ml",
+      "LED Bulb 9W": "Taa ya LED 9W",
+      "Office Chair": "Kiti cha Ofisi",
+    };
+    return map[name] || name;
+  };
+
   return (
     <FormShell
       header={
@@ -74,7 +93,7 @@ export function InvoiceForm({ variant }: Props) {
             <button
               onClick={() => router.history.back()}
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-              aria-label="Back"
+              aria-label={lang === "en" ? "Back" : "Rudi"}
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -83,14 +102,12 @@ export function InvoiceForm({ variant }: Props) {
         </div>
       }
     >
-
-
       {/* Section 1: Meta */}
-      <Section title="Customer & Details">
+      <Section title={lang === "en" ? "Customer & Details" : "Mteja na Maelezo"}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Field label="Select Customer" full>
+          <Field label={lang === "en" ? "Select Customer" : "Mteja"} full>
             <select className={inputCls}>
-              <option value="">Search customer...</option>
+              <option value="">{lang === "en" ? "Search customer..." : "Tafuta mteja..."}</option>
               <option>Acme Trading Ltd</option>
               <option>Skyline Holdings</option>
               <option>Bluepeak Industries</option>
@@ -98,54 +115,96 @@ export function InvoiceForm({ variant }: Props) {
               <option>Harbor Logistics</option>
             </select>
           </Field>
-          <Field label="Date"><input type="date" className={inputCls} defaultValue={new Date().toISOString().slice(0,10)} /></Field>
-          <Field label="Payment Terms">
+          <Field label={lang === "en" ? "Date" : "Tarehe"}><input type="date" className={inputCls} defaultValue={new Date().toISOString().slice(0,10)} /></Field>
+          <Field label={lang === "en" ? "Payment Terms" : "Masharti ya Malipo"}>
             <select className={inputCls}>
-              <option>Cash</option><option>Credit 30 days</option><option>Credit 60 days</option><option>Credit 90 days</option>
+              <option value="Cash">{lang === "en" ? "Cash" : "Taslimu"}</option>
+              <option value="Credit 30">{lang === "en" ? "Credit 30 days" : "Mkopo siku 30"}</option>
+              <option value="Credit 60">{lang === "en" ? "Credit 60 days" : "Mkopo siku 60"}</option>
+              <option value="Credit 90">{lang === "en" ? "Credit 90 days" : "Mkopo siku 90"}</option>
             </select>
           </Field>
-          <Field label="Payment Account">
+          <Field label={lang === "en" ? "Payment Account" : "Akaunti ya Malipo"}>
             <select className={inputCls}>
-              <option>Cash Account</option><option>NMB Mbezi Luis</option><option>CRDB Main</option>
+              <option value="Cash">{lang === "en" ? "Cash Account" : "Akaunti ya Taslimu"}</option>
+              <option>NMB Mbezi Luis</option>
+              <option>CRDB Main</option>
             </select>
           </Field>
-          <Field label="Sales Person">
+          <Field label={lang === "en" ? "Sales Person" : "Muuzaji (Mfanyakazi)"}>
             <select className={inputCls}>
-              <option>Aisha Otieno</option><option>John Mwamba</option><option>Fatuma Ally</option>
+              <option>Aisha Otieno</option>
+              <option>John Mwamba</option>
+              <option>Fatuma Ally</option>
             </select>
           </Field>
-          <Field label="Project (optional)"><input type="text" className={inputCls} placeholder="Project name" /></Field>
-          <Field label="Currency">
+          <Field label={lang === "en" ? "Project (optional)" : "Mradi (hiari)"}>
+            <input type="text" className={inputCls} placeholder={lang === "en" ? "Project name" : "Jina la mradi"} />
+          </Field>
+          <Field label={lang === "en" ? "Currency" : "Sarafu"}>
             <select className={inputCls}><option>TZS</option><option>USD</option><option>EUR</option></select>
           </Field>
 
           {isInvoice && <>
-            <Field label="Ship To"><input type="text" className={inputCls} placeholder="Delivery address" /></Field>
-            <Field label="LPO No"><input type="text" className={inputCls} placeholder="LPO reference" /></Field>
-            <Field label="LPO Date"><input type="date" className={inputCls} /></Field>
-            <Field label="Customer Advance (optional)">
-              <select className={inputCls}><option>—</option><option>Adv-001 (TZS 250,000)</option></select>
+            <Field label={lang === "en" ? "Ship To" : "Safirisha Kwenda"}>
+              <input type="text" className={inputCls} placeholder={lang === "en" ? "Delivery address" : "Anwani ya uwasilishaji"} />
+            </Field>
+            <Field label={lang === "en" ? "LPO No" : "Namba ya LPO"}>
+              <input type="text" className={inputCls} placeholder={lang === "en" ? "LPO reference" : "Kielelezo cha LPO"} />
+            </Field>
+            <Field label={lang === "en" ? "LPO Date" : "Tarehe ya LPO"}><input type="date" className={inputCls} /></Field>
+            <Field label={lang === "en" ? "Customer Advance (optional)" : "Amana ya Mteja (hiari)"}>
+              <select className={inputCls}>
+                <option value="">—</option>
+                <option value="adv1">Adv-001 ({lang === "en" ? "TZS 250,000" : "TZS 250,000"})</option>
+              </select>
             </Field>
           </>}
 
-          <Field label="Invoice Type">
+          <Field label={lang === "en" ? "Invoice Type" : "Aina ya Ankara"}>
             <select className={inputCls}>
-              {isInvoice ? (<><option>Tax Invoice</option><option>Proforma</option><option>Credit Note</option></>)
-                        : (<><option>Standard</option><option>Commercial</option><option>Customs</option></>)}
+              {isInvoice ? (
+                <>
+                  <option value="Tax">{lang === "en" ? "Tax Invoice" : "Ankara ya Kodi"}</option>
+                  <option value="Proforma">Proforma</option>
+                  <option value="Credit">{lang === "en" ? "Credit Note" : "Hati ya Mkopo"}</option>
+                </>
+              ) : (
+                <>
+                  <option value="Standard">{lang === "en" ? "Standard" : "Kawaida"}</option>
+                  <option value="Commercial">{lang === "en" ? "Commercial" : "Ya Kibiashara"}</option>
+                  <option value="Customs">{lang === "en" ? "Customs" : "Ya Forodha"}</option>
+                </>
+              )}
             </select>
           </Field>
 
-          {isInvoice && <Field label="Tender No (optional)"><input type="text" className={inputCls} placeholder="Tender ref" /></Field>}
+          {isInvoice && (
+            <Field label={lang === "en" ? "Tender No (optional)" : "Namba ya Zabuni (hiari)"}>
+              <input type="text" className={inputCls} placeholder={lang === "en" ? "Tender ref" : "Kielelezo cha zabuni"} />
+            </Field>
+          )}
         </div>
       </Section>
 
       {/* Section 2: Line items */}
-      <Section title="Line Items">
+      <Section title={lang === "en" ? "Line Items" : "Vipengele vya Bidhaa"}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
               <tr>
-                {["#","Product Name","Brand","Store","Description","Avail Qty","Quantity","Price","Total",""].map((h, i) => (
+                {[
+                  "#",
+                  lang === "en" ? "Product Name" : "Jina la Bidhaa",
+                  lang === "en" ? "Brand" : "Chapa",
+                  lang === "en" ? "Store" : "Stoo",
+                  lang === "en" ? "Description" : "Maelezo",
+                  lang === "en" ? "Avail Qty" : "Zilizopo",
+                  lang === "en" ? "Quantity" : "Idadi",
+                  lang === "en" ? "Price" : "Bei",
+                  lang === "en" ? "Total" : "Jumla",
+                  ""
+                ].map((h, i) => (
                   <th key={i} className="whitespace-nowrap px-2 py-2.5 text-left font-medium">{h}</th>
                 ))}
               </tr>
@@ -158,12 +217,12 @@ export function InvoiceForm({ variant }: Props) {
                     <td className="px-2 py-2 text-slate-500">{i + 1}</td>
                     <td className="px-2 py-2">
                       <select value={it.productId} onChange={(e) => onPickProduct(it.id, e.target.value)} className={inputCls + " min-w-[180px]"}>
-                        <option value="">Select product...</option>
-                        {PRODUCTS.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                        <option value="">{lang === "en" ? "Select product..." : "Chagua bidhaa..."}</option>
+                        {PRODUCTS.map((x) => <option key={x.id} value={x.id}>{localizedProductName(x.name)}</option>)}
                       </select>
                     </td>
                     <td className="px-2 py-2 text-xs">{p?.brand ?? "—"}</td>
-                    <td className="px-2 py-2 text-xs">{p?.store ?? "—"}</td>
+                    <td className="px-2 py-2 text-xs">{p?.store ? (lang === "en" ? p.store : p.store.replace("Main Store", "Stoo Kuu").replace("Warehouse", "Ghala")) : "—"}</td>
                     <td className="px-2 py-2">
                       <input type="text" value={it.description} onChange={(e) => updateItem(it.id, { description: e.target.value })} className={inputCls + " min-w-[140px]"} />
                     </td>
@@ -189,48 +248,49 @@ export function InvoiceForm({ variant }: Props) {
         </div>
         <button type="button" onClick={addItem}
           className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
-          <Plus className="h-3.5 w-3.5" /> Add Item
+          <Plus className="h-3.5 w-3.5" /> 
+          {lang === "en" ? "Add Item" : "Ongeza Kipengele"}
         </button>
       </Section>
 
       {/* Section 3: Terms & Totals */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Section title="Notes" className="lg:col-span-2">
+        <Section title={lang === "en" ? "Notes" : "Maelezo ya Nyongeza"} className="lg:col-span-2">
           <div className="space-y-3">
-            <Field label="Terms & Condition">
-              <textarea rows={3} className={inputCls} placeholder="Payment terms, conditions..." />
+            <Field label={lang === "en" ? "Terms & Condition" : "Masharti na Vigezo"}>
+              <textarea rows={3} className={inputCls} placeholder={lang === "en" ? "Payment terms, conditions..." : "Vigezo vya malipo, vigezo..."} />
             </Field>
-            <Field label={isInvoice ? "Invoice Description" : "Proforma Description"}>
-              <textarea rows={3} className={inputCls} placeholder="Description..." />
+            <Field label={isInvoice ? (lang === "en" ? "Invoice Description" : "Maelezo ya Ankara") : (lang === "en" ? "Proforma Description" : "Maelezo ya Proforma")}>
+              <textarea rows={3} className={inputCls} placeholder={lang === "en" ? "Description..." : "Maelezo..."} />
             </Field>
           </div>
         </Section>
 
         <div className="glass-card space-y-3 p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">Totals</h3>
-          <RowKV label="Sub Total" value={tzs(subTotal)} />
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">{lang === "en" ? "Totals" : "Hesabu ya Jumla"}</h3>
+          <RowKV label={lang === "en" ? "Sub Total" : "Nusu Jumla"} value={tzs(subTotal)} />
           <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-muted-foreground">Discount (%)</span>
+            <span className="text-muted-foreground">{lang === "en" ? "Discount (%)" : "Punguzo (%)"}</span>
             <input type="number" min={0} max={100} value={discountPct}
               onChange={(e) => setDiscountPct(Number(e.target.value) || 0)}
               className={inputCls + " w-20 text-right"} />
           </div>
-          <RowKV label="Discount Amount" value={tzs(discountAmt)} muted />
+          <RowKV label={lang === "en" ? "Discount Amount" : "Kiasi cha Punguzo"} value={tzs(discountAmt)} muted />
           <label className="flex items-center justify-between gap-2 text-sm">
             <span className="text-muted-foreground">VAT (18%)</span>
             <input type="checkbox" checked={vatOn} onChange={(e) => setVatOn(e.target.checked)}
               className="h-4 w-4 accent-blue-600" />
           </label>
-          <RowKV label="VAT Amount" value={tzs(vatAmt)} muted />
+          <RowKV label={lang === "en" ? "VAT Amount" : "Kiasi cha VAT"} value={tzs(vatAmt)} muted />
           <div className="mt-3 border-t border-slate-200 pt-3">
             <div className="flex items-center justify-between text-base font-bold">
-              <span>Grand Total</span>
+              <span>{lang === "en" ? "Grand Total" : "Jumla Kuu"}</span>
               <span className="text-blue-700">{tzs(grandTotal)}</span>
             </div>
           </div>
           {isInvoice && (
             <div className="flex items-center justify-between gap-2 pt-2 text-sm">
-              <span className="text-muted-foreground">Payment Amount</span>
+              <span className="text-muted-foreground">{lang === "en" ? "Payment Amount" : "Kiasi cha Malipo"}</span>
               <input type="number" min={0} value={paymentAmount}
                 onChange={(e) => setPaymentAmount(Number(e.target.value) || 0)}
                 className={inputCls + " w-32 text-right"} />
@@ -241,12 +301,17 @@ export function InvoiceForm({ variant }: Props) {
 
       {/* Actions */}
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <button className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Save Draft</button>
-        <button className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100">Preview</button>
-        <button className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">{submitLabel}</button>
+        <button className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+          {lang === "en" ? "Save Draft" : "Hifadhi Rasimu"}
+        </button>
+        <button className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100">
+          {lang === "en" ? "Preview" : "Uhakiki"}
+        </button>
+        <button className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+          {submitLabel}
+        </button>
       </div>
     </FormShell>
-
   );
 }
 

@@ -18,7 +18,7 @@ interface Props {
 
 export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { t } = useTranslate();
+  const { t, lang } = useTranslate();
 
   const groups: Group[] = [
     {
@@ -188,7 +188,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
                   ? "bg-white text-blue-600"
                   : "bg-emerald-100 text-emerald-800"
               )}>
-                New
+                {lang === "en" ? "New" : "Mpya"}
               </span>
             </>
           )}
@@ -270,7 +270,9 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">Aisha Otieno</p>
-              <p className="truncate text-xs text-muted-foreground">Administrator</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {lang === "en" ? "Administrator" : "Msimamizi"}
+              </p>
             </div>
           </div>
         </div>

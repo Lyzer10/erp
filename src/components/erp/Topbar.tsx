@@ -17,11 +17,15 @@ interface Props {
 const DUMMY_USER = {
   name: "Aisha Otieno",
   initials: "AO",
-  role: "System Administrator",
+  roleEn: "System Administrator",
+  roleSw: "Msimamizi wa Mfumo",
   email: "aisha.otieno@devele.co",
-  department: "IT",
-  branch: "Head Office",
-  joined: "Jan 2024",
+  departmentEn: "IT",
+  departmentSw: "TEHAMA",
+  branchEn: "Head Office",
+  branchSw: "Ofisi Kuu",
+  joinedEn: "Jan 2024",
+  joinedSw: "Januari 2024",
 };
 
 function useNow() {
@@ -40,7 +44,46 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
   const [profileOpen, setProfileOpen] = useState(false);
   const { lang, t } = useTranslate();
 
-  const dateLabel = now.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short" });
+  const getDayName = (day: string) => {
+    if (lang === "en") return day;
+    const map: Record<string, string> = {
+      Sun: "Jumapili",
+      Mon: "Jumatatu",
+      Tue: "Jumanne",
+      Wed: "Jumatano",
+      Thu: "Alhamisi",
+      Fri: "Ijumaa",
+      Sat: "Jumamosi",
+    };
+    return map[day] || day;
+  };
+
+  const getMonthName = (month: string) => {
+    if (lang === "en") return month;
+    const map: Record<string, string> = {
+      Jan: "Jan",
+      Feb: "Feb",
+      Mar: "Mac",
+      Apr: "Apr",
+      May: "Mei",
+      Jun: "Jun",
+      Jul: "Jul",
+      Aug: "Ago",
+      Sep: "Sep",
+      Oct: "Okt",
+      Nov: "Nov",
+      Dec: "Des",
+    };
+    return map[month] || month;
+  };
+
+  const formattedDate = now.toLocaleDateString("en-US", { weekday: "short", day: "2-digit", month: "short" });
+  const [weekdayPart, monthPart, dayPart] = formattedDate.replace(",", "").split(" ");
+  // weekdayPart = "Mon", monthPart = "Jun", dayPart = "15" or similar
+  const dateLabel = lang === "en" 
+    ? `${weekdayPart}, ${monthPart} ${dayPart}`
+    : `${getDayName(weekdayPart)}, ${dayPart} ${getMonthName(monthPart)}`;
+
   const timeLabel = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 
   function handleLogout() {
@@ -48,6 +91,11 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
     try { localStorage.removeItem("is_logged_in"); } catch {}
     navigate({ to: "/login" });
   }
+
+  const role = lang === "en" ? DUMMY_USER.roleEn : DUMMY_USER.roleSw;
+  const branch = lang === "en" ? DUMMY_USER.branchEn : DUMMY_USER.branchSw;
+  const dept = lang === "en" ? DUMMY_USER.departmentEn : DUMMY_USER.departmentSw;
+  const joined = lang === "en" ? DUMMY_USER.joinedEn : DUMMY_USER.joinedSw;
 
   return (
     <header className="glass-topbar sticky top-0 z-30 flex h-16 items-center gap-2 px-3 lg:px-6">
@@ -149,29 +197,29 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
                 </div>
               </div>
               <div className="mt-2 flex gap-3 text-[11px] text-slate-500">
-                <span className="rounded-md bg-white/70 px-2 py-0.5 font-medium">{DUMMY_USER.role}</span>
-                <span className="rounded-md bg-white/70 px-2 py-0.5 font-medium">{DUMMY_USER.branch}</span>
+                <span className="rounded-md bg-white/70 px-2 py-0.5 font-medium">{role}</span>
+                <span className="rounded-md bg-white/70 px-2 py-0.5 font-medium">{branch}</span>
               </div>
             </div>
 
             <div className="p-1">
               <DropdownMenuItem
-                className="gap-2 cursor-pointer rounded-lg px-3 py-2"
+                className="gap-2 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium"
                 onSelect={() => setProfileOpen(true)}
               >
-                <User className="h-4 w-4 text-slate-400" /> View Profile
+                <User className="h-4 w-4 text-slate-400" /> {lang === "en" ? "View Profile" : "Angalia Wasifu"}
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="gap-2 cursor-pointer rounded-lg px-3 py-2">
+              <DropdownMenuItem asChild className="gap-2 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium">
                 <Link to="/admin/settings">
-                  <Settings className="h-4 w-4 text-slate-400" /> Settings
+                  <Settings className="h-4 w-4 text-slate-400" /> {lang === "en" ? "Settings" : "Mipangilio"}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="gap-2 cursor-pointer rounded-lg px-3 py-2 text-rose-600 focus:text-rose-600"
+                className="gap-2 cursor-pointer rounded-lg px-3 py-2 text-rose-600 focus:text-rose-600 text-sm font-semibold"
                 onSelect={handleLogout}
               >
-                <LogOut className="h-4 w-4" /> Log Out
+                <LogOut className="h-4 w-4" /> {lang === "en" ? "Log Out" : "Ondoka"}
               </DropdownMenuItem>
             </div>
           </DropdownMenuContent>
@@ -182,7 +230,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>My Profile</DialogTitle>
+            <DialogTitle>{lang === "en" ? "My Profile" : "Wasifu Wangu"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="flex items-center gap-4">
@@ -191,19 +239,19 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
               </div>
               <div>
                 <p className="text-base font-bold text-slate-900">{DUMMY_USER.name}</p>
-                <p className="text-sm text-slate-500">{DUMMY_USER.role}</p>
+                <p className="text-sm text-slate-500 font-medium">{role}</p>
               </div>
             </div>
             <div className="space-y-2 rounded-xl bg-slate-50 p-4 text-sm">
               {[
-                { label: "Email",      value: DUMMY_USER.email },
-                { label: "Department", value: DUMMY_USER.department },
-                { label: "Branch",     value: DUMMY_USER.branch },
-                { label: "Joined",     value: DUMMY_USER.joined },
+                { label: lang === "en" ? "Email" : "Barua Pepe",      value: DUMMY_USER.email },
+                { label: lang === "en" ? "Department" : "Idara", value: dept },
+                { label: lang === "en" ? "Branch" : "Tawi",     value: branch },
+                { label: lang === "en" ? "Joined" : "Alijiunga",     value: joined },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between gap-4">
                   <span className="text-slate-400">{label}</span>
-                  <span className="font-medium text-slate-700">{value}</span>
+                  <span className="font-semibold text-slate-700">{value}</span>
                 </div>
               ))}
             </div>
@@ -211,7 +259,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
               onClick={handleLogout}
               className="w-full rounded-xl border border-rose-200 bg-rose-50 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100"
             >
-              Log Out
+              {lang === "en" ? "Log Out" : "Ondoka"}
             </button>
           </div>
         </DialogContent>

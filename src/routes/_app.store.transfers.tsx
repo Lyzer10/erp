@@ -8,6 +8,7 @@ import { ExportMenu } from "@/components/erp/ExportMenu";
 import { currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslate } from "@/lib/i18n";
 
 type Transfer = {
   id: string;
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_app/store/transfers")({
 });
 
 function StoreTransfersPage() {
+  const { lang, t } = useTranslate();
   const [ibtList, setIbtList] = useState<Transfer[]>(
     Array.from({ length: 5 }, (_, i) => ({
       id: `IBT-${1000 + i}`,
@@ -90,7 +92,7 @@ function StoreTransfersPage() {
       description: newTransfer.description,
     };
 
-    if (newTransfer.type === "Inter Branch") {
+    if (newTransfer.type === "Inter Branch" || newTransfer.type === "Inter Branch / Transfer IBT") {
       const nextId = `IBT-${1000 + ibtList.length + 1}`;
       setIbtList(prev => [{ id: nextId, ...baseTransfer }, ...prev]);
     } else if (newTransfer.type === "Inter Store") {
@@ -107,36 +109,36 @@ function StoreTransfersPage() {
 
   const cols = [
     { key: "id", header: "Ref" },
-    { key: "from", header: "From" },
-    { key: "to", header: "To" },
-    { key: "items", header: "Items", align: "right" as const },
-    { key: "value", header: "Value", align: "right" as const, render: (r: any) => currency(r.value) },
-    { key: "date", header: "Date" },
-    { key: "status", header: "Status", render: (r: any) => <StatusPill status={r.status} /> },
+    { key: "from", header: t("from") },
+    { key: "to", header: t("to") },
+    { key: "items", header: t("itemsQuantity"), align: "right" as const },
+    { key: "value", header: t("totalValue"), align: "right" as const, render: (r: any) => `TZS ${currency(r.value).replace("$", "")}` },
+    { key: "date", header: t("date") },
+    { key: "status", header: t("status"), render: (r: any) => <StatusPill status={r.status} /> },
   ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Store Transfers"
-        description="Transfers between branches, stores, and receipts."
+        title={t("transfers")}
+        description={lang === "en" ? "Manage stock transfers, branch requisitions, and receipt of goods." : "Dhibiti uhamisho wa bidhaa, maombi ya matawi, na upokeaji wa bidhaa."}
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
             <button
               onClick={() => setTransferOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition animate-fade-in"
             >
-              <Plus className="h-4 w-4" /> New Transfer
+              <Plus className="h-4 w-4" /> {t("newTransfer")}
             </button>
           </div>
         }
       />
       <TabbedPage tabs={[
-        { key: "ib", label: "Inter Branch", render: () => <DataTable data={ibtList} columns={cols} /> },
-        { key: "is", label: "Inter Store", render: () => <DataTable data={istList} columns={cols} /> },
-        { key: "received", label: "Received Purchases", render: () => <DataTable data={rcvList} columns={cols} /> },
-        { key: "issued", label: "Issued", render: () => <DataTable data={issList} columns={cols} /> },
+        { key: "ib", label: lang === "en" ? "Inter Branch" : "Uhamisho wa Matawi (IBT)", render: () => <DataTable data={ibtList} columns={cols} /> },
+        { key: "is", label: lang === "en" ? "Inter Store" : "Uhamisho wa Stoo (IST)", render: () => <DataTable data={istList} columns={cols} /> },
+        { key: "received", label: lang === "en" ? "Received Purchases" : "Manunuzi Yaliyopokelewa", render: () => <DataTable data={rcvList} columns={cols} /> },
+        { key: "issued", label: lang === "en" ? "Issued" : "Zilizotolewa", render: () => <DataTable data={issList} columns={cols} /> },
       ]} />
 
       <CreateTransferDialog
@@ -157,6 +159,7 @@ interface CreateTransferDialogProps {
 }
 
 function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDialogProps) {
+  const { lang, t } = useTranslate();
   const [type, setType] = useState("Inter Branch");
   const [from, setFrom] = useState("Main Store");
   const [to, setTo] = useState("Westlands");
@@ -179,99 +182,99 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>New Stock Transfer</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{t("newStockTransfer")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Transfer Type</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("transferType")}</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             >
-              <option value="Inter Branch">Inter Branch</option>
-              <option value="Inter Store">Inter Store</option>
-              <option value="Received Purchases">Received Purchases</option>
-              <option value="Issued">Issued</option>
+              <option value="Inter Branch">{lang === "en" ? "Inter Branch" : "Uhamisho wa Matawi (IBT)"}</option>
+              <option value="Inter Store">{lang === "en" ? "Inter Store" : "Uhamisho wa Stoo (IST)"}</option>
+              <option value="Received Purchases">{lang === "en" ? "Received Purchases" : "Manunuzi Yaliyopokelewa"}</option>
+              <option value="Issued">{lang === "en" ? "Issued" : "Zilizotolewa"}</option>
             </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From (Source)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("source")}</label>
               <input
                 required
                 type="text"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
                 placeholder="e.g. Main Store"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To (Destination)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("destination")}</label>
               <input
                 required
                 type="text"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
                 placeholder="e.g. Westlands Branch"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Items Quantity</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("itemsQuantity")}</label>
               <input
                 required
                 type="number"
                 min={1}
                 value={items}
                 onChange={(e) => setItems(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Value ($)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("totalValue")}</label>
               <input
                 required
                 type="number"
                 min={0}
                 value={value}
                 onChange={(e) => setValue(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description / Comment</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("description")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter transfer details..."
+              placeholder={lang === "en" ? "Enter transfer details..." : "Weka maelezo ya uhamisho..."}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
             >
-              Submit Transfer
+              {t("submit")}
             </button>
           </div>
         </form>

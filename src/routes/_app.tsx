@@ -1,10 +1,12 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/erp/AppShell";
 import { useEffect, useState } from "react";
+import { useTranslate } from "@/lib/i18n";
 
 function AppShellWrapper() {
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
+  const { t, lang } = useTranslate();
 
   useEffect(() => {
     const hasCookie = document.cookie
@@ -29,9 +31,11 @@ function AppShellWrapper() {
             <div className="absolute inset-0 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
           </div>
           <p className="mt-4 text-sm font-semibold tracking-wide text-slate-600 uppercase">
-            Verifying Session
+            {lang === "en" ? "Verifying Session" : "Kuhakiki Kipindi cha Kuingia"}
           </p>
-          <p className="mt-1 text-xs text-slate-400">Please wait while we secure your connection...</p>
+          <p className="mt-1 text-xs text-slate-400 font-medium">
+            {lang === "en" ? "Please wait while we secure your connection..." : "Tafadhali subiri wakati tunalinda muunganisho wako..."}
+          </p>
         </div>
       </div>
     );

@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslate } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_app/")({
   head: () => ({ meta: [{ title: "Dashboard — Lumen ERP" }, { name: "description", content: "Business performance overview." }] }),
@@ -19,6 +20,15 @@ const tzs = (n: number) =>
 
 type Period = "Today" | "Yesterday" | "This Week" | "This Month" | "This Year" | "Last Year";
 const PERIODS: Period[] = ["Today", "Yesterday", "This Week", "This Month", "This Year", "Last Year"];
+
+const PERIOD_NAMES: Record<Period, Record<string, string>> = {
+  "Today":      { en: "Today", sw: "Leo" },
+  "Yesterday":  { en: "Yesterday", sw: "Jana" },
+  "This Week":  { en: "This Week", sw: "Wiki Hii" },
+  "This Month": { en: "This Month", sw: "Mwezi Huu" },
+  "This Year":  { en: "This Year", sw: "Mwaka Huu" },
+  "Last Year":  { en: "Last Year", sw: "Mwaka Jana" },
+};
 
 type Kpis = {
   revenue: number; revenueDelta: number;
@@ -38,6 +48,7 @@ const kpiSets: Record<Period, Kpis> = {
 };
 
 function Dashboard() {
+  const { lang, t } = useTranslate();
   const [period, setPeriod] = useState<Period>("Today");
   const k = kpiSets[period];
 
@@ -46,8 +57,8 @@ function Dashboard() {
       {/* Header */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Good morning, Aisha</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Here's what's happening across your business today.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("welcome")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("welcomeSub")}</p>
         </div>
         <div className="inline-flex flex-wrap items-center gap-1 rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
           {PERIODS.map((p) => (
@@ -59,7 +70,7 @@ function Dashboard() {
                 period === p ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
               )}
             >
-              {p}
+              {PERIOD_NAMES[p]?.[lang] || p}
             </button>
           ))}
         </div>
@@ -67,17 +78,17 @@ function Dashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <KpiCard label="Revenue" value={tzs(k.revenue)} delta={k.revenueDelta} icon={Wallet} positiveIsGood />
-        <KpiCard label="Expenditures" value={tzs(k.expenditures)} delta={k.expendituresDelta} icon={Receipt} positiveIsGood={false} />
-        <KpiCard label="Gross Profit" value={tzs(k.grossProfit)} delta={k.grossProfitDelta} icon={TrendingUp} positiveIsGood />
-        <KpiCard label="Collection" value={tzs(k.collection)} subtitle={`${k.collectionInvoices} invoices`} icon={HandCoins} />
-        <KpiCard label="Purchases" value={tzs(k.purchases)} subtitle={`${k.purchaseOrders} orders`} icon={ShoppingCart} />
+        <KpiCard label={t("revenue")} value={tzs(k.revenue)} delta={k.revenueDelta} icon={Wallet} positiveIsGood />
+        <KpiCard label={t("expenditures")} value={tzs(k.expenditures)} delta={k.expendituresDelta} icon={Receipt} positiveIsGood={false} />
+        <KpiCard label={t("grossProfit")} value={tzs(k.grossProfit)} delta={k.grossProfitDelta} icon={TrendingUp} positiveIsGood />
+        <KpiCard label={t("collection")} value={tzs(k.collection)} subtitle={`${k.collectionInvoices} ` + (lang === "en" ? "invoices" : "ankara")} icon={HandCoins} />
+        <KpiCard label={t("purchases")} value={tzs(k.purchases)} subtitle={`${k.purchaseOrders} ` + (lang === "en" ? "maagizo" : "maagizo")} icon={ShoppingCart} />
       </div>
 
       {/* Middle row */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
         <Card className="lg:col-span-8">
-          <CardHeader title="Sales Trend" subtitle="Revenue across the last 6 months" />
+          <CardHeader title={lang === "en" ? "Sales Trend" : "Mwenendo wa Mauzo"} subtitle={lang === "en" ? "Revenue across the last 6 months" : "Mapato ya miezi 6 iliyopita"} />
           <EChart
             height={280}
             option={{
@@ -86,7 +97,7 @@ function Dashboard() {
               grid: { left: 52, right: 16, top: 8, bottom: 28 },
               xAxis: {
                 type: "category",
-                data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                data: lang === "en" ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] : ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun"],
                 axisLine: { lineStyle: { color: "#cbd5e1" } },
                 axisTick: { show: false },
                 axisLabel: { fontSize: 12, color: "#64748b" },
@@ -98,7 +109,7 @@ function Dashboard() {
               },
               series: [
                 {
-                  name: "Revenue",
+                  name: lang === "en" ? "Revenue" : "Mapato",
                   type: "bar",
                   data: [
                     { value: 4_200_000, itemStyle: { color: "#a6e3dd" } },
@@ -115,30 +126,30 @@ function Dashboard() {
             }}
           />
           <div className="mt-2 flex items-center justify-center gap-5 text-xs text-muted-foreground">
-            <Legend color="#a6e3dd" label="Previous months" />
-            <Legend color="#1f9c88" label="Current month" />
+            <Legend color="#a6e3dd" label={lang === "en" ? "Previous months" : "Miezi iliyopita"} />
+            <Legend color="#1f9c88" label={lang === "en" ? "Current month" : "Mwezi huu"} />
           </div>
         </Card>
 
         <div className="space-y-5 lg:col-span-4">
           <Card>
-            <CardHeader title="Debtors & Creditors" />
+            <CardHeader title={lang === "en" ? "Debtors & Creditors" : "Wadaiwa & Wadai"} />
             <div className="divide-y divide-slate-100">
-              <Row to="/stakeholders/customers" icon={Users} label="Debtors (12)" right={<span className="text-sm font-semibold">{tzs(4_200_000)}</span>} />
-              <Row to="/stakeholders/suppliers" icon={Users} label="Creditors (5)" right={<span className="text-sm font-semibold">{tzs(1_800_000)}</span>} />
-              <Row to="/sales/invoices" icon={Clock4} label="Due Invoices" right={<Badge tone="amber">7</Badge>} />
-              <Row to="/sales/invoices" icon={AlertTriangle} label="Overdue Invoices" right={<Badge tone="red">3</Badge>} />
+              <Row to="/stakeholders/customers" icon={Users} label={lang === "en" ? "Debtors (12)" : "Wadaiwa (12)"} right={<span className="text-sm font-semibold">{tzs(4_200_000)}</span>} />
+              <Row to="/stakeholders/suppliers" icon={Users} label={lang === "en" ? "Creditors (5)" : "Wadai (5)"} right={<span className="text-sm font-semibold">{tzs(1_800_000)}</span>} />
+              <Row to="/sales/invoices" icon={Clock4} label={lang === "en" ? "Due Invoices" : "Ankara Zinazostahili"} right={<Badge tone="amber">7</Badge>} />
+              <Row to="/sales/invoices" icon={AlertTriangle} label={lang === "en" ? "Overdue Invoices" : "Ankara Zilizopitwa na Muda"} right={<Badge tone="red">3</Badge>} />
             </div>
           </Card>
 
           <Card>
-            <CardHeader title="Approvals Needed" />
+            <CardHeader title={lang === "en" ? "Approvals Needed" : "Uidhinishaji Unaohitajika"} />
             <div className="divide-y divide-slate-100">
-              <Row to="/finance/payment-vouchers" icon={Coins} label="Payments" right={<Badge tone="amber">4</Badge>} />
-              <Row to="/finance/payment-vouchers" icon={Banknote} label="Issue Cash / Cheque" right={<Badge tone="red">2</Badge>} />
-              <Row to="/products/purchase-orders" icon={FileText} label="Purchase Orders" right={<Badge tone="blue">3</Badge>} />
-              <Row to="/hr/payroll" icon={FileCheck2} label="Payroll" right={<Badge tone="green">1</Badge>} />
-              <Row to="/hr/leave" icon={Calendar} label="Leave Requests" right={<Badge tone="amber">5</Badge>} />
+              <Row to="/finance/payment-vouchers" icon={Coins} label={lang === "en" ? "Payments" : "Malipo"} right={<Badge tone="amber">4</Badge>} />
+              <Row to="/finance/payment-vouchers" icon={Banknote} label={lang === "en" ? "Issue Cash / Cheque" : "Toa Taslimu / Hundi"} right={<Badge tone="red">2</Badge>} />
+              <Row to="/products/purchase-orders" icon={FileText} label={t("purchaseOrder")} right={<Badge tone="blue">3</Badge>} />
+              <Row to="/hr/payroll" icon={FileCheck2} label={t("payroll")} right={<Badge tone="green">1</Badge>} />
+              <Row to="/hr/leave" icon={Calendar} label={t("leaveLabel")} right={<Badge tone="amber">5</Badge>} />
             </div>
           </Card>
         </div>
@@ -147,9 +158,9 @@ function Dashboard() {
       {/* Bottom row */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card>
-          <CardHeader title="Bank & Cash" />
+          <CardHeader title={t("bankCash")} />
           <div className="divide-y divide-slate-100">
-            <Row to="/finance/bank-cash" icon={Coins} label="Cash Account" right={<span className="text-sm font-semibold">{tzs(320_000)}</span>} />
+            <Row to="/finance/bank-cash" icon={Coins} label={t("cashAccount")} right={<span className="text-sm font-semibold">{tzs(320_000)}</span>} />
             <Row
               to="/finance/bank-cash"
               icon={Landmark}
@@ -159,23 +170,23 @@ function Dashboard() {
             />
           </div>
           <div className="my-4 h-px bg-slate-100" />
-          <CardHeader title="Stock Alerts" />
+          <CardHeader title={lang === "en" ? "Stock Alerts" : "Arifa za Stoo"} />
           <div className="divide-y divide-slate-100">
-            <Row to="/store/stock" icon={PackageX} label="Low Stock (under 5)" right={<Badge tone="amber">12</Badge>} />
-            <Row to="/store/stock" icon={PackageCheck} label="Stock To Be Received" right={<Badge tone="blue">4</Badge>} />
-            <Row to="/store/stock" icon={FileWarning} label="Near Expiry" right={<Badge tone="red">2</Badge>} />
+            <Row to="/store/stock" icon={PackageX} label={lang === "en" ? "Low Stock (under 5)" : "Kiwango cha Chini (chini ya 5)"} right={<Badge tone="amber">12</Badge>} />
+            <Row to="/store/stock" icon={PackageCheck} label={lang === "en" ? "Stock To Be Received" : "Bidhaa Zinazotarajiwa Kupokewa"} right={<Badge tone="blue">4</Badge>} />
+            <Row to="/store/stock" icon={FileWarning} label={lang === "en" ? "Near Expiry" : "Karibu na Mwisho wa Matumizi"} right={<Badge tone="red">2</Badge>} />
           </div>
         </Card>
 
         <Card>
-          <CardHeader title="Top 5 Products Today" />
+          <CardHeader title={lang === "en" ? "Top 5 Products Today" : "Bidhaa 5 Bora Leo"} />
           <div className="mt-3 space-y-4">
             {[
-              { name: "Product A", value: 48000 },
-              { name: "Product B", value: 36000 },
-              { name: "Product C", value: 24000 },
-              { name: "Product D", value: 18000 },
-              { name: "Product E", value: 12000 },
+              { name: lang === "en" ? "Product A" : "Bidhaa A", value: 48000 },
+              { name: lang === "en" ? "Product B" : "Bidhaa B", value: 36000 },
+              { name: lang === "en" ? "Product C" : "Bidhaa C", value: 24000 },
+              { name: lang === "en" ? "Product D" : "Bidhaa D", value: 18000 },
+              { name: lang === "en" ? "Product E" : "Bidhaa E", value: 12000 },
             ].map((p, i, arr) => {
               const max = arr[0].value;
               const pct = Math.round((p.value / max) * 100);
@@ -198,7 +209,7 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader title="Recent Invoices" />
+          <CardHeader title={lang === "en" ? "Recent Invoices" : "Ankara za Hivi Karibuni"} />
           <div className="divide-y divide-slate-100">
             {[
               { name: "Acme Trading Ltd",    status: "Paid"    },
@@ -218,10 +229,10 @@ function Dashboard() {
             ))}
           </div>
           <div className="my-4 h-px bg-slate-100" />
-          <CardHeader title="HR Snapshot" />
+          <CardHeader title={lang === "en" ? "HR Snapshot" : "Picha Haraka ya HR"} />
           <div className="divide-y divide-slate-100">
-            <Row to="/hr/leave" icon={Calendar} label="Leave For Approval" right={<Badge tone="amber">3</Badge>} />
-            <Row to="/products/expenses" icon={CheckCircle2} label="Imprest To Be Returned" right={<Badge tone="red">2</Badge>} />
+            <Row to="/hr/leave" icon={Calendar} label={lang === "en" ? "Leave For Approval" : "Likizo za Kuidhinishwa"} right={<Badge tone="amber">3</Badge>} />
+            <Row to="/products/expenses" icon={CheckCircle2} label={lang === "en" ? "Imprest To Be Returned" : "Imprest ya Kurudishwa"} right={<Badge tone="red">2</Badge>} />
           </div>
         </Card>
       </div>
@@ -279,10 +290,18 @@ const invoicePillTone: Record<string, Tone> = {
 };
 
 function InvoiceStatusPill({ status }: { status: string }) {
+  const { lang } = useTranslate();
+  const statusTranslations: Record<string, Record<string, string>> = {
+    Paid: { en: "Paid", sw: "Imelipwa" },
+    Pending: { en: "Pending", sw: "Inasubiri" },
+    Overdue: { en: "Overdue", sw: "Muda Umeisha" },
+    Partial: { en: "Partial", sw: "Kiasi" },
+    Draft: { en: "Draft", sw: "Rasimu" },
+  };
   const tone = invoicePillTone[status] ?? "slate";
   return (
     <span className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", toneMap[tone])}>
-      {status}
+      {statusTranslations[status]?.[lang] || status}
     </span>
   );
 }
@@ -323,6 +342,7 @@ function KpiCard({
   icon: LucideIcon;
   positiveIsGood?: boolean;
 }) {
+  const { lang } = useTranslate();
   const up = (delta ?? 0) >= 0;
   const good = positiveIsGood ? up : !up;
   return (
@@ -337,7 +357,9 @@ function KpiCard({
           <span className={cn("inline-flex items-center gap-0.5 font-medium", good ? "text-emerald-600" : "text-rose-600")}>
             {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
             {up ? "+" : ""}{delta}%
-            <span className="ml-1 font-normal text-muted-foreground">vs last period</span>
+            <span className="ml-1 font-normal text-muted-foreground">
+              {lang === "en" ? "vs last period" : "ikilinganishwa na jana"}
+            </span>
           </span>
         ) : (
           <span className="text-muted-foreground">{subtitle}</span>

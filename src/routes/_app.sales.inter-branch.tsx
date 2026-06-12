@@ -9,6 +9,7 @@ import { EChart } from "@/components/charts/EChart";
 import { ExportMenu } from "@/components/erp/ExportMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+import { useTranslate } from "@/lib/i18n";
 
 type StockRequest = {
   id: string;
@@ -42,13 +43,15 @@ export const Route = createFileRoute("/_app/sales/inter-branch")({
 });
 
 function InterBranchPage() {
+  const { t, lang } = useTranslate();
+  
   const [requests, setRequests] = useState<StockRequest[]>([
     {
       id: "REQ-1001",
       requestedBy: "Aisha Otieno",
       date: "2026-06-10",
       time: "09:30 AM",
-      requestingBranch: "Head Office",
+      requestingBranch: lang === "en" ? "Head Office" : "Ofisi Kuu",
       requestedBranch: "Westlands",
       status: "Approved",
       productName: "Steel Rods 12mm",
@@ -63,7 +66,7 @@ function InterBranchPage() {
       date: "2026-06-11",
       time: "02:15 PM",
       requestingBranch: "Mombasa Rd",
-      requestedBranch: "Main Branch",
+      requestedBranch: lang === "en" ? "Main Branch" : "Tawi Kuu",
       status: "Pending",
       productName: "Cement Bag 50kg",
       brandCode: "CEM-50G",
@@ -77,7 +80,7 @@ function InterBranchPage() {
       date: "2026-06-12",
       time: "11:05 AM",
       requestingBranch: "Kisumu",
-      requestedBranch: "Main Branch",
+      requestedBranch: lang === "en" ? "Main Branch" : "Tawi Kuu",
       status: "Approved",
       productName: "Paints Gloss White 20L",
       brandCode: "PNT-GW20",
@@ -93,8 +96,8 @@ function InterBranchPage() {
       date: "2026-06-10",
       time: "09:30 AM",
       fromStore: "Westlands",
-      toStore: "Head Office",
-      requestType: "Inter-Branch",
+      toStore: lang === "en" ? "Head Office" : "Ofisi Kuu",
+      requestType: lang === "en" ? "Inter-Branch" : "Kati ya Matawi",
       status: "Approved"
     },
     {
@@ -102,9 +105,9 @@ function InterBranchPage() {
       requestedBy: "John Kamau",
       date: "2026-06-11",
       time: "02:15 PM",
-      fromStore: "Main Branch",
+      fromStore: lang === "en" ? "Main Branch" : "Tawi Kuu",
       toStore: "Mombasa Rd",
-      requestType: "Inter-Branch",
+      requestType: lang === "en" ? "Inter-Branch" : "Kati ya Matawi",
       status: "Pending"
     },
     {
@@ -112,9 +115,9 @@ function InterBranchPage() {
       requestedBy: "Aisha Otieno",
       date: "2026-06-12",
       time: "11:05 AM",
-      fromStore: "Main Branch",
+      fromStore: lang === "en" ? "Main Branch" : "Tawi Kuu",
       toStore: "Kisumu",
-      requestType: "Inter-Branch",
+      requestType: lang === "en" ? "Inter-Branch" : "Kati ya Matawi",
       status: "Approved"
     }
   ]);
@@ -127,35 +130,35 @@ function InterBranchPage() {
   const [reportToVal, setReportToVal] = useState("");
 
   const requestCols = [
-    { key: "id", header: "Request #" },
-    { key: "requestedBy", header: "Requested By" },
-    { key: "date", header: "Date" },
-    { key: "time", header: "Time" },
-    { key: "requestingBranch", header: "Requesting Branch" },
-    { key: "requestedBranch", header: "Requested Branch" },
-    { key: "status", header: "Status", render: (r: any) => <StatusPill status={r.status} /> },
-    { key: "action", header: "Action", render: (r: any) => (
+    { key: "id", header: lang === "en" ? "Request #" : "Ombi #" },
+    { key: "requestedBy", header: lang === "en" ? "Requested By" : "Imeombwa Na" },
+    { key: "date", header: lang === "en" ? "Date" : "Tarehe" },
+    { key: "time", header: lang === "en" ? "Time" : "Muda" },
+    { key: "requestingBranch", header: lang === "en" ? "Requesting Branch" : "Tawi Linaloomba" },
+    { key: "requestedBranch", header: lang === "en" ? "Requested Branch" : "Tawi Lililoombwa" },
+    { key: "status", header: lang === "en" ? "Status" : "Hali", render: (r: any) => <StatusPill status={r.status} /> },
+    { key: "action", header: lang === "en" ? "Action" : "Kitendo", render: (r: any) => (
       <button
         onClick={() => handleDeleteRequest(r.id)}
         className="text-rose-600 hover:bg-rose-50 px-2 py-1 rounded-md transition text-xs font-semibold"
       >
-        Delete
+        {lang === "en" ? "Delete" : "Futa"}
       </button>
     )}
   ];
 
   const receiveCols = [
-    { key: "id", header: "Request #" },
-    { key: "requestedBy", header: "Requested By" },
-    { key: "date", header: "Date" },
-    { key: "time", header: "Time" },
-    { key: "fromStore", header: "From Store" },
-    { key: "toStore", header: "To Store" },
-    { key: "requestType", header: "Request Type" },
-    { key: "status", header: "Status", render: (r: any) => <StatusPill status={r.status} /> },
-    { key: "action", header: "Action", render: (r: any) => (
+    { key: "id", header: lang === "en" ? "Request #" : "Ombi #" },
+    { key: "requestedBy", header: lang === "en" ? "Requested By" : "Imeombwa Na" },
+    { key: "date", header: lang === "en" ? "Date" : "Tarehe" },
+    { key: "time", header: lang === "en" ? "Time" : "Muda" },
+    { key: "fromStore", header: lang === "en" ? "From Store" : "Kutoka Stoo" },
+    { key: "toStore", header: lang === "en" ? "To Store" : "Kwenda Stoo" },
+    { key: "requestType", header: lang === "en" ? "Request Type" : "Aina ya Ombi" },
+    { key: "status", header: lang === "en" ? "Status" : "Hali", render: (r: any) => <StatusPill status={r.status} /> },
+    { key: "action", header: lang === "en" ? "Action" : "Kitendo", render: (r: any) => (
       <button className="text-blue-500 hover:bg-blue-50 px-2 py-1 rounded transition text-xs font-semibold border border-blue-200">
-        Receive
+        {lang === "en" ? "Receive" : "Pokea"}
       </button>
     )}
   ];
@@ -177,7 +180,6 @@ function InterBranchPage() {
     };
     setRequests(prev => [request, ...prev]);
 
-    // Also populate receive stock transfer dynamically
     const recTransfer: ReceiveTransfer = {
       id: request.id,
       requestedBy: request.requestedBy,
@@ -185,7 +187,7 @@ function InterBranchPage() {
       time: request.time,
       fromStore: request.requestedBranch,
       toStore: request.requestingBranch,
-      requestType: "Inter-Branch",
+      requestType: lang === "en" ? "Inter-Branch" : "Kati ya Matawi",
       status: "Pending"
     };
     setReceiveTransfers(prev => [recTransfer, ...prev]);
@@ -202,8 +204,8 @@ function InterBranchPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inter-Branch Transfer"
-        description="Raise stock requests, track transfers, and report movements."
+        title={lang === "en" ? "Inter-Branch Transfer" : "Uhamisho wa Kati ya Matawi"}
+        description={lang === "en" ? "Raise stock requests, track transfers, and report movements." : "Wasilisha maombi ya bidhaa, fuatilia uhamisho, na uripoti mienendo ya stoo."}
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
@@ -211,7 +213,8 @@ function InterBranchPage() {
               onClick={() => setCreateOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
             >
-              <Plus className="h-4 w-4" /> Stock Request
+              <Plus className="h-4 w-4" /> 
+              {lang === "en" ? "Stock Request" : "Ombi la Bidhaa"}
             </button>
           </div>
         }
@@ -220,18 +223,21 @@ function InterBranchPage() {
       <TabbedPage tabs={[
         {
           key: "request",
-          label: "Stock Request",
+          label: lang === "en" ? "Stock Request" : "Ombi la Bidhaa",
           render: () => (
             <div className="space-y-4">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-1 rounded bg-blue-500" />
-                  <h3 className="text-sm font-semibold text-slate-800">Stock Requests Overview</h3>
+                  <h3 className="text-sm font-semibold text-slate-800">
+                    {lang === "en" ? "Stock Requests Overview" : "Muhtasari wa Maombi ya Bidhaa"}
+                  </h3>
                 </div>
-                {/* Compact Date Range Filters */}
                 <div className="flex flex-wrap items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200/60 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      {lang === "en" ? "From:" : "Kutoka:"}
+                    </span>
                     <input
                       type="date"
                       value={listFromVal}
@@ -241,7 +247,9 @@ function InterBranchPage() {
                   </div>
                   <div className="h-4 w-px bg-slate-200 hidden sm:block" />
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      {lang === "en" ? "To:" : "Hadi:"}
+                    </span>
                     <input
                       type="date"
                       value={listToVal}
@@ -261,12 +269,14 @@ function InterBranchPage() {
         },
         {
           key: "report",
-          label: "Inter Branch Stock Report",
+          label: lang === "en" ? "Inter Branch Stock Report" : "Ripoti ya Stoo ya Matawi",
           render: () => (
             <GlassCard className="space-y-4">
               <div className="flex flex-wrap items-center gap-4 border-b border-blue-100/40 pb-4">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">From:</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">
+                    {lang === "en" ? "From:" : "Kutoka:"}
+                  </label>
                   <input
                     type="date"
                     value={reportFromVal}
@@ -275,7 +285,9 @@ function InterBranchPage() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">To:</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">
+                    {lang === "en" ? "To:" : "Hadi:"}
+                  </label>
                   <input
                     type="date"
                     value={reportToVal}
@@ -287,10 +299,13 @@ function InterBranchPage() {
               <div className="mt-4">
                 <EChart height={300} option={{
                   tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-                  legend: { data: ["Outgoing", "Incoming"], textStyle: { color: "#145047", fontWeight: "bold" } },
+                  legend: { 
+                    data: [lang === "en" ? "Outgoing" : "Zinazotoka", lang === "en" ? "Incoming" : "Zinazoingia"], 
+                    textStyle: { color: "#145047", fontWeight: "bold" } 
+                  },
                   grid: {
                     show: true,
-                    backgroundColor: "rgba(31, 156, 136, 0.02)", // 2% opacity of #1f9c88
+                    backgroundColor: "rgba(31, 156, 136, 0.02)",
                     borderColor: "rgba(31, 156, 136, 0.12)",
                     borderWidth: 1,
                     left: 40,
@@ -301,7 +316,7 @@ function InterBranchPage() {
                   },
                   xAxis: {
                     type: "category",
-                    data: ["Main", "Westlands", "Mombasa Rd", "Kisumu"],
+                    data: lang === "en" ? ["Main", "Westlands", "Mombasa Rd", "Kisumu"] : ["Kuu", "Westlands", "Mombasa Rd", "Kisumu"],
                     axisLine: { lineStyle: { color: "rgba(31, 156, 136, 0.3)" } },
                     axisLabel: { color: "#145047", fontWeight: "bold", fontSize: 11 },
                     axisTick: { show: false }
@@ -313,8 +328,8 @@ function InterBranchPage() {
                     axisLabel: { color: "#145047", fontSize: 11 }
                   },
                   series: [
-                    { name: "Outgoing", type: "bar", data: [12, 8, 14, 6], itemStyle: { borderRadius: [6,6,0,0], color: "#1f9c88" }, barWidth: 22 },
-                    { name: "Incoming", type: "bar", data: [9, 11, 7, 10], itemStyle: { borderRadius: [6,6,0,0], color: "#a6e3dd" }, barWidth: 22 },
+                    { name: lang === "en" ? "Outgoing" : "Zinazotoka", type: "bar", data: [12, 8, 14, 6], itemStyle: { borderRadius: [6,6,0,0], color: "#1f9c88" }, barWidth: 22 },
+                    { name: lang === "en" ? "Incoming" : "Zinazoingia", type: "bar", data: [9, 11, 7, 10], itemStyle: { borderRadius: [6,6,0,0], color: "#a6e3dd" }, barWidth: 22 },
                   ],
                 }} />
               </div>
@@ -323,7 +338,7 @@ function InterBranchPage() {
         },
         {
           key: "receive",
-          label: "Receive Stock Transfer",
+          label: lang === "en" ? "Receive Stock Transfer" : "Pokea Uhamisho wa Bidhaa",
           render: () => (
             <DataTable
               data={receiveTransfers}
@@ -349,6 +364,7 @@ interface CreateRequestDialogProps {
 }
 
 function CreateRequestDialog({ open, onOpenChange, onSubmit }: CreateRequestDialogProps) {
+  const { lang } = useTranslate();
   const [productName, setProductName] = useState("");
   const [brandCode, setBrandCode] = useState("");
   const [description, setDescription] = useState("");
@@ -383,33 +399,33 @@ function CreateRequestDialog({ open, onOpenChange, onSubmit }: CreateRequestDial
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Stock Request</DialogTitle>
+          <DialogTitle>{lang === "en" ? "Stock Request" : "Ombi la Bidhaa"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Product Name</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Name" : "Jina la Bidhaa"}</label>
             <input
               required
               type="text"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
-              placeholder="Product Name"
+              placeholder={lang === "en" ? "Product Name" : "Jina la Bidhaa"}
               className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Brand Code</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Brand Code" : "Msimbo wa Chapa"}</label>
               <input
                 type="text"
                 value={brandCode}
                 onChange={(e) => setBrandCode(e.target.value)}
-                placeholder="Brand Code"
+                placeholder={lang === "en" ? "Brand Code" : "Msimbo wa Chapa"}
                 className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quantity</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Quantity" : "Idadi"}</label>
               <input
                 required
                 type="number"
@@ -421,18 +437,18 @@ function CreateRequestDialog({ open, onOpenChange, onSubmit }: CreateRequestDial
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Description" : "Maelezo"}</label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description"
+              placeholder={lang === "en" ? "Description" : "Maelezo"}
               className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Select Date</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Select Date" : "Chagua Tarehe"}</label>
               <input
                 type="date"
                 value={selectDate}
@@ -441,24 +457,24 @@ function CreateRequestDialog({ open, onOpenChange, onSubmit }: CreateRequestDial
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Branch</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Branch" : "Tawi"}</label>
               <select
                 value={branch}
                 onChange={(e) => setBranch(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               >
-                <option>Main Branch</option>
-                <option>Westlands</option>
-                <option>Mombasa Rd</option>
+                <option value="Main Branch">{lang === "en" ? "Main Branch" : "Tawi Kuu"}</option>
+                <option value="Westlands">Westlands</option>
+                <option value="Mombasa Rd">Mombasa Rd</option>
               </select>
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Comment</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Comment" : "Maoni"}</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Comment"
+              placeholder={lang === "en" ? "Comment" : "Maoni"}
               rows={2}
               className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
@@ -469,13 +485,13 @@ function CreateRequestDialog({ open, onOpenChange, onSubmit }: CreateRequestDial
               onClick={() => onOpenChange(false)}
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {lang === "en" ? "Cancel" : "Ghairi"}
             </button>
             <button
               type="submit"
               className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
             >
-              Submit Request
+              {lang === "en" ? "Submit Request" : "Wasilisha Ombi"}
             </button>
           </div>
         </form>

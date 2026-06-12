@@ -7,6 +7,7 @@ import { ExportMenu } from "@/components/erp/ExportMenu";
 import { products as initialProducts, currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslate } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_app/products/catalog")({
   head: () => ({ meta: [{ title: "Products & Services — DeveleERP" }] }),
@@ -34,7 +35,16 @@ type Brand = {
   description?: string;
 };
 
+const PRODUCT_TYPE_TRANSLATIONS: Record<string, Record<string, string>> = {
+  Goods: { en: "Goods", sw: "Bidhaa za Kawaida" },
+  Service: { en: "Service", sw: "Huduma" },
+  "Raw Material": { en: "Raw Material", sw: "Malighafi" },
+  "Fixed Asset": { en: "Fixed Asset", sw: "Rasilimali ya Kudumu" },
+  "Intangible Asset": { en: "Intangible Asset", sw: "Rasilimali Isiyoonekana" },
+};
+
 function CatalogPage() {
+  const { lang, t } = useTranslate();
   const [productsList, setProductsList] = useState<Product[]>(
     initialProducts.map((p, idx) => ({
       ...p,
@@ -111,22 +121,22 @@ function CatalogPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Products & Services"
-        description="Catalog, brands, and product codes."
+        title={lang === "en" ? "Products & Services" : "Bidhaa na Huduma"}
+        description={lang === "en" ? "Catalog, brands, and product codes." : "Katalogi, chapa, na misimbo ya bidhaa."}
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
             <button
               onClick={() => setBrandOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition animate-fade-in"
             >
-              <Plus className="h-4 w-4 text-slate-500" /> Add Brand
+              <Plus className="h-4 w-4 text-slate-500" /> {t("addBrand")}
             </button>
             <button
               onClick={() => setProductOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition animate-fade-in"
             >
-              <Plus className="h-4 w-4" /> Add Product
+              <Plus className="h-4 w-4" /> {t("addProduct")}
             </button>
           </div>
         }
@@ -135,24 +145,24 @@ function CatalogPage() {
       <TabbedPage tabs={[
         {
           key: "products",
-          label: "Products / Services",
+          label: lang === "en" ? "Products / Services" : "Bidhaa / Huduma",
           render: () => (
             <DataTable
               data={productsList}
               columns={[
                 { key: "sku", header: "SKU" },
-                { key: "name", header: "Name" },
-                { key: "type", header: "Type", render: (r) => r.type || "Goods" },
-                { key: "category", header: "Category" },
-                { key: "brand", header: "Brand", render: (r) => r.brand || "—" },
-                { key: "cost", header: "Cost", align: "right", render: (r) => currency(r.cost) },
-                { key: "price", header: "Price", align: "right", render: (r) => currency(r.price) },
+                { key: "name", header: lang === "en" ? "Name" : "Jina" },
+                { key: "type", header: lang === "en" ? "Type" : "Aina", render: (r) => PRODUCT_TYPE_TRANSLATIONS[r.type || "Goods"]?.[lang] || r.type || "Goods" },
+                { key: "category", header: t("category") },
+                { key: "brand", header: lang === "en" ? "Brand" : "Chapa", render: (r) => r.brand || "—" },
+                { key: "cost", header: t("cost"), align: "right", render: (r) => `TZS ${currency(r.cost).replace("$", "")}` },
+                { key: "price", header: t("price"), align: "right", render: (r) => `TZS ${currency(r.price).replace("$", "")}` },
                 {
                   key: "stock",
-                  header: "Stock",
+                  header: t("stock"),
                   align: "right",
                   render: (r) => (
-                    <span className={r.stock < r.reorder ? "font-medium text-rose-600" : ""}>
+                    <span className={r.stock < r.reorder ? "font-semibold text-rose-600" : ""}>
                       {r.stock}
                     </span>
                   )
@@ -163,16 +173,16 @@ function CatalogPage() {
         },
         {
           key: "brands",
-          label: "Brands & Codes",
+          label: t("brands"),
           render: () => (
             <DataTable
               data={brandsList}
               columns={[
-                { key: "code", header: "Code" },
-                { key: "name", header: "Brand" },
-                { key: "description", header: "Description", render: (r) => r.description || "—" },
-                { key: "products", header: "Products", align: "right" },
-                { key: "active", header: "Status", render: (r) => r.active ? "Active" : "Inactive" },
+                { key: "code", header: t("code") },
+                { key: "name", header: lang === "en" ? "Brand" : "Chapa" },
+                { key: "description", header: t("description"), render: (r) => r.description || "—" },
+                { key: "products", header: lang === "en" ? "Products Count" : "Idadi ya Bidhaa", align: "right" },
+                { key: "active", header: t("status"), render: (r) => r.active ? (lang === "en" ? "Active" : "Amilifu") : (lang === "en" ? "Inactive" : "Isiyoamilifu") },
               ]}
             />
           )
@@ -210,6 +220,7 @@ interface CreateProductDialogProps {
 }
 
 function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreateBrandInline }: CreateProductDialogProps) {
+  const { lang, t } = useTranslate();
   const [name, setName] = useState("");
   const [type, setType] = useState("Goods");
   const [category, setCategory] = useState("");
@@ -243,60 +254,58 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>New Product/Service</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{lang === "en" ? "New Product/Service" : "Bidhaa / Huduma Mpya"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Product Name</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Name" : "Jina la Bidhaa"} *</label>
             <input
               required
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Product Name"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              placeholder={lang === "en" ? "Product Name" : "Jina la Bidhaa"}
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Product Type</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Type" : "Aina ya Bidhaa"}</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               >
-                <option>Goods</option>
-                <option>Service</option>
-                <option>Raw Material</option>
-                <option>Fixed Asset</option>
-                <option>Intangible Asset</option>
+                {Object.keys(PRODUCT_TYPE_TRANSLATIONS).map((k) => (
+                  <option key={k} value={k}>{PRODUCT_TYPE_TRANSLATIONS[k]?.[lang] || k}</option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Category</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("category")} *</label>
               <input
                 required
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="Category"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                placeholder={t("category")}
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
           </div>
 
           <div className="flex items-end gap-2">
             <div className="flex-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Brand</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Brand" : "Chapa"}</label>
               <select
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               >
-                <option value="">Select Brand</option>
+                <option value="">{lang === "en" ? "Select Brand" : "Chagua Chapa"}</option>
                 {brandsList.map(b => (
                   <option key={b.code} value={b.name}>{b.name}</option>
                 ))}
@@ -305,7 +314,7 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
             <button
               type="button"
               onClick={onCreateBrandInline}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition h-9 w-9 flex items-center justify-center"
+              className="rounded-xl border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 transition h-10 w-10 flex items-center justify-center shrink-0"
               title="Create New Brand Inline"
             >
               <Plus className="h-4 w-4" />
@@ -314,52 +323,52 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Cost ($)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Cost (TZS)" : "Gharama (TZS)"}</label>
               <input
                 type="number"
                 step="0.01"
                 min={0}
-                value={cost}
+                value={cost || ""}
                 onChange={(e) => setCost(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Price ($)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Price (TZS)" : "Bei (TZS)"}</label>
               <input
                 type="number"
                 step="0.01"
                 min={0}
-                value={price}
+                value={price || ""}
                 onChange={(e) => setPrice(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Stock</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("stock")}</label>
               <input
                 type="number"
                 min={0}
-                value={stock}
+                value={stock || ""}
                 onChange={(e) => setStock(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
             >
-              Add Product
+              {t("addProduct")}
             </button>
           </div>
         </form>
@@ -377,6 +386,7 @@ interface CreateBrandDialogProps {
 }
 
 function CreateBrandDialog({ open, onOpenChange, onSubmit }: CreateBrandDialogProps) {
+  const { lang, t } = useTranslate();
   const [name, setName] = useState("");
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
@@ -393,58 +403,58 @@ function CreateBrandDialog({ open, onOpenChange, onSubmit }: CreateBrandDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>New Brand</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{t("addBrand")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Brand Name</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Brand Name" : "Jina la Chapa"} *</label>
             <input
               required
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Brand Name"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              placeholder={lang === "en" ? "Brand Name" : "Jina la Chapa"}
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Product Name (Initial Associated Product)</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Name (Initial Associated Product)" : "Jina la Bidhaa (Bidhaa Husika ya Kwanza)"}</label>
             <input
               type="text"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
               placeholder="e.g. Premium Coffee 1kg"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Description</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("description")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brand description or details"
+              placeholder={lang === "en" ? "Brand description or details" : "Maelezo ya chapa"}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
             >
-              Create Brand
+              {t("addBrand")}
             </button>
           </div>
         </form>

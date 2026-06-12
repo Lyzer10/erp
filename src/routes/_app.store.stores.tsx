@@ -6,6 +6,7 @@ import { DataTable } from "@/components/erp/DataTable";
 import { ExportMenu } from "@/components/erp/ExportMenu";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslate } from "@/lib/i18n";
 
 type Store = {
   code: string;
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/_app/store/stores")({
 });
 
 function StoresPage() {
+  const { lang, t } = useTranslate();
   const [stores, setStores] = useState<Store[]>([
     { code: "ST-01", name: "Main Warehouse", location: "Industrial Area", manager: "John Mwangi", items: 1240 },
     { code: "ST-02", name: "Westlands Store", location: "Westlands", manager: "Maria Banda", items: 580 },
@@ -58,22 +60,22 @@ function StoresPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Stores & Conversions"
-        description="Physical store locations and conversion formulas."
+        title={lang === "en" ? "Stores & Conversions" : "Maghala & Fomula za Ubadilishaji"}
+        description={lang === "en" ? "Physical store locations and conversion formulas." : "Maeneo halisi ya maghala na fomula za ubadilishaji wa bidhaa."}
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
             <button
               onClick={() => setConversionOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition animate-fade-in"
             >
-              <Plus className="h-4 w-4 text-slate-500" /> Add Formula
+              <Plus className="h-4 w-4 text-slate-500" /> {t("addFormula")}
             </button>
             <button
               onClick={() => setStoreOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition animate-fade-in"
             >
-              <Plus className="h-4 w-4" /> Add Store
+              <Plus className="h-4 w-4" /> {t("addStore")}
             </button>
           </div>
         }
@@ -81,31 +83,31 @@ function StoresPage() {
       <TabbedPage tabs={[
         {
           key: "stores",
-          label: "Stores",
+          label: t("stores"),
           render: () => (
             <DataTable
               data={stores}
               columns={[
-                { key: "code", header: "Code" },
-                { key: "name", header: "Store" },
-                { key: "location", header: "Location" },
-                { key: "manager", header: "Manager" },
-                { key: "items", header: "Items", align: "right" }
+                { key: "code", header: t("code") },
+                { key: "name", header: lang === "en" ? "Store" : "Stoo / Ghala" },
+                { key: "location", header: t("location") },
+                { key: "manager", header: t("manager") },
+                { key: "items", header: lang === "en" ? "Items" : "Bidhaa", align: "right" }
               ]}
             />
           )
         },
         {
           key: "conversions",
-          label: "Conversion Formulas",
+          label: t("formulas"),
           render: () => (
             <DataTable
               data={conversions}
               columns={[
-                { key: "code", header: "Code" },
-                { key: "from", header: "From" },
-                { key: "to", header: "To" },
-                { key: "ratio", header: "Ratio" }
+                { key: "code", header: t("code") },
+                { key: "from", header: lang === "en" ? "From Unit/Item" : "Kutoka Kitengo/Bidhaa" },
+                { key: "to", header: lang === "en" ? "To Unit/Item" : "Kwenda Kitengo/Bidhaa" },
+                { key: "ratio", header: lang === "en" ? "Ratio" : "Uwiano" }
               ]}
             />
           )
@@ -136,6 +138,7 @@ interface CreateStoreDialogProps {
 }
 
 function CreateStoreDialog({ open, onOpenChange, onSubmit }: CreateStoreDialogProps) {
+  const { lang, t } = useTranslate();
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [manager, setManager] = useState("");
@@ -154,72 +157,76 @@ function CreateStoreDialog({ open, onOpenChange, onSubmit }: CreateStoreDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>New Store Location</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{t("addStore")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Store Name</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "Store Name" : "Jina la Stoo / Ghala"}
+            </label>
             <input
               required
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Arusha Warehouse"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Location</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("location")}</label>
             <input
               required
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Njiro Road"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Manager</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t("manager")}</label>
               <input
                 required
                 type="text"
                 value={manager}
                 onChange={(e) => setManager(e.target.value)}
                 placeholder="e.g. Anita Hassan"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Initial Items Count</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                {lang === "en" ? "Initial Items Count" : "Idadi ya Bidhaa za Kuanzia"}
+              </label>
               <input
                 type="number"
                 min={0}
                 value={items}
                 onChange={(e) => setItems(Number(e.target.value))}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
             >
-              Create Store
+              {t("addStore")}
             </button>
           </div>
         </form>
@@ -237,6 +244,7 @@ interface CreateConversionDialogProps {
 }
 
 function CreateConversionDialog({ open, onOpenChange, onSubmit }: CreateConversionDialogProps) {
+  const { lang, t } = useTranslate();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [ratio, setRatio] = useState("1 : 1");
@@ -253,60 +261,66 @@ function CreateConversionDialog({ open, onOpenChange, onSubmit }: CreateConversi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>New Conversion Formula</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{t("addFormula")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From Unit/Item</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "From Unit/Item" : "Kutoka Kitengo / Bidhaa"}
+            </label>
             <input
               required
               type="text"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               placeholder="e.g. Paint 20L Bucket"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To Unit/Item</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "To Unit/Item" : "Kwenda Kitengo / Bidhaa"}
+            </label>
             <input
               required
               type="text"
               value={to}
               onChange={(e) => setTo(e.target.value)}
               placeholder="e.g. Paint 1L Tin"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Ratio (From : To)</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "Ratio (From : To)" : "Uwiano (Kutoka : Kwenda)"}
+            </label>
             <input
               required
               type="text"
               value={ratio}
               onChange={(e) => setRatio(e.target.value)}
               placeholder="e.g. 1 : 20"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
             >
-              Create Formula
+              {t("addFormula")}
             </button>
           </div>
         </form>

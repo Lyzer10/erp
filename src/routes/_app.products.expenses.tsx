@@ -8,6 +8,7 @@ import { ExportMenu } from "@/components/erp/ExportMenu";
 import { expenses as initialExpenses, currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useTranslate } from "@/lib/i18n";
 
 type Expense = {
   id: string;
@@ -31,7 +32,17 @@ export const Route = createFileRoute("/_app/products/expenses")({
   component: ExpensesPage,
 });
 
+const CATEGORY_TRANSLATIONS: Record<string, Record<string, string>> = {
+  Rent: { en: "Rent", sw: "Kodi" },
+  Utilities: { en: "Utilities", sw: "Huduma" },
+  Salaries: { en: "Salaries", sw: "Mishahara" },
+  Marketing: { en: "Marketing", sw: "Masoko" },
+  Travel: { en: "Travel", sw: "Safari" },
+  "Office Supplies": { en: "Office Supplies", sw: "Vifaa vya Ofisi" },
+};
+
 function ExpensesPage() {
+  const { lang, t } = useTranslate();
   const [expenseList, setExpenseList] = useState<Expense[]>(
     initialExpenses.map(e => ({
       id: e.id,
@@ -81,8 +92,8 @@ function ExpensesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Expenses"
-        description="Categorize and register company expenses."
+        title={t("expenses")}
+        description={lang === "en" ? "Categorize and register company expenses." : "Panga katika makundi na kusajili matumizi ya kampuni."}
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
@@ -90,7 +101,7 @@ function ExpensesPage() {
               onClick={() => setExpenseOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition animate-fade-in"
             >
-              <Plus className="h-4 w-4" /> Register Expense
+              <Plus className="h-4 w-4" /> {t("registerExpense")}
             </button>
           </div>
         }
@@ -98,32 +109,32 @@ function ExpensesPage() {
       <TabbedPage tabs={[
         {
           key: "categories",
-          label: "Categories",
+          label: lang === "en" ? "Categories" : "Makundi ya Matumizi",
           render: () => (
             <DataTable
               data={categoriesList}
               columns={[
-                { key: "code", header: "Code" },
-                { key: "name", header: "Category" },
-                { key: "count", header: "Entries", align: "right" },
-                { key: "total", header: "Total Spend", align: "right", render: (r) => currency(r.total) },
+                { key: "code", header: t("code") },
+                { key: "name", header: t("category"), render: (r) => CATEGORY_TRANSLATIONS[r.name]?.[lang] || r.name },
+                { key: "count", header: t("entries"), align: "right" },
+                { key: "total", header: t("totalSpend"), align: "right", render: (r) => `TZS ${currency(r.total).replace("$", "")}` },
               ]}
             />
           )
         },
         {
           key: "register",
-          label: "Registered Expenses",
+          label: lang === "en" ? "Registered Expenses" : "Matumizi Yaliyosajiliwa",
           render: () => (
             <DataTable
               data={expenseList}
               columns={[
                 { key: "id", header: "ID" },
-                { key: "category", header: "Category" },
-                { key: "vendor", header: "Vendor" },
-                { key: "date", header: "Date" },
-                { key: "amount", header: "Amount", align: "right", render: (r) => currency(r.amount) },
-                { key: "status", header: "Status", render: (r) => <StatusPill status={r.status} /> },
+                { key: "category", header: t("category"), render: (r) => CATEGORY_TRANSLATIONS[r.category]?.[lang] || r.category },
+                { key: "vendor", header: lang === "en" ? "Vendor" : "Muuzaji / Mlipwaji" },
+                { key: "date", header: t("date") },
+                { key: "amount", header: lang === "en" ? "Amount" : "Kiasi", align: "right", render: (r) => `TZS ${currency(r.amount).replace("$", "")}` },
+                { key: "status", header: t("status"), render: (r) => <StatusPill status={r.status} /> },
               ]}
             />
           )
@@ -150,6 +161,7 @@ interface CreateExpenseDialogProps {
 }
 
 function CreateExpenseDialog({ open, onOpenChange, onSubmit, categories }: CreateExpenseDialogProps) {
+  const { lang, t } = useTranslate();
   const [category, setCategory] = useState(categories[0]?.name || "Office Supplies");
   const [vendor, setVendor] = useState("");
   const [amount, setAmount] = useState(0);
@@ -168,73 +180,81 @@ function CreateExpenseDialog({ open, onOpenChange, onSubmit, categories }: Creat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Register Expense</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{t("registerExpense")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Expense Category</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "Expense Category" : "Kundi la Matumizi"}
+            </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             >
               {categories.map(c => (
-                <option key={c.code} value={c.name}>{c.name}</option>
+                <option key={c.code} value={c.name}>{CATEGORY_TRANSLATIONS[c.name]?.[lang] || c.name}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Vendor / Payee Name</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "Vendor / Payee Name" : "Jina la Muuzaji / Mlipaji"}
+            </label>
             <input
               required
               type="text"
               value={vendor}
               onChange={(e) => setVendor(e.target.value)}
-              placeholder="e.g. NMB Bank, Tanesco, Acme Corp"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              placeholder={lang === "en" ? "e.g. NMB Bank, Tanesco, Acme Corp" : "mf. Benki ya NMB, Tanesco, Acme Corp"}
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Amount ($)</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "Amount (TZS)" : "Kiasi (TZS)"}
+            </label>
             <input
               required
               type="number"
               min={0.01}
               step="0.01"
-              value={amount}
+              value={amount || ""}
               onChange={(e) => setAmount(Number(e.target.value))}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Notes / Description</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              {lang === "en" ? "Notes / Description" : "Maelezo / Vidokezo"}
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Provide a detailed notes..."
+              placeholder={lang === "en" ? "Provide detailed notes..." : "Weka maelezo ya kina..."}
               rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
             >
-              Register Expense
+              {t("registerExpense")}
             </button>
           </div>
         </form>

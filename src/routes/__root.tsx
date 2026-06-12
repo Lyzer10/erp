@@ -11,19 +11,26 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { getLanguage, useTranslate } from "../lib/i18n";
 
 function NotFoundComponent() {
+  const lang = getLanguage();
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="glass-card max-w-md p-10 text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">
+          {lang === "en" ? "Page not found" : "Ukurasa haujapatikana"}
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          {lang === "en" 
+            ? "The page you're looking for doesn't exist or has been moved." 
+            : "Ukurasa unaotafuta haupo au umehamishwa."
+          }
         </p>
         <div className="mt-6">
           <Link to="/" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-            Go to Dashboard
+            {lang === "en" ? "Go to Dashboard" : "Nenda Dashibodi"}
           </Link>
         </div>
       </div>
@@ -34,6 +41,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const lang = getLanguage();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -41,11 +49,22 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="glass-card max-w-md p-8 text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Something went wrong. Try refreshing or head back home.</p>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          {lang === "en" ? "This page didn't load" : "Ukurasa huu haukupakizwa"}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {lang === "en" 
+            ? "Something went wrong. Try refreshing or head back home." 
+            : "Kuna kitu kimeenda vibaya. Jaribu kupakia upya au rudi nyumbani."
+          }
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button onClick={() => { router.invalidate(); reset(); }} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">Try again</button>
-          <a href="/" className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent">Go home</a>
+          <button onClick={() => { router.invalidate(); reset(); }} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            {lang === "en" ? "Try again" : "Jaribu tena"}
+          </button>
+          <a href="/" className="rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent">
+            {lang === "en" ? "Go home" : "Rudi Nyumbani"}
+          </a>
         </div>
       </div>
     </div>
@@ -87,8 +106,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const lang = getLanguage();
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <HeadContent />
       </head>

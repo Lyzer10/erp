@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { StatusPill } from "@/components/erp/StatusPill";
+import { useTranslate } from "@/lib/i18n";
 import { Plus, Eye, Pencil, Trash2, FileSpreadsheet, FileText, Search, Inbox, Download, Upload, ChevronDown } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -43,14 +44,15 @@ export const Route = createFileRoute("/_app/stakeholders/customers")({
 });
 
 function CustomersPage() {
+  const { t, lang } = useTranslate();
   const [customers, setCustomers] = useState<Customer[]>(customersMock);
   const [createOpen, setCreateOpen] = useState(false);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Customers"
-        description="Manage customers, advances, and imports."
+        title={t("customers")}
+        description={lang === "en" ? "Manage customers, advances, and imports." : "Simamia wateja, amana zao, na kuingiza faili."}
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
@@ -58,15 +60,15 @@ function CustomersPage() {
               onClick={() => setCreateOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
             >
-              <Plus className="h-4 w-4" /> New Customer
+              <Plus className="h-4 w-4" /> {lang === "en" ? "New Customer" : "Mteja Mpya"}
             </button>
           </div>
         }
       />
       <TabbedPage tabs={[
-        { key: "list",    label: "Customers List",    render: () => <CustomersList customers={customers} setCustomers={setCustomers} /> },
-        { key: "advance", label: "Customer Advances", render: () => <AdvancesTable /> },
-        { key: "import",  label: "Import Customers",  render: () => <ImportCard title="Import Customers" templateName="CUSTOMERS TEMPLATE" /> },
+        { key: "list",    label: lang === "en" ? "Customers List" : "Orodha ya Wateja",    render: () => <CustomersList customers={customers} setCustomers={setCustomers} /> },
+        { key: "advance", label: lang === "en" ? "Customer Advances" : "Amana za Wateja", render: () => <AdvancesTable /> },
+        { key: "import",  label: lang === "en" ? "Import Customers" : "Ingiza Wateja",  render: () => <ImportCard title={lang === "en" ? "Import Customers" : "Ingiza Wateja"} templateName={lang === "en" ? "CUSTOMERS TEMPLATE" : "KIELELEZO CHA WATEJA"} /> },
       ]} />
 
       <CreateCustomerDialog
@@ -90,11 +92,12 @@ function CustomersPage() {
 }
 
 function ExportMenu() {
+  const { lang } = useTranslate();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-          Export <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+          {lang === "en" ? "Export" : "Hamisha"} <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
@@ -115,6 +118,7 @@ interface CustomersListProps {
 }
 
 function CustomersList({ customers, setCustomers }: CustomersListProps) {
+  const { lang } = useTranslate();
   const [q, setQ] = useState("");
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -133,12 +137,16 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
   const start = (page - 1) * perPage;
   const rows = filtered.slice(start, start + perPage);
 
+  const headers = lang === "en" 
+    ? ["#", "Customer Name", "Phone", "Email", "Region", "Balance", "Status", "Action"]
+    : ["#", "Jina la Mteja", "Simu", "Barua Pepe", "Mkoa", "Salio", "Hali", "Kitendo"];
+
   return (
     <div className="glass-card overflow-hidden p-0">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-end gap-3 border-b border-white/40 p-4">
         <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          Show
+          {lang === "en" ? "Show" : "Onyesha"}
           <select
             value={perPage}
             onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
@@ -146,14 +154,14 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
           >
             {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
-          entries
+          {lang === "en" ? "entries" : "kumbukumbu"}
         </label>
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(1); }}
-            placeholder="Search..."
+            placeholder={lang === "en" ? "Search..." : "Tafuta..."}
             className="w-56 rounded-md border border-slate-200 bg-white py-1.5 pl-8 pr-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
         </div>
@@ -163,9 +171,15 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              {["#", "Customer Name", "Phone", "Email", "Region", "Balance", "Status", "Action"].map((h) => (
-                <th key={h} className={`whitespace-nowrap px-3 py-3 font-medium ${h === "Balance" ? "text-right" : h === "Action" || h === "Status" ? "text-center" : "text-left"}`}>{h}</th>
-              ))}
+              {headers.map((h, index) => {
+                const isBalance = lang === "en" ? h === "Balance" : h === "Salio";
+                const isActionOrStatus = lang === "en" 
+                  ? (h === "Action" || h === "Status") 
+                  : (h === "Kitendo" || h === "Hali");
+                return (
+                  <th key={index} className={`whitespace-nowrap px-3 py-3 font-medium ${isBalance ? "text-right" : isActionOrStatus ? "text-center" : "text-left"}`}>{h}</th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -173,7 +187,7 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
               <tr>
                 <td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">
                   <Inbox className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                  No data available
+                  {lang === "en" ? "No data available" : "Hakuna data inayopatikana"}
                 </td>
               </tr>
             ) : rows.map((c, i) => (
@@ -187,9 +201,9 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
                 <td className="px-3 py-3 text-center"><StatusPill status={c.status} /></td>
                 <td className="px-3 py-3">
                   <div className="flex items-center justify-center gap-1">
-                    <IconBtn title="View" onClick={() => setViewing(c)} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
-                    <IconBtn title="Edit" onClick={() => {}} tone="amber"><Pencil className="h-3.5 w-3.5" /></IconBtn>
-                    <IconBtn title="Delete" onClick={() => setToDelete(c)} tone="rose"><Trash2 className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn title={lang === "en" ? "View" : "Angalia"} onClick={() => setViewing(c)} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn title={lang === "en" ? "Edit" : "Hariri"} onClick={() => {}} tone="amber"><Pencil className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn title={lang === "en" ? "Delete" : "Futa"} onClick={() => setToDelete(c)} tone="rose"><Trash2 className="h-3.5 w-3.5" /></IconBtn>
                   </div>
                 </td>
               </tr>
@@ -200,14 +214,17 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
 
       <div className="flex items-center justify-between border-t border-white/40 px-4 py-3 text-xs">
         <span className="text-muted-foreground">
-          Showing {filtered.length === 0 ? 0 : start + 1} to {Math.min(start + perPage, filtered.length)} of {filtered.length} entries
+          {lang === "en" 
+            ? `Showing ${filtered.length === 0 ? 0 : start + 1} to ${Math.min(start + perPage, filtered.length)} of ${filtered.length} entries`
+            : `Inaonyesha ${filtered.length === 0 ? 0 : start + 1} hadi ${Math.min(start + perPage, filtered.length)} kati ya kumbukumbu ${filtered.length}`
+          }
         </span>
         <div className="flex gap-2">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">Previous</button>
+            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">{lang === "en" ? "Previous" : "Nyuma"}</button>
           <span className="rounded-md bg-blue-500 px-3 py-1 font-semibold text-white">{page}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">Next</button>
+            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">{lang === "en" ? "Next" : "Mbele"}</button>
         </div>
       </div>
 
@@ -215,24 +232,24 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Customer Details</DialogTitle>
+            <DialogTitle>{lang === "en" ? "Customer Details" : "Maelezo ya Mteja"}</DialogTitle>
           </DialogHeader>
           {viewing && (
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Status</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">{lang === "en" ? "Status" : "Hali"}</span>
                 <StatusPill status={viewing.status} />
               </div>
-              <DetailRow label="Name"    value={viewing.name} />
-              <DetailRow label="Phone"   value={viewing.phone} />
-              <DetailRow label="Email"   value={viewing.email} />
-              <DetailRow label="Region"  value={viewing.region} />
-              <DetailRow label="Balance" value={tzs(viewing.balance)} />
+              <DetailRow label={lang === "en" ? "Name" : "Jina"}    value={viewing.name} />
+              <DetailRow label={lang === "en" ? "Phone" : "Simu"}   value={viewing.phone} />
+              <DetailRow label={lang === "en" ? "Email" : "Barua Pepe"}   value={viewing.email} />
+              <DetailRow label={lang === "en" ? "Region" : "Mkoa"}  value={viewing.region} />
+              <DetailRow label={lang === "en" ? "Balance" : "Salio"} value={tzs(viewing.balance)} />
               <div className="my-2 h-px bg-slate-100" />
-              <DetailRow label="TIN Number" value={viewing.tin} />
+              <DetailRow label={lang === "en" ? "TIN Number" : "Namba ya TIN"} value={viewing.tin} />
               <DetailRow label="VRN"        value={viewing.vrn} />
-              <DetailRow label="Address"    value={viewing.address} />
-              <DetailRow label="Branch"     value={viewing.branch} />
+              <DetailRow label={lang === "en" ? "Address" : "Anwani"}    value={viewing.address} />
+              <DetailRow label={lang === "en" ? "Branch" : "Tawi"}     value={viewing.branch} />
             </div>
           )}
         </DialogContent>
@@ -242,19 +259,22 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete customer?</AlertDialogTitle>
+            <AlertDialogTitle>{lang === "en" ? "Delete customer?" : "Futa mteja?"}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove <span className="font-semibold">{toDelete?.name}</span> from your records. This action cannot be undone.
+              {lang === "en" 
+                ? `This will permanently remove ${toDelete?.name} from your records. This action cannot be undone.`
+                : `Hii itaondoa kabisa ${toDelete?.name} kutoka kwenye kumbukumbu zako. Kitendo hiki hakiwezi kubatilishwa.`
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{lang === "en" ? "Cancel" : "Ghairi"}</AlertDialogCancel>
             <AlertDialogAction onClick={() => {
               if (toDelete) {
                 setCustomers(prev => prev.filter(c => c.id !== toDelete.id));
               }
               setToDelete(null);
-            }} className="bg-rose-600 hover:bg-rose-700">Delete</AlertDialogAction>
+            }} className="bg-rose-600 hover:bg-rose-700">{lang === "en" ? "Delete" : "Futa"}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -272,15 +292,24 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 }
 
 function AdvancesTable() {
+  const { lang } = useTranslate();
+  const headers = lang === "en"
+    ? ["#", "Customer Name", "Created By", "Currency", "Balance", "Action"]
+    : ["#", "Jina la Mteja", "Imeundwa na", "Sarafu", "Salio", "Kitendo"];
+
   return (
     <div className="glass-card overflow-hidden p-0">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
             <tr>
-              {["#", "Customer Name", "Created By", "Currency", "Balance", "Action"].map((h) => (
-                <th key={h} className={`px-3 py-3 font-medium ${h === "Balance" ? "text-right" : h === "Action" ? "text-center" : "text-left"}`}>{h}</th>
-              ))}
+              {headers.map((h, idx) => {
+                const isBalance = lang === "en" ? h === "Balance" : h === "Salio";
+                const isAction = lang === "en" ? h === "Action" : h === "Kitendo";
+                return (
+                  <th key={idx} className={`px-3 py-3 font-medium ${isBalance ? "text-right" : isAction ? "text-center" : "text-left"}`}>{h}</th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -295,8 +324,8 @@ function AdvancesTable() {
                 </td>
                 <td className="px-3 py-3">
                   <div className="flex items-center justify-center gap-1">
-                    <IconBtn title="View" onClick={() => {}} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
-                    <IconBtn title="Delete" onClick={() => {}} tone="rose"><Trash2 className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn title={lang === "en" ? "View" : "Angalia"} onClick={() => {}} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
+                    <IconBtn title={lang === "en" ? "Delete" : "Futa"} onClick={() => {}} tone="rose"><Trash2 className="h-3.5 w-3.5" /></IconBtn>
                   </div>
                 </td>
               </tr>
@@ -309,6 +338,7 @@ function AdvancesTable() {
 }
 
 export function ImportCard({ title, templateName }: { title: string; templateName: string }) {
+  const { lang } = useTranslate();
   const [fileName, setFileName] = useState<string>("");
   return (
     <div className="mx-auto max-w-2xl">
@@ -318,19 +348,19 @@ export function ImportCard({ title, templateName }: { title: string; templateNam
           <h3 className="text-base font-semibold">{title}</h3>
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-700">Select File:</label>
+          <label className="block text-sm font-medium text-slate-700">{lang === "en" ? "Select File:" : "Chagua Faili:"}</label>
           <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white/60 p-4 hover:bg-white/80">
-            <span className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">Choose File</span>
-            <span className="text-sm text-muted-foreground">{fileName || "No file chosen"}</span>
+            <span className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{lang === "en" ? "Choose File" : "Chagua Faili"}</span>
+            <span className="text-sm text-muted-foreground">{fileName || (lang === "en" ? "No file chosen" : "Hakuna faili lililochaguliwa")}</span>
             <input type="file" className="hidden" accept=".csv,.xlsx" onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")} />
           </label>
         </div>
         <a href="#download-template" className="inline-flex items-center gap-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline">
-          <Download className="h-3.5 w-3.5" /> Download: {templateName}
+          <Download className="h-3.5 w-3.5" /> {lang === "en" ? "Download:" : "Pakua:"} {templateName}
         </a>
         <div className="pt-2">
           <button className="rounded-lg bg-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">
-            Submit
+            {lang === "en" ? "Submit" : "Wasilisha"}
           </button>
         </div>
       </div>
@@ -362,6 +392,7 @@ interface CreateCustomerDialogProps {
 }
 
 function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDialogProps) {
+  const { lang } = useTranslate();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -388,11 +419,11 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>New Customer</DialogTitle>
+          <DialogTitle>{lang === "en" ? "New Customer" : "Mteja Mpya"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Customer Name</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Customer Name" : "Jina la Mteja"}</label>
             <input
               required
               type="text"
@@ -404,7 +435,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone Number</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Phone Number" : "Namba ya Simu"}</label>
               <input
                 type="text"
                 value={phone}
@@ -414,7 +445,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Email" : "Barua Pepe"}</label>
               <input
                 type="email"
                 value={email}
@@ -426,7 +457,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Region</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Region" : "Mkoa"}</label>
               <input
                 type="text"
                 value={region}
@@ -436,7 +467,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Address" : "Anwani"}</label>
               <input
                 type="text"
                 value={address}
@@ -448,7 +479,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">TIN Number</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "TIN Number" : "Namba ya TIN"}</label>
               <input
                 type="text"
                 value={tin}
@@ -474,13 +505,13 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
               onClick={() => onOpenChange(false)}
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
             >
-              Cancel
+              {lang === "en" ? "Cancel" : "Ghairi"}
             </button>
             <button
               type="submit"
               className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
             >
-              Save Customer
+              {lang === "en" ? "Save Customer" : "Hifadhi Mteja"}
             </button>
           </div>
         </form>
