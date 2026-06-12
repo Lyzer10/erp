@@ -34,22 +34,22 @@ interface DarkCardProps {
 }
 
 const toneMap = {
-  indigo:  "bg-slate-900",
-  emerald: "bg-slate-900",
-  amber:   "bg-slate-900",
+  indigo:  "bg-blue-950 border-blue-900/45",
+  emerald: "bg-blue-950 border-blue-900/45",
+  amber:   "bg-blue-950 border-blue-900/45",
 };
 
 const iconToneMap = {
-  indigo:  "bg-indigo-500/15 text-indigo-300",
-  emerald: "bg-emerald-500/15 text-emerald-300",
-  amber:   "bg-amber-500/15 text-amber-300",
+  indigo:  "bg-blue-500/20 text-blue-200",
+  emerald: "bg-blue-500/20 text-blue-200",
+  amber:   "bg-blue-500/20 text-blue-200",
 };
 
 export function DarkCard({ title, icon: Icon = Info, tone = "indigo", children }: DarkCardProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl p-5 text-slate-100 shadow-md border border-slate-800",
+        "relative overflow-hidden rounded-2xl p-5 text-slate-100 shadow-md border",
         toneMap[tone],
       )}
     >
@@ -80,7 +80,7 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
           <ul className="mt-3 space-y-1.5">
             {about.bullets.map((b) => (
               <li key={b} className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-400" />
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
                 <span className="text-slate-300">{b}</span>
               </li>
             ))}
@@ -92,7 +92,7 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
         <ul className="space-y-1.5">
           {tips.map((t) => (
             <li key={t} className="flex items-start gap-2">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
               <span>{t}</span>
             </li>
           ))}
