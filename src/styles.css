@@ -175,7 +175,7 @@
 
   body {
     color: var(--color-foreground);
-    background-color: oklch(0.965 0.012 250);
+    background-color: oklch(0.965 0.018 235);
     min-height: 100vh;
   }
 }
