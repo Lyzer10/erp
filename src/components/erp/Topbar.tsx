@@ -43,6 +43,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
 
   function handleLogout() {
     document.cookie = "is_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    try { localStorage.removeItem("is_logged_in"); } catch {}
     navigate({ to: "/login" });
   }
 

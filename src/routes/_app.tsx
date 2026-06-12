@@ -7,11 +7,13 @@ function AppShellWrapper() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const isLoggedIn = document.cookie
+    const hasCookie = document.cookie
       .split("; ")
       .some((item) => item.trim().startsWith("is_logged_in=true"));
+    const hasLocal =
+      typeof localStorage !== "undefined" && localStorage.getItem("is_logged_in") === "true";
 
-    if (!isLoggedIn) {
+    if (!hasCookie && !hasLocal) {
       navigate({ to: "/login", replace: true });
     } else {
       setChecking(false);
