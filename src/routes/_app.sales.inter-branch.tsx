@@ -222,53 +222,40 @@ function InterBranchPage() {
           key: "request",
           label: "Stock Request",
           render: () => (
-            <div className="space-y-8">
-              {/* Part 1: Stock Request Table */}
-              <div className="space-y-2">
+            <div className="space-y-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-1 rounded bg-blue-500" />
                   <h3 className="text-sm font-semibold text-slate-800">Stock Requests Overview</h3>
                 </div>
-                <DataTable
-                  data={requests}
-                  columns={requestCols}
-                />
+                {/* Compact Date Range Filters */}
+                <div className="flex flex-wrap items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200/60 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</span>
+                    <input
+                      type="date"
+                      value={listFromVal}
+                      onChange={(e) => setListFromVal(e.target.value)}
+                      className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950 font-medium"
+                    />
+                  </div>
+                  <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</span>
+                    <input
+                      type="date"
+                      value={listToVal}
+                      onChange={(e) => setListToVal(e.target.value)}
+                      className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950 font-medium"
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Part 2: Stock Requested List (just down in the same page) */}
-              <div className="space-y-2">
-                <div className="h-px bg-slate-200 my-4" />
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-1 rounded bg-blue-500" />
-                  <h3 className="text-sm font-semibold text-slate-800">Stock Requested List</h3>
-                </div>
-                <GlassCard className="space-y-4">
-                  <div className="flex flex-wrap items-center gap-4 border-b border-blue-100/40 pb-4">
-                    <div className="flex items-center gap-2">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">From:</label>
-                      <input
-                        type="date"
-                        value={listFromVal}
-                        onChange={(e) => setListFromVal(e.target.value)}
-                        className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">To:</label>
-                      <input
-                        type="date"
-                        value={listToVal}
-                        onChange={(e) => setListToVal(e.target.value)}
-                        className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950"
-                      />
-                    </div>
-                  </div>
-                  <DataTable
-                    data={filteredRequests}
-                    columns={requestCols}
-                  />
-                </GlassCard>
-              </div>
+              <DataTable
+                data={filteredRequests}
+                columns={requestCols}
+              />
             </div>
           )
         },
