@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Bell, ScanLine, Menu, Plus, PanelLeft, LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslate, setLanguage } from "@/lib/i18n";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -37,6 +38,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
   const navigate = useNavigate();
   const now = useNow();
   const [profileOpen, setProfileOpen] = useState(false);
+  const { lang, t } = useTranslate();
 
   const dateLabel = now.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short" });
   const timeLabel = now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
@@ -63,31 +65,31 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
           to="/sales/invoices/new"
           className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
         >
-          <Plus className="h-3.5 w-3.5" /> Invoice
+          <Plus className="h-3.5 w-3.5" /> {t("invoice")}
         </Link>
         <Link
           to="/sales/invoices/proforma"
           className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/70 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
         >
-          <Plus className="h-3.5 w-3.5" /> Proforma
+          <Plus className="h-3.5 w-3.5" /> {t("proforma")}
         </Link>
         <Link
           to="/products/purchase-orders"
           className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/70 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
         >
-          <Plus className="h-3.5 w-3.5" /> Purchase Order
+          <Plus className="h-3.5 w-3.5" /> {t("purchaseOrder")}
         </Link>
         <Link
           to="/products/self-service"
           className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/70 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
         >
-          <Plus className="h-3.5 w-3.5" /> Payment Request
+          <Plus className="h-3.5 w-3.5" /> {t("paymentRequest")}
         </Link>
       </div>
 
       {/* Breadcrumb on small screens */}
       <span className="ml-2 truncate text-xs font-medium capitalize text-muted-foreground md:hidden">
-        {pathname === "/" ? "Dashboard" : pathname.split("/").filter(Boolean).join(" / ").replaceAll("-", " ")}
+        {pathname === "/" ? t("dashboard") : pathname.split("/").filter(Boolean).join(" / ").replaceAll("-", " ")}
       </span>
 
       {/* Right side */}
@@ -97,12 +99,22 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
           <span className="text-[11px] text-muted-foreground">{timeLabel}</span>
         </div>
 
+        {/* Flag language switcher button */}
+        <button
+          onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-white/60 bg-white/50 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white/70 hover:border-slate-300"
+          title={lang === "en" ? "Change to Kiswahili" : "Badili kwenda Kiingereza"}
+        >
+          <span className="text-base">{lang === "en" ? "🇬🇧" : "🇹🇿"}</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-600">{lang === "en" ? "EN" : "SW"}</span>
+        </button>
+
         <Link
           to="/pos"
           className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
         >
           <ScanLine className="h-4 w-4" />
-          <span className="hidden sm:inline">Open POS</span>
+          <span className="hidden sm:inline">{t("openPos")}</span>
         </Link>
 
         <button

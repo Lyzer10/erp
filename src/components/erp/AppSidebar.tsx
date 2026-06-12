@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslate } from "@/lib/i18n";
 import {
   LayoutDashboard, Users, Receipt, Package, Wallet, UserCog, Warehouse,
   Settings, ScanLine, ChevronDown, ChevronsLeft, ChevronsRight,
@@ -9,49 +10,6 @@ import { cn } from "@/lib/utils";
 type Item = { label: string; to: string };
 type Group = { label: string; icon: React.ComponentType<{ className?: string }>; items: Item[] };
 
-const groups: Group[] = [
-  { label: "Stakeholders", icon: Users, items: [
-    { label: "Customers", to: "/stakeholders/customers" },
-    { label: "Suppliers", to: "/stakeholders/suppliers" },
-  ]},
-  { label: "Sales", icon: Receipt, items: [
-    { label: "Invoices", to: "/sales/invoices" },
-    { label: "Sales Reports", to: "/sales/reports" },
-    { label: "Receipts & Delivery", to: "/sales/receipts" },
-    { label: "Customer Statement", to: "/sales/customer-statement" },
-    { label: "Inter Branch", to: "/sales/inter-branch" },
-  ]},
-  { label: "Products & Purchases", icon: Package, items: [
-    { label: "Products", to: "/products/catalog" },
-    { label: "Purchase Orders", to: "/products/purchase-orders" },
-    { label: "Expenses", to: "/products/expenses" },
-    { label: "Self Service", to: "/products/self-service" },
-  ]},
-  { label: "Finance", icon: Wallet, items: [
-    { label: "Financial Reports", to: "/finance/reports" },
-    { label: "Chart of Accounts", to: "/finance/chart-of-accounts" },
-    { label: "Payment Vouchers", to: "/finance/payment-vouchers" },
-    { label: "Bank & Cash", to: "/finance/bank-cash" },
-    { label: "Reconciliation", to: "/finance/reconciliation" },
-    { label: "Ledgers", to: "/finance/ledgers" },
-  ]},
-  { label: "HR & Payroll", icon: UserCog, items: [
-    { label: "Staff", to: "/hr/staff" },
-    { label: "Leave", to: "/hr/leave" },
-    { label: "Salary", to: "/hr/salary" },
-    { label: "Payroll", to: "/hr/payroll" },
-  ]},
-  { label: "Store", icon: Warehouse, items: [
-    { label: "Stock", to: "/store/stock" },
-    { label: "Transfers", to: "/store/transfers" },
-    { label: "Stores", to: "/store/stores" },
-  ]},
-  { label: "Admin", icon: Settings, items: [
-    { label: "Users", to: "/admin/users" },
-    { label: "Settings", to: "/admin/settings" },
-  ]},
-];
-
 interface Props {
   readonly onNavigate?: () => void;
   readonly collapsed?: boolean;
@@ -60,6 +18,75 @@ interface Props {
 
 export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useTranslate();
+
+  const groups: Group[] = [
+    {
+      label: t("stakeholders"),
+      icon: Users,
+      items: [
+        { label: t("customers"), to: "/stakeholders/customers" },
+        { label: t("suppliers"), to: "/stakeholders/suppliers" },
+      ]
+    },
+    {
+      label: t("sales"),
+      icon: Receipt,
+      items: [
+        { label: t("invoices"), to: "/sales/invoices" },
+        { label: t("reports"), to: "/sales/reports" },
+        { label: t("receipts"), to: "/sales/receipts" },
+        { label: t("statement"), to: "/sales/customer-statement" },
+        { label: t("stockRequest"), to: "/sales/inter-branch" },
+      ]
+    },
+    {
+      label: t("products"),
+      icon: Package,
+      items: [
+        { label: t("products"), to: "/products/catalog" },
+        { label: t("purchaseOrder"), to: "/products/purchase-orders" },
+        { label: t("expenses"), to: "/products/expenses" },
+        { label: t("paymentRequest"), to: "/products/self-service" },
+      ]
+    },
+    {
+      label: t("finance"),
+      icon: Wallet,
+      items: [
+        { label: t("reports"), to: "/finance/reports" },
+        { label: t("bankCash"), to: "/finance/bank-cash" },
+        { label: t("ledgers"), to: "/finance/ledgers" },
+      ]
+    },
+    {
+      label: t("hrPayroll"),
+      icon: UserCog,
+      items: [
+        { label: t("staff"), to: "/hr/staff" },
+        { label: t("leave"), to: "/hr/leave" },
+        { label: t("salary"), to: "/hr/salary" },
+        { label: t("payroll"), to: "/hr/payroll" },
+      ]
+    },
+    {
+      label: t("store"),
+      icon: Warehouse,
+      items: [
+        { label: t("stock"), to: "/store/stock" },
+        { label: t("transfers"), to: "/store/transfers" },
+        { label: t("stores"), to: "/store/stores" },
+      ]
+    },
+    {
+      label: t("admin"),
+      icon: Settings,
+      items: [
+        { label: t("staff"), to: "/admin/users" },
+        { label: t("settings"), to: "/admin/settings" },
+      ]
+    },
+  ];
 
   const initiallyOpen = (g: Group) => g.items.some((i) => pathname.startsWith(i.to));
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
@@ -124,7 +151,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
         <Link
           to="/"
           onClick={onNavigate}
-          title="Dashboard"
+          title={t("dashboard")}
           className={cn(
             "flex items-center rounded-xl text-sm font-medium transition",
             collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
@@ -134,10 +161,10 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
           )}
         >
           <LayoutDashboard className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Dashboard</span>}
+          {!collapsed && <span>{t("dashboard")}</span>}
         </Link>
 
-        {/* POS — extra top margin to visually separate from Dashboard */}
+        {/* POS */}
         <Link
           to="/pos"
           onClick={onNavigate}
@@ -154,7 +181,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
           <ScanLine className="h-4 w-4 shrink-0" />
           {!collapsed && (
             <>
-              <span className="flex-1">Point of Sale</span>
+              <span className="flex-1">{t("openPos")}</span>
               <span className={cn(
                 "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase transition-colors",
                 pathname === "/pos"
