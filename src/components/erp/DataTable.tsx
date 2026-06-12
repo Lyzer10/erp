@@ -56,7 +56,7 @@ export function DataTable<T extends Record<string, unknown>>({
   return (
     <div className="glass-card overflow-hidden p-0">
       {searchable && (
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+        <div className="flex items-center justify-between gap-3 border-b border-blue-100/40 px-4 py-3">
           <div className="relative max-w-xs flex-1">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -72,12 +72,12 @@ export function DataTable<T extends Record<string, unknown>>({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/40">
+            <tr className="border-b border-blue-100 bg-blue-50/50">
               {columns.map((c) => (
                 <th
                   key={c.key}
                   className={cn(
-                    "px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+                    "px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-blue-800",
                     c.align === "right" && "text-right",
                     c.align === "center" && "text-center",
                     c.className,
@@ -98,7 +98,7 @@ export function DataTable<T extends Record<string, unknown>>({
             ) : pageRows.map((row) => (
               <tr
                 key={rowKey(row)}
-                className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/30"
+                className="border-b border-blue-100/30 transition-colors last:border-0 hover:bg-blue-50/30"
               >
                 {columns.map((c) => (
                   <td

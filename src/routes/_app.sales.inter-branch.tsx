@@ -42,8 +42,82 @@ export const Route = createFileRoute("/_app/sales/inter-branch")({
 });
 
 function InterBranchPage() {
-  const [requests, setRequests] = useState<StockRequest[]>([]);
-  const [receiveTransfers, setReceiveTransfers] = useState<ReceiveTransfer[]>([]);
+  const [requests, setRequests] = useState<StockRequest[]>([
+    {
+      id: "REQ-1001",
+      requestedBy: "Aisha Otieno",
+      date: "2026-06-10",
+      time: "09:30 AM",
+      requestingBranch: "Head Office",
+      requestedBranch: "Westlands",
+      status: "Approved",
+      productName: "Steel Rods 12mm",
+      brandCode: "STEEL-R12",
+      description: "Deformed steel reinforcement bars",
+      quantity: 150,
+      comment: "Urgent reinforcement stock for building project"
+    },
+    {
+      id: "REQ-1002",
+      requestedBy: "John Kamau",
+      date: "2026-06-11",
+      time: "02:15 PM",
+      requestingBranch: "Mombasa Rd",
+      requestedBranch: "Main Branch",
+      status: "Pending",
+      productName: "Cement Bag 50kg",
+      brandCode: "CEM-50G",
+      description: "Portland Cement Class 42.5N",
+      quantity: 80,
+      comment: "Stock replenishment for weekend sales"
+    },
+    {
+      id: "REQ-1003",
+      requestedBy: "Aisha Otieno",
+      date: "2026-06-12",
+      time: "11:05 AM",
+      requestingBranch: "Kisumu",
+      requestedBranch: "Main Branch",
+      status: "Approved",
+      productName: "Paints Gloss White 20L",
+      brandCode: "PNT-GW20",
+      description: "Premium interior/exterior gloss paint",
+      quantity: 25,
+      comment: "Special request for local customer order"
+    }
+  ]);
+  const [receiveTransfers, setReceiveTransfers] = useState<ReceiveTransfer[]>([
+    {
+      id: "REQ-1001",
+      requestedBy: "Aisha Otieno",
+      date: "2026-06-10",
+      time: "09:30 AM",
+      fromStore: "Westlands",
+      toStore: "Head Office",
+      requestType: "Inter-Branch",
+      status: "Approved"
+    },
+    {
+      id: "REQ-1002",
+      requestedBy: "John Kamau",
+      date: "2026-06-11",
+      time: "02:15 PM",
+      fromStore: "Main Branch",
+      toStore: "Mombasa Rd",
+      requestType: "Inter-Branch",
+      status: "Pending"
+    },
+    {
+      id: "REQ-1003",
+      requestedBy: "Aisha Otieno",
+      date: "2026-06-12",
+      time: "11:05 AM",
+      fromStore: "Main Branch",
+      toStore: "Kisumu",
+      requestType: "Inter-Branch",
+      status: "Approved"
+    }
+  ]);
   const [createOpen, setCreateOpen] = useState(false);
 
   // Lifted filters state (to respect React Rules of Hooks)
@@ -151,7 +225,10 @@ function InterBranchPage() {
             <div className="space-y-8">
               {/* Part 1: Stock Request Table */}
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-800">Stock Requests Overview</h3>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-1 rounded bg-blue-500" />
+                  <h3 className="text-sm font-semibold text-slate-800">Stock Requests Overview</h3>
+                </div>
                 <DataTable
                   data={requests}
                   columns={requestCols}
@@ -161,25 +238,28 @@ function InterBranchPage() {
               {/* Part 2: Stock Requested List (just down in the same page) */}
               <div className="space-y-2">
                 <div className="h-px bg-slate-200 my-4" />
-                <h3 className="text-sm font-semibold text-slate-800">Stock Requested List</h3>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-1 rounded bg-blue-500" />
+                  <h3 className="text-sm font-semibold text-slate-800">Stock Requested List</h3>
+                </div>
                 <GlassCard className="space-y-4">
-                  <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
+                  <div className="flex flex-wrap items-center gap-4 border-b border-blue-100/40 pb-4">
                     <div className="flex items-center gap-2">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</label>
+                      <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">From:</label>
                       <input
                         type="date"
                         value={listFromVal}
                         onChange={(e) => setListFromVal(e.target.value)}
-                        className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                        className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950"
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</label>
+                      <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">To:</label>
                       <input
                         type="date"
                         value={listToVal}
                         onChange={(e) => setListToVal(e.target.value)}
-                        className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                        className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950"
                       />
                     </div>
                   </div>
@@ -197,32 +277,54 @@ function InterBranchPage() {
           label: "Inter Branch Stock Report",
           render: () => (
             <GlassCard className="space-y-4">
-              <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
+              <div className="flex flex-wrap items-center gap-4 border-b border-blue-100/40 pb-4">
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">From:</label>
                   <input
                     type="date"
                     value={reportFromVal}
                     onChange={(e) => setReportFromVal(e.target.value)}
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                    className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950"
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-800">To:</label>
                   <input
                     type="date"
                     value={reportToVal}
                     onChange={(e) => setReportToVal(e.target.value)}
-                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                    className="rounded-lg border border-blue-100 bg-blue-50/30 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all text-blue-950"
                   />
                 </div>
               </div>
               <div className="mt-4">
                 <EChart height={300} option={{
                   tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-                  legend: { data: ["Outgoing", "Incoming"] },
-                  xAxis: { type: "category", data: ["Main", "Westlands", "Mombasa Rd", "Kisumu"] },
-                  yAxis: { type: "value" },
+                  legend: { data: ["Outgoing", "Incoming"], textStyle: { color: "#145047", fontWeight: "bold" } },
+                  grid: {
+                    show: true,
+                    backgroundColor: "rgba(31, 156, 136, 0.02)", // 2% opacity of #1f9c88
+                    borderColor: "rgba(31, 156, 136, 0.12)",
+                    borderWidth: 1,
+                    left: 40,
+                    right: 20,
+                    top: 40,
+                    bottom: 30,
+                    containLabel: true
+                  },
+                  xAxis: {
+                    type: "category",
+                    data: ["Main", "Westlands", "Mombasa Rd", "Kisumu"],
+                    axisLine: { lineStyle: { color: "rgba(31, 156, 136, 0.3)" } },
+                    axisLabel: { color: "#145047", fontWeight: "bold", fontSize: 11 },
+                    axisTick: { show: false }
+                  },
+                  yAxis: {
+                    type: "value",
+                    splitLine: { lineStyle: { color: "rgba(31, 156, 136, 0.06)", type: "dashed" } },
+                    axisLine: { show: false },
+                    axisLabel: { color: "#145047", fontSize: 11 }
+                  },
                   series: [
                     { name: "Outgoing", type: "bar", data: [12, 8, 14, 6], itemStyle: { borderRadius: [6,6,0,0], color: "#1f9c88" }, barWidth: 22 },
                     { name: "Incoming", type: "bar", data: [9, 11, 7, 10], itemStyle: { borderRadius: [6,6,0,0], color: "#a6e3dd" }, barWidth: 22 },
