@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
@@ -46,6 +46,12 @@ function InterBranchPage() {
   const [receiveTransfers, setReceiveTransfers] = useState<ReceiveTransfer[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
 
+  // Lifted filters state (to respect React Rules of Hooks)
+  const [listFromVal, setListFromVal] = useState("");
+  const [listToVal, setListToVal] = useState("");
+  const [reportFromVal, setReportFromVal] = useState("");
+  const [reportToVal, setReportToVal] = useState("");
+
   const requestCols = [
     { key: "id", header: "Request #" },
     { key: "requestedBy", header: "Requested By" },
@@ -82,6 +88,7 @@ function InterBranchPage() {
 
   const handleDeleteRequest = (id: string) => {
     setRequests(prev => prev.filter(r => r.id !== id));
+    setReceiveTransfers(prev => prev.filter(r => r.id !== id));
   };
 
   const handleCreateRequest = (newRequest: Omit<StockRequest, "id" | "requestedBy" | "date" | "time" | "status">) => {
@@ -96,7 +103,7 @@ function InterBranchPage() {
     };
     setRequests(prev => [request, ...prev]);
 
-    // Also populate receive stock transfer dynamically for demo tracing
+    // Also populate receive stock transfer dynamically
     const recTransfer: ReceiveTransfer = {
       id: request.id,
       requestedBy: request.requestedBy,
@@ -109,6 +116,14 @@ function InterBranchPage() {
     };
     setReceiveTransfers(prev => [recTransfer, ...prev]);
   };
+
+  const filteredRequests = useMemo(() => {
+    return requests.filter(r => {
+      if (listFromVal && r.date < listFromVal) return false;
+      if (listToVal && r.date > listToVal) return false;
+      return true;
+    });
+  }, [requests, listFromVal, listToVal]);
 
   return (
     <div className="space-y-6">
@@ -133,91 +148,89 @@ function InterBranchPage() {
           key: "request",
           label: "Stock Request",
           render: () => (
-            <DataTable
-              data={requests}
-              columns={requestCols}
-            />
-          )
-        },
-        {
-          key: "list",
-          label: "Stock Requested List",
-          render: () => {
-            const [fromVal, setFromVal] = useState("");
-            const [toVal, setToVal] = useState("");
-            return (
-              <GlassCard className="space-y-4">
-                <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</label>
-                    <input
-                      type="date"
-                      value={fromVal}
-                      onChange={(e) => setFromVal(e.target.value)}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</label>
-                    <input
-                      type="date"
-                      value={toVal}
-                      onChange={(e) => setToVal(e.target.value)}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                </div>
+            <div className="space-y-8">
+              {/* Part 1: Stock Request Table */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-slate-800">Stock Requests Overview</h3>
                 <DataTable
                   data={requests}
                   columns={requestCols}
                 />
-              </GlassCard>
-            );
-          }
+              </div>
+
+              {/* Part 2: Stock Requested List (just down in the same page) */}
+              <div className="space-y-2">
+                <div className="h-px bg-slate-200 my-4" />
+                <h3 className="text-sm font-semibold text-slate-800">Stock Requested List</h3>
+                <GlassCard className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</label>
+                      <input
+                        type="date"
+                        value={listFromVal}
+                        onChange={(e) => setListFromVal(e.target.value)}
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</label>
+                      <input
+                        type="date"
+                        value={listToVal}
+                        onChange={(e) => setListToVal(e.target.value)}
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <DataTable
+                    data={filteredRequests}
+                    columns={requestCols}
+                  />
+                </GlassCard>
+              </div>
+            </div>
+          )
         },
         {
           key: "report",
           label: "Inter Branch Stock Report",
-          render: () => {
-            const [fromVal, setFromVal] = useState("");
-            const [toVal, setToVal] = useState("");
-            return (
-              <GlassCard className="space-y-4">
-                <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</label>
-                    <input
-                      type="date"
-                      value={fromVal}
-                      onChange={(e) => setFromVal(e.target.value)}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</label>
-                    <input
-                      type="date"
-                      value={toVal}
-                      onChange={(e) => setToVal(e.target.value)}
-                      className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
-                    />
-                  </div>
+          render: () => (
+            <GlassCard className="space-y-4">
+              <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">From:</label>
+                  <input
+                    type="date"
+                    value={reportFromVal}
+                    onChange={(e) => setReportFromVal(e.target.value)}
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                  />
                 </div>
-                <div className="mt-4">
-                  <EChart height={300} option={{
-                    tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-                    legend: { data: ["Outgoing", "Incoming"] },
-                    xAxis: { type: "category", data: ["Main", "Westlands", "Mombasa Rd", "Kisumu"] },
-                    yAxis: { type: "value" },
-                    series: [
-                      { name: "Outgoing", type: "bar", data: [12, 8, 14, 6], itemStyle: { borderRadius: [6,6,0,0], color: "#1f9c88" }, barWidth: 22 },
-                      { name: "Incoming", type: "bar", data: [9, 11, 7, 10], itemStyle: { borderRadius: [6,6,0,0], color: "#a6e3dd" }, barWidth: 22 },
-                    ],
-                  }} />
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">To:</label>
+                  <input
+                    type="date"
+                    value={reportToVal}
+                    onChange={(e) => setReportToVal(e.target.value)}
+                    className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:bg-white focus:border-blue-500 transition-all"
+                  />
                 </div>
-              </GlassCard>
-            );
-          }
+              </div>
+              <div className="mt-4">
+                <EChart height={300} option={{
+                  tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+                  legend: { data: ["Outgoing", "Incoming"] },
+                  xAxis: { type: "category", data: ["Main", "Westlands", "Mombasa Rd", "Kisumu"] },
+                  yAxis: { type: "value" },
+                  series: [
+                    { name: "Outgoing", type: "bar", data: [12, 8, 14, 6], itemStyle: { borderRadius: [6,6,0,0], color: "#1f9c88" }, barWidth: 22 },
+                    { name: "Incoming", type: "bar", data: [9, 11, 7, 10], itemStyle: { borderRadius: [6,6,0,0], color: "#a6e3dd" }, barWidth: 22 },
+                  ],
+                }} />
+              </div>
+            </GlassCard>
+          )
         },
         {
           key: "receive",
