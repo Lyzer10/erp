@@ -258,7 +258,8 @@ export function InvoiceForm({ variant }: Props) {
         <button className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100">Preview</button>
         <button className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">{submitLabel}</button>
       </div>
-    </div>
+    </FormShell>
+
   );
 }
 
