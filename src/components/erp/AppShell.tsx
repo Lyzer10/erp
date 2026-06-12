@@ -41,9 +41,9 @@ export function AppShell() {
         </div>
       </div>
 
-      <div className={cn("transition-[padding] duration-300", collapsed ? "lg:pl-20" : "lg:pl-72")}>
+      <div className={cn("flex flex-col min-h-screen transition-[padding] duration-300", collapsed ? "lg:pl-20" : "lg:pl-72")}>
         <Topbar onMenuClick={() => setMobileOpen(true)} onToggleSidebar={() => setCollapsed((c) => !c)} />
-        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
         <footer className="border-t border-slate-100 px-4 py-4 lg:px-8">
