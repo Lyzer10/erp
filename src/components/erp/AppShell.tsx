@@ -23,7 +23,7 @@ export function AppShell() {
           onClick={() => setMobileOpen(false)}
         />
         <div className={cn(
-          "absolute inset-y-0 left-0 w-72 transition-transform duration-300",
+          "absolute inset-y-0 left-0 w-64 transition-transform duration-300",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}>
           <div className="relative h-full">
@@ -41,7 +41,7 @@ export function AppShell() {
         </div>
       </div>
 
-      <div className={cn("flex flex-col min-h-screen transition-[padding] duration-300", collapsed ? "lg:pl-20" : "lg:pl-72")}>
+      <div className={cn("flex flex-col min-h-screen transition-[padding] duration-300", collapsed ? "lg:pl-16" : "lg:pl-64")}>
         <Topbar onMenuClick={() => setMobileOpen(true)} onToggleSidebar={() => setCollapsed((c) => !c)} />
         <main className="flex-1 mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
@@ -60,7 +60,7 @@ export function AppShell() {
 
 function MobileSidebar({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
   return (
-    <div className="[&>aside]:static [&>aside]:flex [&>aside]:h-full [&>aside]:w-72">
+    <div className="[&>aside]:static [&>aside]:flex [&>aside]:h-full [&>aside]:w-64">
       <AppSidebar onNavigate={onNavigate} collapsed={false} />
     </div>
   );

@@ -1,4 +1,4 @@
-﻿import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LayoutDashboard, Users, Receipt, Package, Wallet, UserCog, Warehouse,
@@ -70,7 +70,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
     <aside
       className={cn(
         "glass-nav fixed inset-y-0 left-0 z-40 hidden flex-col transition-[width] duration-300 lg:flex",
-        collapsed ? "w-20" : "w-72",
+        collapsed ? "w-16" : "w-64",
       )}
     >
       {/* Logo */}
@@ -86,11 +86,15 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             !collapsed && "flex-1",
           )}
         >
-          <img src="/devele-logo.png" alt="DeveleICT" className="h-14 w-14 shrink-0 object-contain" />
+          <img 
+            src="/devele-logo.png" 
+            alt="DeveleICT" 
+            className={cn("shrink-0 object-contain transition-all", collapsed ? "h-9 w-9" : "h-11 w-11")} 
+          />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold leading-tight tracking-tight">DeveleERP</p>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Enterprise Suite</p>
+              <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground font-display">Enterprise Suite</p>
             </div>
           )}
         </Link>
