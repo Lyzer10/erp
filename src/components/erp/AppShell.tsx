@@ -43,7 +43,7 @@ export function AppShell() {
 
       <div className={cn("transition-[padding] duration-300", collapsed ? "lg:pl-20" : "lg:pl-72")}>
         <Topbar onMenuClick={() => setMobileOpen(true)} onToggleSidebar={() => setCollapsed((c) => !c)} />
-        <main className="p-4 lg:p-8">
+        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
         <footer className="border-t border-slate-100 px-4 py-4 lg:px-8">
