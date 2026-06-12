@@ -99,11 +99,10 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
 
         <Link
           to="/pos"
-          className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-emerald-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:shadow-emerald-500/50"
+          className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600"
         >
           <ScanLine className="h-4 w-4" />
           <span className="hidden sm:inline">Open POS</span>
-          <div className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
         </Link>
 
         <button
@@ -118,7 +117,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 rounded-xl border border-white/60 bg-white/50 pl-1 pr-2 py-1 backdrop-blur-md transition hover:bg-white/70 focus:outline-none">
-              <div className="grid h-7 w-7 place-items-center rounded-full bg-linear-to-br from-violet-500 to-blue-500 text-xs font-semibold text-white">
+              <div className="grid h-7 w-7 place-items-center rounded-full bg-blue-500 text-xs font-semibold text-white">
                 {DUMMY_USER.initials}
               </div>
               <span className="hidden text-xs font-medium text-slate-700 sm:block">{DUMMY_USER.name.split(" ")[0]}</span>
@@ -127,9 +126,9 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64 p-0 overflow-hidden">
             {/* Profile header */}
-            <div className="bg-linear-to-br from-blue-50 to-violet-50 px-4 py-3">
+            <div className="bg-slate-50 px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-linear-to-br from-violet-500 to-blue-500 text-sm font-bold text-white shadow-md">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-500 text-sm font-bold text-white shadow-md">
                   {DUMMY_USER.initials}
                 </div>
                 <div className="min-w-0">
@@ -175,7 +174,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="flex items-center gap-4">
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-violet-500 to-blue-500 text-xl font-bold text-white shadow-lg">
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-blue-500 text-xl font-bold text-white shadow-lg">
                 {DUMMY_USER.initials}
               </div>
               <div>

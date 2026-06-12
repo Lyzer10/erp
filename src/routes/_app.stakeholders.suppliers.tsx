@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
@@ -38,6 +38,9 @@ export const Route = createFileRoute("/_app/stakeholders/suppliers")({
 });
 
 function SuppliersPage() {
+  const [suppliers, setSuppliers] = useState<Supplier[]>(suppliersMock);
+  const [createOpen, setCreateOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -46,16 +49,36 @@ function SuppliersPage() {
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
-            <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+            >
               <Plus className="h-4 w-4" /> New Supplier
             </button>
           </div>
         }
       />
       <TabbedPage tabs={[
-        { key: "list",   label: "Suppliers List",   render: () => <SuppliersList /> },
+        { key: "list",   label: "Suppliers List",   render: () => <SuppliersList suppliers={suppliers} setSuppliers={setSuppliers} /> },
         { key: "import", label: "Import Suppliers", render: () => <ImportCard title="Import Suppliers" templateName="SUPPLIERS TEMPLATE" /> },
       ]} />
+
+      <CreateSupplierDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSubmit={(newSupplier) => {
+          setSuppliers(prev => [
+            {
+              id: prev.length > 0 ? Math.max(...prev.map(s => s.id)) + 1 : 1,
+              ...newSupplier,
+              balance: 0,
+              status: "Active",
+              branch: "Head Office"
+            },
+            ...prev
+          ]);
+        }}
+      />
     </div>
   );
 }
@@ -80,7 +103,12 @@ function ExportMenu() {
   );
 }
 
-function SuppliersList() {
+interface SuppliersListProps {
+  readonly suppliers: Supplier[];
+  readonly setSuppliers: React.Dispatch<React.SetStateAction<Supplier[]>>;
+}
+
+function SuppliersList({ suppliers, setSuppliers }: SuppliersListProps) {
   const [q, setQ] = useState("");
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -89,9 +117,9 @@ function SuppliersList() {
 
   const filtered = useMemo(() => {
     const lc = q.toLowerCase();
-    if (!lc) return suppliersMock;
-    return suppliersMock.filter((s) => Object.values(s).some((v) => String(v).toLowerCase().includes(lc)));
-  }, [q]);
+    if (!lc) return suppliers;
+    return suppliers.filter((s) => Object.values(s).some((v) => String(v).toLowerCase().includes(lc)));
+  }, [suppliers, q]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const start = (page - 1) * perPage;
@@ -159,7 +187,7 @@ function SuppliersList() {
         <div className="flex gap-2">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
             className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">Previous</button>
-          <span className="rounded-md bg-blue-600 px-3 py-1 font-semibold text-white">{page}</span>
+          <span className="rounded-md bg-blue-500 px-3 py-1 font-semibold text-white">{page}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
             className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">Next</button>
         </div>
@@ -202,7 +230,12 @@ function SuppliersList() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setToDelete(null)} className="bg-rose-600 hover:bg-rose-700">Delete</AlertDialogAction>
+            <AlertDialogAction onClick={() => {
+              if (toDelete) {
+                setSuppliers(prev => prev.filter(s => s.id !== toDelete.id));
+              }
+              setToDelete(null);
+            }} className="bg-rose-600 hover:bg-rose-700">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -216,5 +249,147 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <span className="w-28 shrink-0 text-xs text-muted-foreground">{label}</span>
       <span className="text-right text-sm font-medium text-foreground">{value}</span>
     </div>
+  );
+}
+
+interface CreateSupplierDialogProps {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onSubmit: (data: {
+    name: string;
+    phone: string;
+    email: string;
+    region: string;
+    tin: string;
+    vrn: string;
+    address: string;
+  }) => void;
+}
+
+function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDialogProps) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [region, setRegion] = useState("");
+  const [tin, setTin] = useState("");
+  const [vrn, setVrn] = useState("");
+  const [address, setAddress] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name) return;
+    onSubmit({ name, phone, email, region, tin, vrn, address });
+    setName("");
+    setPhone("");
+    setEmail("");
+    setRegion("");
+    setTin("");
+    setVrn("");
+    setAddress("");
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>New Supplier</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Supplier Name</label>
+            <input
+              required
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Supplier A Co."
+              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone Number</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+255 712 100 001"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="a@supplier.com"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Region</label>
+              <input
+                type="text"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                placeholder="Dar es Salaam"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Kariakoo"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">TIN Number</label>
+              <input
+                type="text"
+                value={tin}
+                onChange={(e) => setTin(e.target.value)}
+                placeholder="200-300-401"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">VRN</label>
+              <input
+                type="text"
+                value={vrn}
+                onChange={(e) => setVrn(e.target.value)}
+                placeholder="40-223456-S"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+            >
+              Save Supplier
+            </button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

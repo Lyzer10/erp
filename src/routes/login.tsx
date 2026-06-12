@@ -32,13 +32,7 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-50 via-blue-50/30 to-emerald-50/20 px-4">
-      {/* Subtle background blobs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-100/60 blur-3xl" />
-        <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl" />
-      </div>
-
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="relative w-full max-w-sm">
         {/* Card */}
         <div className="rounded-2xl border border-white/80 bg-white/90 p-8 shadow-xl shadow-slate-200/60 backdrop-blur-sm">
@@ -116,7 +110,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-xl bg-linear-to-r from-blue-500 to-blue-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-200 transition hover:from-blue-600 hover:to-blue-700 disabled:opacity-60"
+              className="mt-2 w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600 disabled:opacity-60"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>

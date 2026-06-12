@@ -1,4 +1,4 @@
-﻿import { useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export interface Tab {
@@ -26,8 +26,8 @@ export function TabbedPage({ tabs, defaultKey }: Props) {
             className={cn(
               "rounded-lg px-4 py-2 text-sm font-medium transition",
               active === t.key
-                ? "bg-linear-to-r from-blue-500 to-emerald-500 text-white shadow-md"
-                : "text-foreground/70 hover:bg-white/50 hover:text-foreground",
+                ? "bg-blue-500 text-white shadow-sm font-semibold"
+                : "text-foreground/70 hover:bg-slate-100 hover:text-foreground",
             )}
           >
             {t.label}

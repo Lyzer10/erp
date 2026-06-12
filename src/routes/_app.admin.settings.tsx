@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { GlassCard } from "@/components/erp/GlassCard";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_app/admin/settings")({
               <Field label="Tax Rate (%)" value="16" type="number" />
               <Field label="Invoice Prefix" value="INV-" />
             </div>
-            <button className="mt-6 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-md">Save Changes</button>
+            <button className="mt-6 rounded-lg bg-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">Save Changes</button>
           </GlassCard>
         )},
         { key: "company", label: "Company Info", render: () => (
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_app/admin/settings")({
               <label className="text-xs font-medium text-muted-foreground">Address</label>
               <textarea className="mt-1 w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm backdrop-blur" rows={3} defaultValue="Industrial Area, Nairobi, Kenya" />
             </div>
-            <button className="mt-6 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-md">Update Company</button>
+            <button className="mt-6 rounded-lg bg-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">Update Company</button>
           </GlassCard>
         )},
       ]} />

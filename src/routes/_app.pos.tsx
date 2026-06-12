@@ -1,4 +1,4 @@
-﻿import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ScanLine, ShoppingCart, CreditCard, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_app/pos")({
@@ -11,10 +11,8 @@ function PosPage() {
   return (
     <div className="flex min-h-[70vh] items-center justify-center">
       <div className="glass-panel relative max-w-2xl overflow-hidden rounded-3xl p-12 text-center">
-        <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-linear-to-br from-emerald-400/40 to-transparent blur-2xl" />
-        <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-linear-to-br from-blue-400/40 to-transparent blur-2xl" />
         <div className="relative">
-          <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-linear-to-br from-blue-500 to-emerald-500 text-white shadow-2xl shadow-emerald-500/40">
+          <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-blue-500 text-white shadow-md">
             <ScanLine className="h-10 w-10" />
           </div>
           <h1 className="mt-6 text-3xl font-bold tracking-tight">Point of Sale</h1>
@@ -37,7 +35,7 @@ function PosPage() {
 
           <button
             onClick={() => router.history.back()}
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"
           >
             Back
           </button>

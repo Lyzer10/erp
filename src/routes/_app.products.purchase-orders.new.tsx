@@ -220,7 +220,7 @@ function CreateLPOPage() {
 
           <div className="space-y-2">
             <button
-              className="w-full rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:opacity-90"
+              className="w-full rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"
               onClick={() => router.history.back()}
             >
               Submit LPO

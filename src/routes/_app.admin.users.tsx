@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_app/admin/users")({
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
-            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add User</button>
+            <button className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"><Plus className="h-4 w-4" />Add User</button>
           </div>
         } />
       <TabbedPage tabs={[
@@ -31,14 +31,14 @@ export const Route = createFileRoute("/_app/admin/users")({
         )},
         { key: "reset", label: "Reset Password", render: () => (
           <GlassCard className="max-w-md">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-linear-to-br from-blue-500/20 to-emerald-500/10">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-100">
               <KeyRound className="h-6 w-6 text-blue-600" />
             </div>
             <h3 className="mt-3 text-lg font-semibold">Reset User Password</h3>
             <p className="mt-1 text-sm text-muted-foreground">Select a user and send them a temporary password.</p>
             <div className="mt-4 space-y-3">
               <select className="w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm"><option>Select user...</option><option>John Mwangi</option><option>Maria Banda</option></select>
-              <button className="w-full rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md">Send Reset Link</button>
+              <button className="w-full rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">Send Reset Link</button>
             </div>
           </GlassCard>
         )},

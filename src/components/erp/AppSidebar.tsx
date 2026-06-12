@@ -75,7 +75,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
     >
       {/* Logo */}
       <div className={cn(
-        "flex h-16 shrink-0 items-center gap-3 border-b border-white/40",
+        "flex h-16 shrink-0 items-center gap-3 border-b border-slate-200",
         collapsed ? "justify-center px-2" : "px-5",
       )}>
         <Link
@@ -101,7 +101,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
         {!collapsed && onToggle && (
           <button
             onClick={onToggle}
-            className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-white/60 hover:text-foreground"
+            className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-slate-100 hover:text-foreground"
             aria-label="Collapse sidebar"
           >
             <ChevronsLeft className="h-4 w-4" />
@@ -112,7 +112,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
       {collapsed && onToggle && (
         <button
           onClick={onToggle}
-          className="mx-auto mt-3 rounded-lg p-1.5 text-muted-foreground transition hover:bg-white/60 hover:text-foreground"
+          className="mx-auto mt-3 rounded-lg p-1.5 text-muted-foreground transition hover:bg-slate-100 hover:text-foreground"
           aria-label="Expand sidebar"
         >
           <ChevronsRight className="h-4 w-4" />
@@ -129,8 +129,8 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             "flex items-center rounded-xl text-sm font-medium transition",
             collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
             pathname === "/"
-              ? "bg-linear-to-r from-blue-500/20 to-emerald-500/10 text-blue-700 shadow-sm"
-              : "text-foreground/75 hover:bg-white/50 hover:text-foreground",
+              ? "bg-blue-500 text-white shadow-sm font-semibold"
+              : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
           )}
         >
           <LayoutDashboard className="h-4 w-4 shrink-0" />
@@ -147,22 +147,27 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             "flex items-center rounded-xl text-sm font-medium transition",
             collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
             pathname === "/pos"
-              ? "bg-linear-to-r from-emerald-500/25 to-blue-500/10 text-emerald-700 shadow-sm"
-              : "bg-linear-to-r from-emerald-500/10 to-transparent text-emerald-700 hover:from-emerald-500/20",
+              ? "bg-blue-500 text-white shadow-sm font-semibold"
+              : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
           )}
         >
           <ScanLine className="h-4 w-4 shrink-0" />
           {!collapsed && (
             <>
               <span className="flex-1">Point of Sale</span>
-              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-700">
+              <span className={cn(
+                "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase transition-colors",
+                pathname === "/pos"
+                  ? "bg-white text-blue-600"
+                  : "bg-emerald-100 text-emerald-800"
+              )}>
                 New
               </span>
             </>
           )}
         </Link>
 
-        <div className="my-3 h-px bg-linear-to-r from-transparent via-white/60 to-transparent" />
+        <div className="my-3 h-px bg-slate-200" />
 
         {groups.map((g) => {
           const Icon = g.icon;
@@ -179,8 +184,8 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
                 className={cn(
                   "flex items-center justify-center rounded-xl p-2.5 text-sm transition",
                   groupActive
-                    ? "bg-white/70 text-blue-700 shadow-sm"
-                    : "text-foreground/75 hover:bg-white/50",
+                    ? "bg-blue-500 text-white shadow-sm font-semibold"
+                    : "text-foreground/75 hover:bg-slate-100",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -192,7 +197,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             <div key={g.label}>
               <button
                 onClick={() => setOpen((s) => ({ ...s, [g.label]: !s[g.label] }))}
-                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/75 transition hover:bg-white/50 hover:text-foreground"
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/75 transition hover:bg-slate-100 hover:text-foreground"
               >
                 <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="flex-1 text-left">{g.label}</span>
@@ -203,7 +208,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
               </button>
 
               {isOpen && (
-                <div className="ml-3 mt-1 space-y-0.5 border-l border-white/50 pl-3 pb-1">
+                <div className="ml-3 mt-1 space-y-0.5 border-l border-slate-200 pl-3 pb-1">
                   {g.items.map((it) => {
                     const active = pathname === it.to || pathname.startsWith(it.to + "/");
                     return (
@@ -214,8 +219,8 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
                         className={cn(
                           "block rounded-lg px-3 py-1.5 text-sm transition",
                           active
-                            ? "bg-white/70 font-medium text-blue-700 shadow-sm"
-                            : "text-foreground/65 hover:bg-white/40 hover:text-foreground",
+                            ? "bg-blue-500 font-semibold text-white shadow-sm"
+                            : "text-foreground/65 hover:bg-slate-100 hover:text-foreground",
                         )}
                       >
                         {it.label}
@@ -231,9 +236,9 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
 
       {/* User footer */}
       {!collapsed && (
-        <div className="border-t border-white/40 p-4">
+        <div className="border-t border-slate-200 p-4">
           <div className="glass-card flex items-center gap-3 p-3">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-linear-to-br from-violet-500 to-blue-500 text-sm font-semibold text-white">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-500 text-sm font-semibold text-white">
               AO
             </div>
             <div className="min-w-0 flex-1">

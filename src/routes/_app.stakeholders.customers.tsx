@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
@@ -43,6 +43,9 @@ export const Route = createFileRoute("/_app/stakeholders/customers")({
 });
 
 function CustomersPage() {
+  const [customers, setCustomers] = useState<Customer[]>(customersMock);
+  const [createOpen, setCreateOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -51,17 +54,37 @@ function CustomersPage() {
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
-            <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+            >
               <Plus className="h-4 w-4" /> New Customer
             </button>
           </div>
         }
       />
       <TabbedPage tabs={[
-        { key: "list",    label: "Customers List",    render: () => <CustomersList /> },
+        { key: "list",    label: "Customers List",    render: () => <CustomersList customers={customers} setCustomers={setCustomers} /> },
         { key: "advance", label: "Customer Advances", render: () => <AdvancesTable /> },
         { key: "import",  label: "Import Customers",  render: () => <ImportCard title="Import Customers" templateName="CUSTOMERS TEMPLATE" /> },
       ]} />
+
+      <CreateCustomerDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSubmit={(newCustomer) => {
+          setCustomers(prev => [
+            {
+              id: prev.length > 0 ? Math.max(...prev.map(c => c.id)) + 1 : 1,
+              ...newCustomer,
+              balance: 0,
+              status: "Active",
+              branch: "Head Office"
+            },
+            ...prev
+          ]);
+        }}
+      />
     </div>
   );
 }
@@ -86,7 +109,12 @@ function ExportMenu() {
   );
 }
 
-function CustomersList() {
+interface CustomersListProps {
+  readonly customers: Customer[];
+  readonly setCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
+}
+
+function CustomersList({ customers, setCustomers }: CustomersListProps) {
   const [q, setQ] = useState("");
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
@@ -95,11 +123,11 @@ function CustomersList() {
 
   const filtered = useMemo(() => {
     const lc = q.toLowerCase();
-    if (!lc) return customersMock;
-    return customersMock.filter((c) =>
+    if (!lc) return customers;
+    return customers.filter((c) =>
       Object.values(c).some((v) => String(v).toLowerCase().includes(lc)),
     );
-  }, [q]);
+  }, [customers, q]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const start = (page - 1) * perPage;
@@ -177,7 +205,7 @@ function CustomersList() {
         <div className="flex gap-2">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
             className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">Previous</button>
-          <span className="rounded-md bg-blue-600 px-3 py-1 font-semibold text-white">{page}</span>
+          <span className="rounded-md bg-blue-500 px-3 py-1 font-semibold text-white">{page}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
             className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">Next</button>
         </div>
@@ -221,7 +249,12 @@ function CustomersList() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setToDelete(null)} className="bg-rose-600 hover:bg-rose-700">Delete</AlertDialogAction>
+            <AlertDialogAction onClick={() => {
+              if (toDelete) {
+                setCustomers(prev => prev.filter(c => c.id !== toDelete.id));
+              }
+              setToDelete(null);
+            }} className="bg-rose-600 hover:bg-rose-700">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -296,7 +329,7 @@ export function ImportCard({ title, templateName }: { title: string; templateNam
           <Download className="h-3.5 w-3.5" /> Download: {templateName}
         </a>
         <div className="pt-2">
-          <button className="rounded-lg bg-teal-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-700">
+          <button className="rounded-lg bg-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">
             Submit
           </button>
         </div>
@@ -311,5 +344,147 @@ function IconBtn({
   const tones = { blue: "text-blue-600 hover:bg-blue-50", amber: "text-amber-600 hover:bg-amber-50", rose: "text-rose-600 hover:bg-rose-50" };
   return (
     <button onClick={onClick} title={title} className={`rounded-md p-1.5 transition ${tones[tone]}`}>{children}</button>
+  );
+}
+
+interface CreateCustomerDialogProps {
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly onSubmit: (data: {
+    name: string;
+    phone: string;
+    email: string;
+    region: string;
+    tin: string;
+    vrn: string;
+    address: string;
+  }) => void;
+}
+
+function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDialogProps) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [region, setRegion] = useState("");
+  const [tin, setTin] = useState("");
+  const [vrn, setVrn] = useState("");
+  const [address, setAddress] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name) return;
+    onSubmit({ name, phone, email, region, tin, vrn, address });
+    setName("");
+    setPhone("");
+    setEmail("");
+    setRegion("");
+    setTin("");
+    setVrn("");
+    setAddress("");
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>New Customer</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Customer Name</label>
+            <input
+              required
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Acme Trading Ltd"
+              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone Number</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+255 712 000 001"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="acme@email.com"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Region</label>
+              <input
+                type="text"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                placeholder="Dar es Salaam"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Ilala"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">TIN Number</label>
+              <input
+                type="text"
+                value={tin}
+                onChange={(e) => setTin(e.target.value)}
+                placeholder="100-200-300"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">VRN</label>
+              <input
+                type="text"
+                value={vrn}
+                onChange={(e) => setVrn(e.target.value)}
+                placeholder="40-123456-E"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+            >
+              Save Customer
+            </button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

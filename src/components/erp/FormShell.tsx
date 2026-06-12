@@ -34,9 +34,9 @@ interface DarkCardProps {
 }
 
 const toneMap = {
-  indigo:  "from-slate-900 via-indigo-950 to-slate-900 ring-indigo-500/20",
-  emerald: "from-slate-900 via-emerald-950 to-slate-900 ring-emerald-500/20",
-  amber:   "from-slate-900 via-amber-950 to-slate-900 ring-amber-500/20",
+  indigo:  "bg-slate-900",
+  emerald: "bg-slate-900",
+  amber:   "bg-slate-900",
 };
 
 const iconToneMap = {
@@ -49,12 +49,10 @@ export function DarkCard({ title, icon: Icon = Info, tone = "indigo", children }
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl bg-linear-to-br p-5 text-slate-100 shadow-xl ring-1",
+        "relative overflow-hidden rounded-2xl p-5 text-slate-100 shadow-md border border-slate-800",
         toneMap[tone],
       )}
     >
-      {/* glow accent */}
-      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
       <div className="relative flex items-center gap-2.5">
         <span className={cn("grid h-8 w-8 place-items-center rounded-lg", iconToneMap[tone])}>
           <Icon className="h-4 w-4" />

@@ -22,13 +22,7 @@ function AppShellWrapper() {
 
   if (checking) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-linear-to-br from-slate-50 via-blue-50/30 to-emerald-50/20 px-4">
-        {/* Subtle background blobs */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
-          <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-100/40 blur-3xl" />
-          <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-emerald-100/40 blur-3xl" />
-        </div>
-
+      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
         <div className="relative text-center">
           <div className="relative mx-auto h-12 w-12">
             <div className="absolute inset-0 rounded-full border-4 border-slate-100" />

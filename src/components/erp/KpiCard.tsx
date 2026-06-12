@@ -1,4 +1,4 @@
-﻿import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { TrendingDown, TrendingUp, type LucideIcon } from "lucide-react";
 
 interface Props {
@@ -11,11 +11,11 @@ interface Props {
 }
 
 const tintMap = {
-  blue:    "from-blue-500/20 to-blue-400/5 text-blue-600",
-  emerald: "from-emerald-500/20 to-emerald-400/5 text-emerald-600",
-  amber:   "from-amber-500/20 to-amber-400/5 text-amber-600",
-  violet:  "from-violet-500/20 to-violet-400/5 text-violet-600",
-  cyan:    "from-cyan-500/20 to-cyan-400/5 text-cyan-600",
+  blue:    "bg-blue-50 text-blue-600",
+  emerald: "bg-emerald-50 text-emerald-600",
+  amber:   "bg-amber-50 text-amber-600",
+  violet:  "bg-violet-50 text-violet-600",
+  cyan:    "bg-cyan-50 text-cyan-600",
 };
 
 export function KpiCard({ label, value, delta, hint, icon: Icon, tint = "blue" }: Props) {
@@ -25,7 +25,7 @@ export function KpiCard({ label, value, delta, hint, icon: Icon, tint = "blue" }
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
         {Icon && (
-          <div className={cn("shrink-0 rounded-xl bg-linear-to-br p-2.5", tintMap[tint])}>
+          <div className={cn("shrink-0 rounded-xl p-2.5", tintMap[tint])}>
             <Icon className="h-5 w-5" />
           </div>
         )}

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_app/hr/staff")({
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
-            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"><Plus className="h-4 w-4" />Add Staff</button>
+            <button className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"><Plus className="h-4 w-4" />Add Staff</button>
           </div>
         } />
       <TabbedPage tabs={[
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/_app/hr/staff")({
         )},
         { key: "upload", label: "Upload Staff", render: () => (
           <GlassCard>
-            <div className="rounded-2xl border-2 border-dashed border-white/60 bg-white/30 p-12 text-center">
+            <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-12 text-center">
               <Upload className="mx-auto h-10 w-10 text-blue-500" />
               <h3 className="mt-3 text-base font-semibold">Bulk upload staff records</h3>
               <p className="mt-1 text-sm text-muted-foreground">Drag a CSV or Excel file here, or click to browse.</p>

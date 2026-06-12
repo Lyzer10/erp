@@ -27,7 +27,7 @@ function PurchaseOrdersPage() {
             <ExportMenu />
             <Link
               to="/products/purchase-orders/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"
             >
               <Plus className="h-4 w-4" /> Create LPO
             </Link>

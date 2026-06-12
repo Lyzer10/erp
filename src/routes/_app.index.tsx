@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { EChart } from "@/components/charts/EChart";
 import {
@@ -101,12 +101,12 @@ function Dashboard() {
                   name: "Revenue",
                   type: "bar",
                   data: [
-                    { value: 4_200_000, itemStyle: { color: "#bfdbfe" } },
-                    { value: 4_850_000, itemStyle: { color: "#bfdbfe" } },
-                    { value: 5_120_000, itemStyle: { color: "#bfdbfe" } },
-                    { value: 4_900_000, itemStyle: { color: "#bfdbfe" } },
-                    { value: 5_870_000, itemStyle: { color: "#bfdbfe" } },
-                    { value: 6_240_000, itemStyle: { color: "#2563eb" } },
+                    { value: 4_200_000, itemStyle: { color: "#a6e3dd" } },
+                    { value: 4_850_000, itemStyle: { color: "#a6e3dd" } },
+                    { value: 5_120_000, itemStyle: { color: "#a6e3dd" } },
+                    { value: 4_900_000, itemStyle: { color: "#a6e3dd" } },
+                    { value: 5_870_000, itemStyle: { color: "#a6e3dd" } },
+                    { value: 6_240_000, itemStyle: { color: "#1f9c88" } },
                   ],
                   barWidth: 28,
                   itemStyle: { borderRadius: [6, 6, 0, 0] },
@@ -115,8 +115,8 @@ function Dashboard() {
             }}
           />
           <div className="mt-2 flex items-center justify-center gap-5 text-xs text-muted-foreground">
-            <Legend color="#bfdbfe" label="Previous months" />
-            <Legend color="#2563eb" label="Current month" />
+            <Legend color="#a6e3dd" label="Previous months" />
+            <Legend color="#1f9c88" label="Current month" />
           </div>
         </Card>
 
@@ -187,7 +187,7 @@ function Dashboard() {
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-linear-to-r from-blue-500 to-emerald-500"
+                      className="h-full rounded-full bg-blue-500"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

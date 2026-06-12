@@ -137,7 +137,7 @@ function PayrollPage() {
         actions={
           <div className="flex items-center gap-2">
             <ExportMenu />
-            <button className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md">
+            <button className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">
               <Play className="h-4 w-4" /> Run Payroll
             </button>
           </div>
