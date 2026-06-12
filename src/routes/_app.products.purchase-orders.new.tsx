@@ -1,6 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArrowLeft, Paperclip, X } from "lucide-react";
+import { FormShell, InfoRail } from "@/components/erp/FormShell";
+
 
 export const Route = createFileRoute("/_app/products/purchase-orders/new")({
   head: () => ({ meta: [{ title: "Create LPO — DeveleERP" }] }),
@@ -42,25 +44,43 @@ function CreateLPOPage() {
   const grandTotal = afterDiscount - withholdingAmount + vatAmount;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.history.back()}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-          aria-label="Back"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Create Local Purchase Order</h1>
-          <p className="text-sm text-muted-foreground">Fill in the details below to raise a new LPO.</p>
+    <FormShell
+      header={
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.history.back()}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+            aria-label="Back"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Create Local Purchase Order</h1>
+            <p className="text-sm text-muted-foreground">Fill in the details below to raise a new LPO.</p>
+          </div>
         </div>
-      </div>
-
+      }
+      aside={
+        <InfoRail
+          about={{
+            title: "About Purchase Orders",
+            description: "An LPO authorises a supplier to deliver goods at agreed terms. It is the first step in the procurement cycle.",
+            bullets: ["Locks supplier pricing", "Tracks goods receipt", "Feeds 3-way matching"],
+          }}
+          tips={[
+            "Confirm the supplier's bank details before issuing.",
+            "Set withholding tax only where statutorily required.",
+            "Attach quotations for audit traceability.",
+            "Use the Comment field for internal context.",
+          ]}
+          notice="LPOs over TZS 5,000,000 require dual approval."
+        />
+      }
+    >
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main form */}
         <div className="space-y-5 lg:col-span-2">
+
           {/* Product details */}
           <div className="glass-card space-y-4 p-5">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Product Details</h2>
@@ -231,7 +251,8 @@ function CreateLPOPage() {
           box-shadow: 0 0 0 2px rgba(147,197,253,0.4);
         }
       `}</style>
-    </div>
+    </FormShell>
+
   );
 }
 
