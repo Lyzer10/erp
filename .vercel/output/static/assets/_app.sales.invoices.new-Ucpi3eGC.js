@@ -1,1 +1,0 @@
-import{j as o}from"./index-9xvA3BrP.js";import{I as t}from"./InvoiceForm-DlG80YvE.js";import"./arrow-left-DsfA09eL.js";import"./trash-2-94tnr0mJ.js";import"./plus-CrWm4mLp.js";const s=()=>o.jsx(t,{variant:"invoice"});export{s as component};
