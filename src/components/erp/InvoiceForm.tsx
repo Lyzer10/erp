@@ -1,6 +1,8 @@
 ﻿import { useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { FormShell, InfoRail } from "@/components/erp/FormShell";
+
 
 const tzs = (n: number) => "TZS " + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
