@@ -1,4 +1,4 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { DataTable } from "@/components/erp/DataTable";
@@ -67,12 +67,12 @@ function PrepareTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-teal-600 text-xs uppercase tracking-wide text-white">
+              <tr className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
                 {PAYROLL_COLS.map((c) => (
                   <th
                     key={c.key as string}
                     style={{ width: c.width, minWidth: c.width }}
-                    className={`whitespace-nowrap px-3 py-3 text-left font-semibold ${c.sticky ? "sticky left-0 z-10 bg-teal-600" : ""}`}
+                    className={`whitespace-nowrap px-3 py-3 text-left font-semibold ${c.sticky ? "sticky left-0 z-10 bg-slate-50" : ""}`}
                   >
                     {c.label}
                   </th>

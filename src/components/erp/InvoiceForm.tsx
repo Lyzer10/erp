@@ -1,7 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { FormShell, InfoRail } from "@/components/erp/FormShell";
+import { FormShell } from "@/components/erp/FormShell";
 
 
 const tzs = (n: number) => "TZS " + new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
@@ -26,6 +26,13 @@ interface Props {
   variant: "invoice" | "proforma";
 }
 
+function genId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 9);
+}
+
 export function InvoiceForm({ variant }: Props) {
   const router = useRouter();
   const isInvoice = variant === "invoice";
@@ -33,7 +40,7 @@ export function InvoiceForm({ variant }: Props) {
   const submitLabel = isInvoice ? "Submit Invoice" : "Submit Proforma";
 
   const [items, setItems] = useState<LineItem[]>([
-    { id: crypto.randomUUID(), productId: "", description: "", qty: 1, price: 0 },
+    { id: genId(), productId: "", description: "", qty: 1, price: 0 },
   ]);
   const [discountPct, setDiscountPct] = useState(0);
   const [vatOn, setVatOn] = useState(true);
@@ -49,7 +56,7 @@ export function InvoiceForm({ variant }: Props) {
   const grandTotal = taxable + vatAmt;
 
   const addItem = () =>
-    setItems((arr) => [...arr, { id: crypto.randomUUID(), productId: "", description: "", qty: 1, price: 0 }]);
+    setItems((arr) => [...arr, { id: genId(), productId: "", description: "", qty: 1, price: 0 }]);
   const removeItem = (id: string) => setItems((arr) => arr.filter((x) => x.id !== id));
   const updateItem = (id: string, patch: Partial<LineItem>) =>
     setItems((arr) => arr.map((x) => (x.id === id ? { ...x, ...patch } : x)));
@@ -74,26 +81,6 @@ export function InvoiceForm({ variant }: Props) {
             <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           </div>
         </div>
-      }
-      aside={
-        <InfoRail
-          about={{
-            title: isInvoice ? "About Invoicing" : "About Proforma",
-            description: isInvoice
-              ? "Tax invoices are the official record of a sale. They drive receivables, VAT reporting, and customer statements."
-              : "A proforma is a quotation-style document sent before an invoice. It is not posted to the ledger until converted.",
-            bullets: isInvoice
-              ? ["Posts to debtors and revenue", "Triggers VAT obligation", "Available in customer statement"]
-              : ["No accounting entries posted", "Can be converted to a tax invoice", "Useful for quotes and pre-orders"],
-          }}
-          tips={[
-            "Verify the customer's TIN before saving.",
-            "Toggle VAT off only for exempt goods.",
-            "Use Payment Terms to drive due-date alerts.",
-            "Attach LPO references for traceability.",
-          ]}
-          notice={isInvoice ? "All tax invoices must comply with TRA EFD regulations." : undefined}
-        />
       }
     >
 

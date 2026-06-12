@@ -35,9 +35,9 @@ export const Route = createFileRoute("/_app/sales/inter-branch")({
           <GlassCard>
             <div className="grid gap-4 sm:grid-cols-2">
               <div><label className="text-xs font-medium text-muted-foreground">From Branch</label>
-                <select className="mt-1 w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm"><option>Main Branch</option><option>Westlands</option></select></div>
+                <select className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"><option>Main Branch</option><option>Westlands</option></select></div>
               <div><label className="text-xs font-medium text-muted-foreground">To Branch</label>
-                <select className="mt-1 w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm"><option>Westlands</option><option>Mombasa Rd</option></select></div>
+                <select className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"><option>Westlands</option><option>Mombasa Rd</option></select></div>
             </div>
             <h3 className="mt-6 mb-2 text-sm font-semibold">Items</h3>
             <DataTable searchable={false} data={products.slice(0,4).map((p) => ({ ...p, qty: 10 }))} columns={[

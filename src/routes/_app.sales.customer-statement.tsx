@@ -25,17 +25,17 @@ function CustomerStatementPage() {
           <div>
             <label className="text-xs font-medium text-muted-foreground">Customer</label>
             <select value={selected} onChange={(e) => setSelected(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm backdrop-blur">
+              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all">
               {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground">From</label>
-            <input type="date" className="mt-1 w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm backdrop-blur" defaultValue="2026-01-01" />
+            <input type="date" className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" defaultValue="2026-01-01" />
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground">To</label>
-            <input type="date" className="mt-1 w-full rounded-lg border border-white/60 bg-white/60 px-3 py-2 text-sm backdrop-blur" defaultValue="2026-06-11" />
+            <input type="date" className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" defaultValue="2026-06-11" />
           </div>
         </div>
       </GlassCard>
@@ -52,9 +52,24 @@ function CustomerStatementPage() {
         </GlassCard>
         <GlassCard>
           <h3 className="mb-3 text-lg font-semibold">Aging Analysis</h3>
-          <EChart height={260} option={{
+          <EChart height={300} option={{
             tooltip: { trigger: "item" },
-            series: [{ type: "pie", radius: ["50%", "78%"], padAngle: 3, itemStyle: { borderRadius: 8 },
+            legend: {
+              show: true,
+              top: "2%",
+              left: "center",
+              orient: "horizontal",
+              itemGap: 12,
+              itemWidth: 10,
+              itemHeight: 10,
+              textStyle: { fontSize: 11 }
+            },
+            series: [{ 
+              type: "pie", 
+              center: ["50%", "60%"],
+              radius: ["40%", "70%"], 
+              padAngle: 3, 
+              itemStyle: { borderRadius: 8 },
               data: [
                 { value: 4200, name: "Current" }, { value: 1800, name: "1-30 days" },
                 { value: 900, name: "31-60 days" }, { value: 350, name: "60+ days" },
