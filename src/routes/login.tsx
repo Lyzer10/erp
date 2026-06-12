@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslate, setLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign In — DeveleERP" }] }),
@@ -9,6 +10,7 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { lang, t } = useTranslate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -34,6 +36,18 @@ function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="relative w-full max-w-sm">
+        {/* Language Selector */}
+        <div className="absolute -top-14 right-0">
+          <button
+            onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/60 bg-white/50 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white/70 hover:border-slate-300 focus:outline-none"
+            title={lang === "en" ? "Badili kwenda Kiswahili" : "Change to English"}
+          >
+            <span className="text-base">{lang === "en" ? "🇬🇧" : "🇹🇿"}</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">{lang === "en" ? "EN" : "SW"}</span>
+          </button>
+        </div>
+
         {/* Card */}
         <div className="rounded-2xl border border-white/80 bg-white/90 p-8 shadow-xl shadow-slate-200/60 backdrop-blur-sm">
           {/* Logo */}
@@ -49,10 +63,13 @@ function LoginPage() {
             </div>
           </div>
 
+          <h2 className="mb-1 text-center text-lg font-bold text-slate-900">{t("loginTitle")}</h2>
+          <p className="mb-6 text-center text-xs text-slate-500">{t("loginSub")}</p>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="username" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Username
+                {t("usernameLabel")}
               </label>
               <input
                 id="username"
@@ -61,14 +78,14 @@ function LoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder={t("usernamePlaceholder")}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div className="space-y-1.5">
               <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Password
+                {t("password")}
               </label>
               <div className="relative">
                 <input
@@ -78,7 +95,7 @@ function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder={t("passwordPlaceholder")}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
                 />
                 <button
@@ -100,10 +117,10 @@ function LoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-3.5 w-3.5 rounded accent-blue-600"
                 />
-                Remember me
+                {t("rememberMe")}
               </label>
               <button type="button" className="text-xs font-medium text-blue-600 hover:underline">
-                Forgot password?
+                {t("forgotPassword")}
               </button>
             </div>
 
@@ -112,12 +129,13 @@ function LoginPage() {
               disabled={loading}
               className="mt-2 w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600 disabled:opacity-60"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? t("signingIn") : t("signIn")}
             </button>
           </form>
 
           <p className="mt-6 text-center text-xs text-slate-400">
-            Powered by <span className="font-semibold text-slate-500">DeveleICT</span>
+            {lang === "en" ? "Powered by" : "Inaendeshwa na"}{" "}
+            <span className="font-semibold text-slate-500">DeveleICT</span>
           </p>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Paperclip, X } from "lucide-react";
 import { FormShell, InfoRail } from "@/components/erp/FormShell";
+import { useTranslate } from "@/lib/i18n";
 
 
 export const Route = createFileRoute("/_app/products/purchase-orders/new")({
@@ -16,6 +17,7 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US", { minimumFractionDigit
 
 function CreateLPOPage() {
   const router = useRouter();
+  const { lang, t } = useTranslate();
 
   const [product, setProduct] = useState("");
   const [brandCode, setBrandCode] = useState("");
@@ -50,30 +52,34 @@ function CreateLPOPage() {
           <button
             onClick={() => router.history.back()}
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            aria-label="Back"
+            aria-label={t("cancel")}
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight">Create Local Purchase Order</h1>
-            <p className="text-sm text-muted-foreground">Fill in the details below to raise a new LPO.</p>
+            <h1 className="text-xl font-bold tracking-tight">{t("createLpoTitle")}</h1>
+            <p className="text-sm text-muted-foreground">{t("createLpoSub")}</p>
           </div>
         </div>
       }
       aside={
         <InfoRail
           about={{
-            title: "About Purchase Orders",
-            description: "An LPO authorises a supplier to deliver goods at agreed terms. It is the first step in the procurement cycle.",
-            bullets: ["Locks supplier pricing", "Tracks goods receipt", "Feeds 3-way matching"],
+            title: t("aboutPurchaseOrdersTitle"),
+            description: t("aboutPurchaseOrdersDesc"),
+            bullets: [
+              t("aboutPurchaseOrdersBullet1"),
+              t("aboutPurchaseOrdersBullet2"),
+              t("aboutPurchaseOrdersBullet3"),
+            ],
           }}
           tips={[
-            "Confirm the supplier's bank details before issuing.",
-            "Set withholding tax only where statutorily required.",
-            "Attach quotations for audit traceability.",
-            "Use the Comment field for internal context.",
+            t("quickTip1"),
+            t("quickTip2"),
+            t("quickTip3"),
+            t("quickTip4"),
           ]}
-          notice="LPOs over TZS 5,000,000 require dual approval."
+          notice={t("lpoNotice")}
         />
       }
     >
@@ -83,23 +89,23 @@ function CreateLPOPage() {
 
           {/* Product details */}
           <div className="glass-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Product Details</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("productDetails")}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Product Name" required>
+              <Field label={t("productName")} required>
                 <input
                   value={product} onChange={(e) => setProduct(e.target.value)}
-                  placeholder="e.g. Office Chair"
+                  placeholder={lang === "en" ? "e.g. Office Chair" : "mf. Kiti cha Ofisi"}
                   className="input-field"
                 />
               </Field>
-              <Field label="Brand Code">
+              <Field label={t("brandCode")}>
                 <input
                   value={brandCode} onChange={(e) => setBrandCode(e.target.value)}
                   placeholder="e.g. BR-001"
                   className="input-field"
                 />
               </Field>
-              <Field label="Unit Cost" required>
+              <Field label={t("unitCost")} required>
                 <input
                   type="number" min="0" step="0.01"
                   value={unitCost} onChange={(e) => setUnitCost(e.target.value)}
@@ -107,7 +113,7 @@ function CreateLPOPage() {
                   className="input-field"
                 />
               </Field>
-              <Field label="Quantity" required>
+              <Field label={t("quantity")} required>
                 <input
                   type="number" min="1"
                   value={qty} onChange={(e) => setQty(e.target.value)}
@@ -115,43 +121,43 @@ function CreateLPOPage() {
                 />
               </Field>
             </div>
-            <Field label="Description">
+            <Field label={t("description")}>
               <textarea
                 value={description} onChange={(e) => setDescription(e.target.value)}
-                rows={3} placeholder="Optional product description..."
+                rows={3} placeholder={lang === "en" ? "Optional product description..." : "Maelezo ya bidhaa ya hiari..."}
                 className="input-field resize-none"
               />
             </Field>
 
             {/* Line total */}
             <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-2.5">
-              <span className="text-sm font-medium text-slate-600">Line Total</span>
+              <span className="text-sm font-medium text-slate-600">{lang === "en" ? "Line Total" : "Jumla ya Mstari"}</span>
               <span className="font-semibold text-slate-900">{currency} {fmt(lineTotal)}</span>
             </div>
           </div>
 
           {/* Order details */}
           <div className="glass-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Order Details</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("orderDetails")}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Select Date" required>
+              <Field label={t("selectDate")} required>
                 <input
                   type="date" value={date} onChange={(e) => setDate(e.target.value)}
                   className="input-field"
                 />
               </Field>
-              <Field label="Select Supplier" required>
+              <Field label={t("selectSupplier")} required>
                 <select value={supplier} onChange={(e) => setSupplier(e.target.value)} className="input-field">
-                  <option value="">Choose supplier...</option>
+                  <option value="">{lang === "en" ? "Choose supplier..." : "Chagua muuzaji..."}</option>
                   {SUPPLIERS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </Field>
-              <Field label="Currency">
+              <Field label={t("currencyLabel")}>
                 <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="input-field">
                   {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </Field>
-              <Field label={`Withholding Tax (${withholdingPct}%)`}>
+              <Field label={`${t("withholdingTax")} (${withholdingPct}%)`}>
                 <input
                   type="number" min="0" max="100" step="0.5"
                   value={withholdingPct} onChange={(e) => setWithholdingPct(e.target.value)}
@@ -159,7 +165,7 @@ function CreateLPOPage() {
                 />
               </Field>
             </div>
-            <Field label="Discount (%)">
+            <Field label={t("discount")}>
               <input
                 type="number" min="0" max="100" step="0.5"
                 value={discount} onChange={(e) => setDiscount(e.target.value)}
@@ -171,11 +177,11 @@ function CreateLPOPage() {
 
           {/* Attachment + Comment */}
           <div className="glass-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Attachment & Notes</h2>
-            <Field label="Attachment (max 5 MB)">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("attachmentsNotes")}</h2>
+            <Field label={t("attachmentLimit")}>
               <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white/60 p-3 hover:bg-white/80">
                 <Paperclip className="h-4 w-4 shrink-0 text-slate-400" />
-                <span className="text-sm text-muted-foreground">{fileName || "Choose file (.pdf, .xlsx, .jpg)"}</span>
+                <span className="text-sm text-muted-foreground">{fileName || t("chooseFile")}</span>
                 {fileName && (
                   <button type="button" onClick={(e) => { e.preventDefault(); setFileName(""); }}
                     className="ml-auto rounded p-0.5 hover:text-rose-600">
@@ -188,15 +194,15 @@ function CreateLPOPage() {
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f && f.size <= 5 * 1024 * 1024) setFileName(f.name);
-                    else if (f) alert("File exceeds 5 MB limit.");
+                    else if (f) alert(lang === "en" ? "File exceeds 5 MB limit." : "Faili inazidi kikomo cha MB 5.");
                   }}
                 />
               </label>
             </Field>
-            <Field label="Comment">
+            <Field label={t("comment")}>
               <textarea
                 value={comment} onChange={(e) => setComment(e.target.value)}
-                rows={3} placeholder="Internal note or instructions..."
+                rows={3} placeholder={lang === "en" ? "Internal note or instructions..." : "Maelezo ya ndani au maelekezo..."}
                 className="input-field resize-none"
               />
             </Field>
@@ -206,15 +212,15 @@ function CreateLPOPage() {
         {/* Summary sidebar */}
         <div className="space-y-4">
           <div className="glass-card p-5">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Order Summary</h2>
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("orderSummary")}</h2>
             <div className="space-y-2.5 text-sm">
-              <SummaryRow label="Sub Total" value={`${currency} ${fmt(subTotal)}`} />
-              <SummaryRow label={`Discount (${discountNum}%)`} value={`- ${currency} ${fmt(discountAmount)}`} muted />
-              <SummaryRow label={`Withholding Tax (${withholdingNum}%)`} value={`- ${currency} ${fmt(withholdingAmount)}`} muted />
+              <SummaryRow label={t("subTotal")} value={`${currency} ${fmt(subTotal)}`} />
+              <SummaryRow label={`${t("discount").replace(" (%)", "")} (${discountNum}%)`} value={`- ${currency} ${fmt(discountAmount)}`} muted />
+              <SummaryRow label={`${t("withholdingTax")} (${withholdingNum}%)`} value={`- ${currency} ${fmt(withholdingAmount)}`} muted />
               <div className="my-1 h-px bg-slate-100" />
-              <SummaryRow label="VAT Amount (18%)" value={`+ ${currency} ${fmt(vatAmount)}`} accent />
+              <SummaryRow label={t("vatAmount")} value={`+ ${currency} ${fmt(vatAmount)}`} accent />
               <div className="my-1 h-px bg-slate-200" />
-              <SummaryRow label="Grand Total" value={`${currency} ${fmt(grandTotal)}`} bold />
+              <SummaryRow label={t("grandTotal")} value={`${currency} ${fmt(grandTotal)}`} bold />
             </div>
           </div>
 
@@ -223,13 +229,13 @@ function CreateLPOPage() {
               className="w-full rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"
               onClick={() => router.history.back()}
             >
-              Submit LPO
+              {t("submitLpo")}
             </button>
             <button
               className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
               onClick={() => router.history.back()}
             >
-              Cancel
+              {t("cancel")}
             </button>
           </div>
         </div>

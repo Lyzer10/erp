@@ -24,7 +24,7 @@ export function FormShell({ header, children, aside }: FormShellProps) {
   );
 }
 
-/* ---------- Dark info cards used in the right rail ---------- */
+/* ---------- Light info cards used in the right rail ---------- */
 
 interface DarkCardProps {
   readonly title: string;
@@ -34,22 +34,22 @@ interface DarkCardProps {
 }
 
 const toneMap = {
-  indigo:  "bg-blue-950 border-blue-900/45",
-  emerald: "bg-blue-950 border-blue-900/45",
-  amber:   "bg-blue-950 border-blue-900/45",
+  indigo:  "bg-[#f4f6f7] border-slate-200/80",
+  emerald: "bg-[#f4f6f7] border-slate-200/80",
+  amber:   "bg-[#f4f6f7] border-slate-200/80",
 };
 
 const iconToneMap = {
-  indigo:  "bg-blue-500/20 text-blue-200",
-  emerald: "bg-blue-500/20 text-blue-200",
-  amber:   "bg-blue-500/20 text-blue-200",
+  indigo:  "bg-[#1f9c88]/10 text-[#1f9c88]",
+  emerald: "bg-[#1f9c88]/10 text-[#1f9c88]",
+  amber:   "bg-[#1f9c88]/10 text-[#1f9c88]",
 };
 
 export function DarkCard({ title, icon: Icon = Info, tone = "indigo", children }: DarkCardProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl p-5 text-slate-100 shadow-md border",
+        "relative overflow-hidden rounded-2xl p-5 text-slate-800 shadow-sm border",
         toneMap[tone],
       )}
     >
@@ -57,9 +57,9 @@ export function DarkCard({ title, icon: Icon = Info, tone = "indigo", children }
         <span className={cn("grid h-8 w-8 place-items-center rounded-lg", iconToneMap[tone])}>
           <Icon className="h-4 w-4" />
         </span>
-        <h3 className="text-sm font-semibold tracking-tight text-white">{title}</h3>
+        <h3 className="text-sm font-semibold tracking-tight text-slate-900">{title}</h3>
       </div>
-      <div className="relative mt-3 text-[13px] leading-relaxed text-slate-300">{children}</div>
+      <div className="relative mt-3 text-[13px] leading-relaxed text-slate-600">{children}</div>
     </div>
   );
 }
@@ -80,8 +80,8 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
           <ul className="mt-3 space-y-1.5">
             {about.bullets.map((b) => (
               <li key={b} className="flex items-start gap-2">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
-                <span className="text-slate-300">{b}</span>
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1f9c88]" />
+                <span className="text-slate-600">{b}</span>
               </li>
             ))}
           </ul>
@@ -92,8 +92,8 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
         <ul className="space-y-1.5">
           {tips.map((t) => (
             <li key={t} className="flex items-start gap-2">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-blue-400" />
-              <span>{t}</span>
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1f9c88]" />
+              <span className="text-slate-600">{t}</span>
             </li>
           ))}
         </ul>
@@ -101,7 +101,7 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
 
       {notice && (
         <DarkCard title="Notice" icon={ShieldCheck} tone="emerald">
-          <p>{notice}</p>
+          <p className="text-slate-600">{notice}</p>
         </DarkCard>
       )}
     </>
