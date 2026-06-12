@@ -251,7 +251,8 @@ function CreateLPOPage() {
           box-shadow: 0 0 0 2px rgba(147,197,253,0.4);
         }
       `}</style>
-    </div>
+    </FormShell>
+
   );
 }
 
