@@ -60,20 +60,43 @@ export function InvoiceForm({ variant }: Props) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.history.back()}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            aria-label="Back"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+    <FormShell
+      header={
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.history.back()}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+          </div>
         </div>
-      </div>
+      }
+      aside={
+        <InfoRail
+          about={{
+            title: isInvoice ? "About Invoicing" : "About Proforma",
+            description: isInvoice
+              ? "Tax invoices are the official record of a sale. They drive receivables, VAT reporting, and customer statements."
+              : "A proforma is a quotation-style document sent before an invoice. It is not posted to the ledger until converted.",
+            bullets: isInvoice
+              ? ["Posts to debtors and revenue", "Triggers VAT obligation", "Available in customer statement"]
+              : ["No accounting entries posted", "Can be converted to a tax invoice", "Useful for quotes and pre-orders"],
+          }}
+          tips={[
+            "Verify the customer's TIN before saving.",
+            "Toggle VAT off only for exempt goods.",
+            "Use Payment Terms to drive due-date alerts.",
+            "Attach LPO references for traceability.",
+          ]}
+          notice={isInvoice ? "All tax invoices must comply with TRA EFD regulations." : undefined}
+        />
+      }
+    >
+
 
       {/* Section 1: Meta */}
       <Section title="Customer & Details">
