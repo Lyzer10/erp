@@ -1,6 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArrowLeft, Paperclip, X } from "lucide-react";
+import { FormShell, InfoRail } from "@/components/erp/FormShell";
+
 
 export const Route = createFileRoute("/_app/products/purchase-orders/new")({
   head: () => ({ meta: [{ title: "Create LPO — DeveleERP" }] }),
