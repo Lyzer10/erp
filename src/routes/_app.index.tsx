@@ -76,7 +76,7 @@ function Dashboard() {
 
       {/* Middle row */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-        <Card className="lg:col-span-8 pb-3">
+        <Card className="lg:col-span-8">
           <CardHeader title="Sales Trend" subtitle="Revenue across the last 6 months" />
           <EChart
             height={280}

@@ -13,12 +13,15 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30 days vs 1 day
+      document.cookie = `is_logged_in=true; path=/; max-age=${maxAge}`;
       navigate({ to: "/" });
     }, 800);
   }
@@ -92,7 +95,12 @@ function LoginPage() {
 
             <div className="flex items-center justify-between pt-1">
               <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-500">
-                <input type="checkbox" className="h-3.5 w-3.5 rounded accent-blue-600" />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-3.5 w-3.5 rounded accent-blue-600"
+                />
                 Remember me
               </label>
               <button type="button" className="text-xs font-medium text-blue-600 hover:underline">
