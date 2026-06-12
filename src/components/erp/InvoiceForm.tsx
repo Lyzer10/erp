@@ -1,4 +1,4 @@
-﻿import { useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { FormShell, InfoRail } from "@/components/erp/FormShell";
@@ -263,7 +263,7 @@ export function InvoiceForm({ variant }: Props) {
   );
 }
 
-const inputCls = "w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200";
+const inputCls = "w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all";
 
 function Section({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (

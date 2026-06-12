@@ -240,15 +240,16 @@ function CreateLPOPage() {
           width: 100%;
           border-radius: 0.5rem;
           border: 1px solid rgb(226 232 240);
-          background: rgba(255,255,255,0.7);
+          background: var(--color-slate-50);
           padding: 0.5rem 0.75rem;
           font-size: 0.875rem;
           outline: none;
+          transition: all 0.2s ease;
         }
         .input-field:focus {
-          ring: 2px;
-          border-color: rgb(147 197 253);
-          box-shadow: 0 0 0 2px rgba(147,197,253,0.4);
+          background: #ffffff;
+          border-color: rgb(37 99 235);
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
         }
       `}</style>
     </FormShell>
