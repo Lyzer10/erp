@@ -156,7 +156,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             "flex items-center rounded-xl text-sm font-medium transition",
             collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
             pathname === "/"
-              ? "bg-blue-500 text-white shadow-sm font-semibold"
+              ? "bg-blue-100 text-blue-900 shadow-sm font-semibold"
               : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
           )}
         >
@@ -174,7 +174,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
             "flex items-center rounded-xl text-sm font-medium transition",
             collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
             pathname === "/pos"
-              ? "bg-blue-500 text-white shadow-sm font-semibold"
+              ? "bg-blue-100 text-blue-900 shadow-sm font-semibold"
               : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
           )}
         >
@@ -211,7 +211,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
                 className={cn(
                   "flex items-center justify-center rounded-xl p-2.5 text-sm transition",
                   groupActive
-                    ? "bg-blue-500 text-white shadow-sm font-semibold"
+                    ? "bg-blue-100 text-blue-900 shadow-sm font-semibold"
                     : "text-foreground/75 hover:bg-slate-100",
                 )}
               >
@@ -246,7 +246,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
                         className={cn(
                           "block rounded-lg px-3 py-1.5 text-sm transition",
                           active
-                            ? "bg-blue-500 font-semibold text-white shadow-sm"
+                            ? "bg-blue-100 font-semibold text-blue-900 shadow-sm"
                             : "text-foreground/65 hover:bg-slate-100 hover:text-foreground",
                         )}
                       >

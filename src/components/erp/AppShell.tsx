@@ -34,7 +34,7 @@ export function AppShell() {
             >
               <X className="h-4 w-4" />
             </button>
-            <div className="h-full bg-white lg:hidden">
+            <div className="h-full bg-white p-1 lg:hidden">
               <MobileSidebar onNavigate={() => setMobileOpen(false)} />
             </div>
           </div>

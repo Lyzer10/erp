@@ -54,7 +54,7 @@ export function DataTable<T extends Record<string, unknown>>({
   const pageRows = filtered.slice(start, start + pageSize);
 
   return (
-    <div className="glass-card overflow-hidden p-0">
+    <div className="glass-card p-0">
       {searchable && (
         <div className="flex items-center justify-between gap-3 border-b border-blue-100/40 px-4 py-3">
           <div className="relative max-w-xs flex-1">
@@ -73,11 +73,13 @@ export function DataTable<T extends Record<string, unknown>>({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-blue-100 bg-blue-50/50">
-              {columns.map((c) => (
+              {columns.map((c, idx) => (
                 <th
                   key={c.key}
                   className={cn(
                     "px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-blue-800",
+                    idx === 0 && "rounded-tl-[15px]",
+                    idx === columns.length - 1 && "rounded-tr-[15px]",
                     c.align === "right" && "text-right",
                     c.align === "center" && "text-center",
                     c.className,
