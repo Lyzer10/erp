@@ -121,7 +121,7 @@ function Dashboard() {
         <Card className="lg:col-span-8">
           <CardHeader title={lang === "en" ? "Sales Trend" : "Mwenendo wa Mauzo"} subtitle={lang === "en" ? "Revenue across the last 6 months" : "Mapato ya miezi 6 iliyopita"} />
           <EChart
-            height={280}
+            height={350}
             option={{
               legend: { show: false },
               tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, confine: true },
@@ -135,7 +135,7 @@ function Dashboard() {
                   magicType: { show: true, type: ["line", "bar"], title: { line: lang === "en" ? "Line Chart" : "Mchoro wa Mstari", bar: lang === "en" ? "Bar Chart" : "Mchoro wa Mwamba" } }
                 }
               },
-              grid: { left: 52, right: 16, top: 32, bottom: 28 },
+              grid: { left: 52, right: 16, top: 50, bottom: 28 },
               xAxis: {
                 type: "category",
                 data: lang === "en" ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] : ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun"],
@@ -169,6 +169,30 @@ function Dashboard() {
           <div className="mt-2 flex items-center justify-center gap-5 text-xs text-muted-foreground">
             <Legend color="#a6e3dd" label={lang === "en" ? "Previous months" : "Miezi iliyopita"} />
             <Legend color="#1f9c88" label={lang === "en" ? "Current month" : "Mwezi huu"} />
+          </div>
+          <div className="mt-6 border-t border-slate-100 pt-5">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="rounded-xl bg-slate-50/50 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  {lang === "en" ? "Best Month" : "Mwezi Bora"}
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-800">
+                  {lang === "en" ? "June" : "Juni"} ({tzs(getFilteredValue(6240000))})
+                </p>
+              </div>
+              <div className="rounded-xl bg-slate-50/50 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  {lang === "en" ? "Monthly Average" : "Wastani wa Mwezi"}
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-800">{tzs(getFilteredValue(5196667))}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50/50 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  {lang === "en" ? "Growth Rate" : "Kasi ya Ukuaji"}
+                </p>
+                <p className="mt-1 text-sm font-bold text-emerald-600">+8.7% MoM</p>
+              </div>
+            </div>
           </div>
         </Card>
 
