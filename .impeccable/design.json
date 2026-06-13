@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-14T00:50:00Z",
+  "title": "Design System: DeveleERP",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Emerald Green",
+        "canonical": "oklch(61% 0.16 173)",
+        "tonalRamp": [
+          "#0a2723",
+          "#12433b",
+          "#145047",
+          "#156458",
+          "#177d6d",
+          "#1f9c88",
+          "#3cb4af",
+          "#6eccca",
+          "#a6e3dd",
+          "#d3f1ee",
+          "#eef9f8"
+        ]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Light Ash Background",
+        "canonical": "#f4f6f7",
+        "tonalRamp": [
+          "#0f1217",
+          "#1c212c",
+          "#333c4f",
+          "#4d5a75",
+          "#6e7e9b",
+          "#93a2bd",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#eef1f2",
+          "#f4f6f7"
+        ]
+      },
+      "neutral-card": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#ffffff"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display Title",
+        "purpose": "Page-level titles and large hero numbers."
+      },
+      "body": {
+        "displayName": "Body Text",
+        "purpose": "Default readable text across lists, charts, and descriptions."
+      }
+    },
+    "shadows": [
+      {
+        "name": "low",
+        "value": "0 2px 8px rgba(0,0,0,0.05)",
+        "purpose": "Subtle hover states on cards and dropdown lists."
+      }
+    ],
+    "motion": [
+      {
+        "name": "standard-ease",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Smooth transition for buttons, links, and sidebar highlights."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button used for submitting forms, saving details, or adding items.",
+      "html": "<button class=\"ds-btn-primary\">HIFADHI / SAVE</button>",
+      "css": ".ds-btn-primary { background-color: #1f9c88; color: #ffffff; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; padding: 8px 16px; border-radius: 12px; border: none; transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; } .ds-btn-primary:hover { background-color: #177d6d; }"
+    },
+    {
+      "name": "Card Container",
+      "kind": "card",
+      "refersTo": "card-container",
+      "description": "Base container for grouping sections, forms, and dashboard widgets.",
+      "html": "<div class=\"ds-card\"><h3>Anwani / Address</h3><p>Dar es Salaam, Ilala</p></div>",
+      "css": ".ds-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; font-family: 'Outfit', sans-serif; } .ds-card h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #1c212c; } .ds-card p { margin: 0; font-size: 14px; color: #4d5a75; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Emerald Ledger",
+    "overview": "DeveleERP's design system represents a clean, high-trust, structured, and highly localized interface. It is optimized for data-dense business operations in Tanzania, prioritizing clean typography, structured layouts, and bilingual (English/Swahili) balance.",
+    "keyCharacteristics": [
+      "Refined and Restrained: Lean borders, minimal drop shadows, flat layouts.",
+      "Bilingual Visual Weight: Spacing and headers designed to balance English and Swahili terms.",
+      "The Emerald Anchor: Focused usage of the primary brand green (#1f9c88) on actions."
+    ],
+    "rules": [
+      {
+        "name": "The Emerald Constraint Rule",
+        "body": "The brand color (#1f9c88) must not cover more than 10% of any screen surface. It is reserved for primary actions, badges, and focus items to direct attention.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Elements do not float. Shadows are only used under active dropdown lists, open modals, or subtle hover responses.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use a flat border outline (#e2e8f0) to structure tables and grids.",
+      "Do apply equal Swahili and English translation strings to every card header, button text, and list cell.",
+      "Do use 12px (rounded-md) for buttons and form fields, and 16px (rounded-lg) for cards."
+    ],
+    "donts": [
+      "Don't use border-left/right larger than 1px as a colored accent stripe.",
+      "Don't use over-rounded card borders (exceeding 16px).",
+      "Don't use saturated beige/cream backgrounds.",
+      "Don't add new top-level items to the sidebar (all sub-functions must be embedded inside page components)."
+    ]
+  }
+}

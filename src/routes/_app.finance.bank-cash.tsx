@@ -88,6 +88,33 @@ function BankCashPage() {
   const [branch, setBranch] = useState("Nairobi CBD");
   const [currencyCode, setCurrencyCode] = useState("TZS");
 
+  // Manage Banks Modal States
+  const [isManageBanksOpen, setIsManageBanksOpen] = useState(false);
+  const [activeSetupTab, setActiveSetupTab] = useState<"banks" | "branches">("banks");
+
+  const [registeredBanks, setRegisteredBanks] = useState([
+    { code: "NMB", name: "National Microfinance Bank", swift: "NMBTZTZ", address: "Azikiwe Street, Dar es Salaam" },
+    { code: "CRDB", name: "CRDB Bank Plc", swift: "CRDBTZTZ", address: "Ally Hassan Mwinyi Rd, Dar es Salaam" },
+    { code: "KCB", name: "KCB Bank Tanzania", swift: "KCBTZTZ", address: "Harambee Street, Dar es Salaam" },
+  ]);
+
+  const [registeredBranches, setRegisteredBranches] = useState([
+    { bankCode: "NMB", name: "Depima Technology Branch", code: "NMB-057", region: "Dar es Salaam" },
+    { bankCode: "CRDB", name: "Mbezi Luis Branch", code: "CRDB-190", region: "Dar es Salaam" },
+  ]);
+
+  // Form states for new bank
+  const [newBankCode, setNewBankCode] = useState("");
+  const [newBankName, setNewBankName] = useState("");
+  const [newBankSwift, setNewBankSwift] = useState("");
+  const [newBankAddress, setNewBankAddress] = useState("");
+
+  // Form states for new branch
+  const [newBranchBankCode, setNewBranchBankCode] = useState("NMB");
+  const [newBranchName, setNewBranchName] = useState("");
+  const [newBranchCode, setNewBranchCode] = useState("");
+  const [newBranchRegion, setNewBranchRegion] = useState("Dar es Salaam");
+
   // Reconciliation Config Parameters State
   const [beginningDate, setBeginningDate] = useState("2026-06-01");
   const [endingDate, setEndingDate] = useState("2026-06-12");
@@ -263,8 +290,14 @@ function BankCashPage() {
         actions={
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setIsManageBanksOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition cursor-pointer"
+            >
+              {lang === "en" ? "Manage Banks" : "Dhibiti Benki"}
+            </button>
+            <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-blue-500 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-blue-600 transition"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-blue-500 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-blue-600 transition cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               {t("newAccount")}
@@ -286,29 +319,42 @@ function BankCashPage() {
                     <thead>
                       <tr className="border-b border-blue-100 bg-blue-50/50">
                         <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">ID</th>
+                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{lang === "en" ? "Account Name" : "Jina la Akaunti"}</th>
+                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{lang === "en" ? "Account No" : "Namba ya Akaunti"}</th>
                         <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("bankName")}</th>
                         <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("bankBranch")}</th>
-                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("accountNumber")}</th>
-                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("accountName")}</th>
-                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("accountType")}</th>
                         <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("branchLabel")}</th>
-                        <th className="px-6 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-blue-800">Balance</th>
+                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{t("accountType")}</th>
+                        <th className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-blue-800">{lang === "en" ? "Currency" : "Sarafu"}</th>
+                        <th className="px-6 py-3.5 text-right text-xs font-bold uppercase tracking-wider text-blue-800">{lang === "en" ? "Balance" : "Salio"}</th>
+                        <th className="px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-blue-800">{lang === "en" ? "Action" : "Kitendo"}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {bankAccounts.map((acc) => (
                         <tr key={acc.id} className="border-b border-blue-100/30 transition-colors hover:bg-blue-50/10">
                           <td className="px-6 py-4 font-semibold text-slate-900">{acc.id}</td>
+                          <td className="px-6 py-4 text-slate-700">{acc.name}</td>
+                          <td className="px-6 py-4 font-mono text-slate-700">{acc.account}</td>
                           <td className="px-6 py-4 text-slate-700">{acc.bank}</td>
                           <td className="px-6 py-4 text-slate-600">{acc.branch}</td>
-                          <td className="px-6 py-4 font-mono text-slate-700">{acc.account}</td>
-                          <td className="px-6 py-4 text-slate-600">{acc.name}</td>
+                          <td className="px-6 py-4 text-slate-600">{acc.erpBranch}</td>
                           <td className="px-6 py-4">
                             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">{acc.type}</span>
                           </td>
-                          <td className="px-6 py-4 text-slate-600">{acc.erpBranch}</td>
+                          <td className="px-6 py-4 text-slate-600 uppercase font-medium">{acc.currency}</td>
                           <td className="px-6 py-4 text-right font-bold text-slate-900 tabular-nums">
-                            {acc.currency} {currency(acc.balance).replace("$", "")}
+                            {currency(acc.balance).replace("$", "")}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <button
+                              onClick={() => {
+                                setBankAccounts(prev => prev.filter(b => b.id !== acc.id));
+                              }}
+                              className="text-xs font-semibold text-rose-600 hover:text-rose-800 cursor-pointer"
+                            >
+                              {lang === "en" ? "Delete" : "Futa"}
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -804,18 +850,257 @@ function BankCashPage() {
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(false)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
               >
                 {t("cancel")}
               </button>
               <button
                 type="submit"
-                className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white shadow-md hover:bg-blue-600 transition"
+                className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white shadow-md hover:bg-blue-600 transition cursor-pointer"
               >
                 {lang === "en" ? "Create Account" : "Fungua Akaunti"}
               </button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage Banks Setup Modal */}
+      <Dialog open={isManageBanksOpen} onOpenChange={setIsManageBanksOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold">
+              {lang === "en" ? "Manage Banks & Branches Directory" : "Dhibiti Saraka ya Mabenki na Matawi"}
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Local Tabs */}
+          <div className="flex gap-2 border-b border-slate-100 pb-2 mt-2">
+            <button
+              onClick={() => setActiveSetupTab("banks")}
+              className={`text-xs font-semibold pb-1.5 border-b-2 transition cursor-pointer ${
+                activeSetupTab === "banks" ? "border-blue-500 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {lang === "en" ? "Banks Setup" : "Mipangilio ya Mabenki"}
+            </button>
+            <button
+              onClick={() => setActiveSetupTab("branches")}
+              className={`text-xs font-semibold pb-1.5 border-b-2 transition cursor-pointer ${
+                activeSetupTab === "branches" ? "border-blue-500 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {lang === "en" ? "Bank Branches" : "Matawi ya Benki"}
+            </button>
+          </div>
+
+          {activeSetupTab === "banks" ? (
+            <div className="space-y-4 mt-3">
+              {/* Add Bank Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newBankCode || !newBankName) return;
+                  setRegisteredBanks(prev => [
+                    ...prev,
+                    { code: newBankCode, name: newBankName, swift: newBankSwift, address: newBankAddress }
+                  ]);
+                  setNewBankCode("");
+                  setNewBankName("");
+                  setNewBankSwift("");
+                  setNewBankAddress("");
+                }}
+                className="grid grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 bg-slate-50/50"
+              >
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Bank Code" : "Kodi ya Benki"}</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. NMB"
+                    value={newBankCode}
+                    onChange={(e) => setNewBankCode(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Bank Name" : "Jina la Benki"}</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. National Microfinance Bank"
+                    value={newBankName}
+                    onChange={(e) => setNewBankName(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Swift Code" : "Kodi ya SWIFT"}</label>
+                  <input
+                    type="text"
+                    value={newBankSwift}
+                    onChange={(e) => setNewBankSwift(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Head Office Address" : "Anwani ya Makao Makuu"}</label>
+                  <input
+                    type="text"
+                    value={newBankAddress}
+                    onChange={(e) => setNewBankAddress(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div className="col-span-2 flex justify-end">
+                  <button type="submit" className="rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600 transition cursor-pointer">
+                    {lang === "en" ? "Add Bank" : "Ongeza Benki"}
+                  </button>
+                </div>
+              </form>
+
+              {/* Banks list */}
+              <div className="overflow-x-auto rounded-xl border border-slate-100">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-blue-50 bg-blue-50/20 text-blue-800 text-left font-bold">
+                      <th className="px-3 py-2">Code</th>
+                      <th className="px-3 py-2">Name</th>
+                      <th className="px-3 py-2">SWIFT</th>
+                      <th className="px-3 py-2">Address</th>
+                      <th className="px-3 py-2 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {registeredBanks.map(b => (
+                      <tr key={b.code} className="border-b border-slate-100/50 text-slate-600">
+                        <td className="px-3 py-2 font-bold text-slate-800">{b.code}</td>
+                        <td className="px-3 py-2">{b.name}</td>
+                        <td className="px-3 py-2 font-mono">{b.swift || "—"}</td>
+                        <td className="px-3 py-2">{b.address || "—"}</td>
+                        <td className="px-3 py-2 text-center">
+                          <button
+                            onClick={() => setRegisteredBanks(prev => prev.filter(item => item.code !== b.code))}
+                            className="text-rose-600 font-semibold hover:text-rose-800 cursor-pointer"
+                          >
+                            {lang === "en" ? "Delete" : "Futa"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 mt-3">
+              {/* Add Branch Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newBranchName || !newBranchCode) return;
+                  setRegisteredBranches(prev => [
+                    ...prev,
+                    { bankCode: newBranchBankCode, name: newBranchName, code: newBranchCode, region: newBranchRegion }
+                  ]);
+                  setNewBranchName("");
+                  setNewBranchCode("");
+                }}
+                className="grid grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 bg-slate-50/50"
+              >
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Bank Association" : "Benki Husika"}</label>
+                  <select
+                    value={newBranchBankCode}
+                    onChange={(e) => setNewBranchBankCode(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  >
+                    {registeredBanks.map(b => (
+                      <option key={b.code} value={b.code}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Branch Name" : "Jina la Tawi"}</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Mbezi Luis Branch"
+                    value={newBranchName}
+                    onChange={(e) => setNewBranchName(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Branch Code" : "Kodi ya Tawi"}</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. CRDB-190"
+                    value={newBranchCode}
+                    onChange={(e) => setNewBranchCode(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Region" : "Mkoa"}</label>
+                  <input
+                    type="text"
+                    value={newBranchRegion}
+                    onChange={(e) => setNewBranchRegion(e.target.value)}
+                    className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
+                  />
+                </div>
+                <div className="col-span-2 flex justify-end">
+                  <button type="submit" className="rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600 transition cursor-pointer">
+                    {lang === "en" ? "Add Branch" : "Ongeza Tawi"}
+                  </button>
+                </div>
+              </form>
+
+              {/* Branches list */}
+              <div className="overflow-x-auto rounded-xl border border-slate-100">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-blue-50 bg-blue-50/20 text-blue-800 text-left font-bold">
+                      <th className="px-3 py-2">Bank</th>
+                      <th className="px-3 py-2">Branch Name</th>
+                      <th className="px-3 py-2">Code</th>
+                      <th className="px-3 py-2">Region</th>
+                      <th className="px-3 py-2 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {registeredBranches.map((br, index) => (
+                      <tr key={index} className="border-b border-slate-100/50 text-slate-600">
+                        <td className="px-3 py-2 font-bold text-slate-800">{br.bankCode}</td>
+                        <td className="px-3 py-2">{br.name}</td>
+                        <td className="px-3 py-2 font-mono">{br.code}</td>
+                        <td className="px-3 py-2">{br.region}</td>
+                        <td className="px-3 py-2 text-center">
+                          <button
+                            onClick={() => setRegisteredBranches(prev => prev.filter((_, i) => i !== index))}
+                            className="text-rose-600 font-semibold hover:text-rose-800 cursor-pointer"
+                          >
+                            {lang === "en" ? "Delete" : "Futa"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end border-t border-slate-100 pt-3 mt-4">
+            <button
+              onClick={() => setIsManageBanksOpen(false)}
+              className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+            >
+              {lang === "en" ? "Close" : "Funga"}
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

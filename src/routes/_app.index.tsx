@@ -50,7 +50,23 @@ const kpiSets: Record<Period, Kpis> = {
 function Dashboard() {
   const { lang, t } = useTranslate();
   const [period, setPeriod] = useState<Period>("Today");
+  const [selectedBranch, setSelectedBranch] = useState<string>("All");
+  const [topTab, setTopTab] = useState<"products" | "customers">("products");
+
+  const getFilteredValue = (val: number) => {
+    if (selectedBranch === "Head Office") return val * 0.6;
+    if (selectedBranch === "Westlands") return val * 0.25;
+    if (selectedBranch === "Mombasa") return val * 0.15;
+    return val;
+  };
+
   const k = kpiSets[period];
+
+  const filteredRevenue = getFilteredValue(k.revenue);
+  const filteredExpenditures = getFilteredValue(k.expenditures);
+  const filteredGrossProfit = getFilteredValue(k.grossProfit);
+  const filteredCollection = getFilteredValue(k.collection);
+  const filteredPurchases = getFilteredValue(k.purchases);
 
   return (
     <div className="space-y-6">
@@ -60,29 +76,44 @@ function Dashboard() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("welcome")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{t("welcomeSub")}</p>
         </div>
-        <div className="inline-flex flex-wrap items-center gap-1 rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={cn(
-                "rounded-full px-3 py-1.5 text-xs font-medium transition",
-                period === p ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
-              )}
-            >
-              {PERIOD_NAMES[p]?.[lang] || p}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Branch Switcher */}
+          <select
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-sm outline-none backdrop-blur focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="All">{lang === "en" ? "All Branches" : "Matawi Yote"}</option>
+            <option value="Head Office">{lang === "en" ? "Head Office" : "Makao Makuu"}</option>
+            <option value="Westlands">{lang === "en" ? "Westlands" : "Westlands"}</option>
+            <option value="Mombasa">{lang === "en" ? "Mombasa" : "Mombasa"}</option>
+          </select>
+
+          {/* Period Selection */}
+          <div className="inline-flex flex-wrap items-center gap-1 rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm backdrop-blur">
+            {PERIODS.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={cn(
+                  "rounded-full px-3 py-1.5 text-xs font-medium transition cursor-pointer",
+                  period === p ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
+                )}
+              >
+                {PERIOD_NAMES[p]?.[lang] || p}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <KpiCard label={t("revenue")} value={tzs(k.revenue)} delta={k.revenueDelta} icon={Wallet} positiveIsGood />
-        <KpiCard label={t("expenditures")} value={tzs(k.expenditures)} delta={k.expendituresDelta} icon={Receipt} positiveIsGood={false} />
-        <KpiCard label={t("grossProfit")} value={tzs(k.grossProfit)} delta={k.grossProfitDelta} icon={TrendingUp} positiveIsGood />
-        <KpiCard label={t("collection")} value={tzs(k.collection)} subtitle={`${k.collectionInvoices} ` + (lang === "en" ? "invoices" : "ankara")} icon={HandCoins} />
-        <KpiCard label={t("purchases")} value={tzs(k.purchases)} subtitle={`${k.purchaseOrders} ` + (lang === "en" ? "maagizo" : "maagizo")} icon={ShoppingCart} />
+        <KpiCard label={t("revenue")} value={tzs(filteredRevenue)} delta={k.revenueDelta} icon={Wallet} positiveIsGood />
+        <KpiCard label={t("expenditures")} value={tzs(filteredExpenditures)} delta={k.expendituresDelta} icon={Receipt} positiveIsGood={false} />
+        <KpiCard label={t("grossProfit")} value={tzs(filteredGrossProfit)} delta={k.grossProfitDelta} icon={TrendingUp} positiveIsGood />
+        <KpiCard label={t("collection")} value={tzs(filteredCollection)} subtitle={`${k.collectionInvoices} ` + (lang === "en" ? "invoices" : "ankara")} icon={HandCoins} />
+        <KpiCard label={t("purchases")} value={tzs(filteredPurchases)} subtitle={`${k.purchaseOrders} ` + (lang === "en" ? "maagizo" : "maagizo")} icon={ShoppingCart} />
       </div>
 
       {/* Middle row */}
@@ -94,7 +125,17 @@ function Dashboard() {
             option={{
               legend: { show: false },
               tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-              grid: { left: 52, right: 16, top: 8, bottom: 28 },
+              toolbox: {
+                show: true,
+                right: 10,
+                top: 0,
+                feature: {
+                  saveAsImage: { show: true, title: lang === "en" ? "Save Image" : "Hifadhi Picha" },
+                  dataView: { show: true, readOnly: true, title: lang === "en" ? "Data View" : "Angalia Data", lang: [lang === "en" ? "Data View" : "Angalia Data", lang === "en" ? "Close" : "Funga", lang === "en" ? "Refresh" : "Sasisha"] },
+                  magicType: { show: true, type: ["line", "bar"], title: { line: lang === "en" ? "Line Chart" : "Mchoro wa Mstari", bar: lang === "en" ? "Bar Chart" : "Mchoro wa Mwamba" } }
+                }
+              },
+              grid: { left: 52, right: 16, top: 32, bottom: 28 },
               xAxis: {
                 type: "category",
                 data: lang === "en" ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] : ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun"],
@@ -112,12 +153,12 @@ function Dashboard() {
                   name: lang === "en" ? "Revenue" : "Mapato",
                   type: "bar",
                   data: [
-                    { value: 4_200_000, itemStyle: { color: "#a6e3dd" } },
-                    { value: 4_850_000, itemStyle: { color: "#a6e3dd" } },
-                    { value: 5_120_000, itemStyle: { color: "#a6e3dd" } },
-                    { value: 4_900_000, itemStyle: { color: "#a6e3dd" } },
-                    { value: 5_870_000, itemStyle: { color: "#a6e3dd" } },
-                    { value: 6_240_000, itemStyle: { color: "#1f9c88" } },
+                    { value: getFilteredValue(4_200_000), itemStyle: { color: "#a6e3dd" } },
+                    { value: getFilteredValue(4_850_000), itemStyle: { color: "#a6e3dd" } },
+                    { value: getFilteredValue(5_120_000), itemStyle: { color: "#a6e3dd" } },
+                    { value: getFilteredValue(4_900_000), itemStyle: { color: "#a6e3dd" } },
+                    { value: getFilteredValue(5_870_000), itemStyle: { color: "#a6e3dd" } },
+                    { value: getFilteredValue(6_240_000), itemStyle: { color: "#1f9c88" } },
                   ],
                   barWidth: 28,
                   itemStyle: { borderRadius: [6, 6, 0, 0] },
@@ -179,33 +220,68 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader title={lang === "en" ? "Top 5 Products Today" : "Bidhaa 5 Bora Leo"} />
-          <div className="mt-3 space-y-4">
-            {[
-              { name: lang === "en" ? "Product A" : "Bidhaa A", value: 48000 },
-              { name: lang === "en" ? "Product B" : "Bidhaa B", value: 36000 },
-              { name: lang === "en" ? "Product C" : "Bidhaa C", value: 24000 },
-              { name: lang === "en" ? "Product D" : "Bidhaa D", value: 18000 },
-              { name: lang === "en" ? "Product E" : "Bidhaa E", value: 12000 },
-            ].map((p, i, arr) => {
-              const max = arr[0].value;
-              const pct = Math.round((p.value / max) * 100);
-              return (
-                <div key={p.name}>
-                  <div className="mb-1.5 flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">{p.name}</span>
-                    <span className="font-semibold text-foreground">{tzs(p.value)}</span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-blue-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+          <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-2">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setTopTab("products")}
+                className={cn(
+                  "text-xs font-semibold pb-1.5 border-b-2 transition cursor-pointer",
+                  topTab === "products" ? "border-blue-500 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
+                )}
+              >
+                {lang === "en" ? "Top Products" : "Bidhaa Maarufu"}
+              </button>
+              <button
+                onClick={() => setTopTab("customers")}
+                className={cn(
+                  "text-xs font-semibold pb-1.5 border-b-2 transition cursor-pointer",
+                  topTab === "customers" ? "border-blue-500 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
+                )}
+              >
+                {lang === "en" ? "Top Customers" : "Wateja Maarufu"}
+              </button>
+            </div>
           </div>
+
+          <EChart
+            height={240}
+            option={{
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+              grid: { left: 90, right: 16, top: 8, bottom: 20 },
+              xAxis: { type: "value", show: false },
+              yAxis: {
+                type: "category",
+                data: topTab === "products"
+                  ? [
+                      lang === "en" ? "Product E" : "Bidhaa E",
+                      lang === "en" ? "Product D" : "Bidhaa D",
+                      lang === "en" ? "Product C" : "Bidhaa C",
+                      lang === "en" ? "Product B" : "Bidhaa B",
+                      lang === "en" ? "Product A" : "Bidhaa A",
+                    ]
+                  : [
+                      "Harbor Logistics",
+                      "Greenfield Co.",
+                      "Bluepeak Ind.",
+                      "Skyline Holdings",
+                      "Acme Trading Ltd",
+                    ],
+                axisLine: { show: false },
+                axisTick: { show: false },
+                axisLabel: { fontSize: 11, color: "#64748b" }
+              },
+              series: [
+                {
+                  type: "bar",
+                  data: topTab === "products"
+                    ? [getFilteredValue(12000), getFilteredValue(18000), getFilteredValue(24000), getFilteredValue(36000), getFilteredValue(48000)]
+                    : [getFilteredValue(15000), getFilteredValue(29000), getFilteredValue(38000), getFilteredValue(45000), getFilteredValue(62000)],
+                  itemStyle: { color: "#1f9c88", borderRadius: [0, 4, 4, 0] },
+                  barWidth: 14
+                }
+              ]
+            }}
+          />
         </Card>
 
         <Card>
