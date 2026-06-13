@@ -123,7 +123,8 @@ function ReportsPage() {
             ]} />
             <GlassCard>
               <EChart height={300} option={{
-                xAxis: { 
+                tooltip: { trigger: "axis", confine: true },
+              xAxis: { 
                   type: "category", 
                   data: lang === "en" 
                     ? ["Revenue","COGS","Gross","OpEx","Operating","Tax","Net"] 
@@ -158,11 +159,11 @@ function ReportsPage() {
         { key: "bs", label: lang === "en" ? "Balance Sheet" : "Mizania (Balance Sheet)", render: () => (
           <div className="grid gap-6 lg:grid-cols-2">
             <GlassCard>
-              <h3 className="mb-3 font-semibold">{lang === "en" ? "Assets" : "Rasilimali"}</h3>
+              <h2 className="mb-3 font-semibold text-base text-slate-800">{lang === "en" ? "Assets" : "Rasilimali"}</h2>
               <DataTable searchable={false} pageSize={20} data={getAssetsData()} columns={[{ key: "a", header: lang === "en" ? "Item" : "Kipengele" }, { key: "v", header: lang === "en" ? "Amount" : "Kiasi", align: "right", render: (r) => currency(r.v) }]} />
             </GlassCard>
             <GlassCard>
-              <h3 className="mb-3 font-semibold">{lang === "en" ? "Liabilities & Equity" : "Dhima na Ekwiti"}</h3>
+              <h2 className="mb-3 font-semibold text-base text-slate-800">{lang === "en" ? "Liabilities & Equity" : "Dhima na Ekwiti"}</h2>
               <DataTable searchable={false} pageSize={20} data={getLiabilitiesData()} columns={[{ key: "a", header: lang === "en" ? "Item" : "Kipengele" }, { key: "v", header: lang === "en" ? "Amount" : "Kiasi", align: "right", render: (r) => currency(r.v) }]} />
             </GlassCard>
           </div>
@@ -192,6 +193,7 @@ function ReportsPage() {
         { key: "stock", label: lang === "en" ? "Stock Valuation" : "Kuhimili Thamani ya Bidhaa", render: () => (
           <GlassCard>
             <EChart height={320} option={{
+              tooltip: { trigger: "axis", confine: true },
               xAxis: { 
                 type: "category", 
                 data: lang === "en" 

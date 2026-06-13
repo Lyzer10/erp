@@ -177,7 +177,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 rounded-xl border border-white/60 bg-white/50 pl-1 pr-2 py-1 backdrop-blur-md transition hover:bg-white/70 focus:outline-none">
-              <div className="grid h-7 w-7 place-items-center rounded-full bg-blue-500 text-xs font-semibold text-white">
+              <div className="grid h-7 w-7 place-items-center rounded-full bg-blue-100 text-xs font-semibold text-blue-900">
                 {DUMMY_USER.initials}
               </div>
               <span className="hidden text-xs font-medium text-slate-700 sm:block">{DUMMY_USER.name.split(" ")[0]}</span>
@@ -188,7 +188,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
             {/* Profile header */}
             <div className="bg-slate-50 px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-500 text-sm font-bold text-white shadow-md">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-100 text-sm font-bold text-blue-900 shadow-md">
                   {DUMMY_USER.initials}
                 </div>
                 <div className="min-w-0">
@@ -234,7 +234,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
           </DialogHeader>
           <div className="space-y-4 pt-1">
             <div className="flex items-center gap-4">
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-blue-500 text-xl font-bold text-white shadow-lg">
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-blue-100 text-xl font-bold text-blue-900 shadow-lg">
                 {DUMMY_USER.initials}
               </div>
               <div>

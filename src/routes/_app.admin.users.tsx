@@ -95,7 +95,7 @@ function UsersPage() {
             <div className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-100">
               <KeyRound className="h-6 w-6 text-blue-600" />
             </div>
-            <h3 className="mt-3 text-lg font-semibold">{lang === "en" ? "Reset User Password" : "Weka Upya Nywila ya Mtumiaji"}</h3>
+            <h2 className="mt-3 text-lg font-semibold">{lang === "en" ? "Reset User Password" : "Weka Upya Nywila ya Mtumiaji"}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {lang === "en" ? "Select a user and send them a temporary password." : "Chagua mtumiaji na umtumie nywila ya muda."}
             </p>

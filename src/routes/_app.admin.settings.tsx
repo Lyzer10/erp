@@ -27,7 +27,7 @@ function SettingsPage() {
       <TabbedPage tabs={[
         { key: "config", label: lang === "en" ? "Configurations" : "Usanidi", render: () => (
           <GlassCard>
-            <h3 className="mb-4 text-base font-semibold">{lang === "en" ? "System Preferences" : "Mapendeleo ya Mfumo"}</h3>
+            <h2 className="mb-4 text-base font-semibold">{lang === "en" ? "System Preferences" : "Mapendeleo ya Mfumo"}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={lang === "en" ? "Default Currency" : "Sarafu ya Kawaida"} value="USD ($)" />
               <Field label={lang === "en" ? "Fiscal Year Start" : "Mwanzo wa Mwaka wa Fedha"} value="January" />
@@ -43,7 +43,7 @@ function SettingsPage() {
         )},
         { key: "company", label: lang === "en" ? "Company Info" : "Taarifa za Kampuni", render: () => (
           <GlassCard>
-            <h3 className="mb-4 text-base font-semibold">{lang === "en" ? "Company Profile" : "Wasifu wa Kampuni"}</h3>
+            <h2 className="mb-4 text-base font-semibold">{lang === "en" ? "Company Profile" : "Wasifu wa Kampuni"}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label={lang === "en" ? "Company Name" : "Jina la Kampuni"} value="Lumen Trading Co." />
               <Field label={lang === "en" ? "Registration #" : "Namba ya Usajili"} value="C-128937" />

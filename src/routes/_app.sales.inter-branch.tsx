@@ -229,9 +229,9 @@ function InterBranchPage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-1 rounded bg-blue-500" />
-                  <h3 className="text-sm font-semibold text-slate-800">
+                  <h2 className="text-sm font-semibold text-slate-800">
                     {lang === "en" ? "Stock Requests Overview" : "Muhtasari wa Maombi ya Bidhaa"}
-                  </h3>
+                  </h2>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200/60 shadow-sm">
                   <div className="flex items-center gap-2">
@@ -298,7 +298,7 @@ function InterBranchPage() {
               </div>
               <div className="mt-4">
                 <EChart height={300} option={{
-                  tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+                  tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, confine: true },
                   legend: { 
                     data: [lang === "en" ? "Outgoing" : "Zinazotoka", lang === "en" ? "Incoming" : "Zinazoingia"], 
                     textStyle: { color: "#145047", fontWeight: "bold" } 

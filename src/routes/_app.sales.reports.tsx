@@ -62,6 +62,7 @@ function SalesReportsPage() {
         { key: "summary", label: lang === "en" ? "Summary" : "Muhtasari", render: () => (
           <GlassCard>
             <EChart height={380} option={{
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, confine: true },
               legend: { data: lang === "en" ? ["Gross", "Discount", "Net"] : ["Ghafi", "Punguzo", "Halisi"] },
               xAxis: { type: "category", data: lang === "en" ? ["Jan","Feb","Mar","Apr","May","Jun"] : ["Jan","Feb","Mac","Apr","Mei","Jun"] },
               yAxis: { type: "value" },
@@ -88,6 +89,7 @@ function SalesReportsPage() {
         { key: "by-customer", label: lang === "en" ? "By Customer" : "Kwa Mteja", render: () => (
           <GlassCard>
             <EChart height={380} option={{
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, confine: true },
               grid: { left: 160 },
               xAxis: { type: "value" },
               yAxis: { type: "category", data: customers.slice(0, 8).map((c) => c.name) },
@@ -113,7 +115,7 @@ function SalesReportsPage() {
         { key: "by-category", label: lang === "en" ? "By Category" : "Kwa Kundi", render: () => (
           <GlassCard>
             <EChart height={380} option={{
-              tooltip: { trigger: "item" },
+              tooltip: { trigger: "item", confine: true },
               series: [{ 
                 type: "pie", 
                 radius: ["45%", "75%"], 
@@ -127,6 +129,7 @@ function SalesReportsPage() {
         { key: "collection", label: lang === "en" ? "Collection" : "Makusanyo", render: () => (
           <GlassCard>
             <EChart height={380} option={{
+              tooltip: { trigger: "axis", confine: true },
               legend: { data: lang === "en" ? ["Billed", "Collected"] : ["Zilizodaiwa", "Zilizokusanywa"] },
               xAxis: { type: "category", data: lang === "en" ? ["Jan","Feb","Mar","Apr","May","Jun"] : ["Jan","Feb","Mac","Apr","Mei","Jun"] },
               yAxis: { type: "value" },

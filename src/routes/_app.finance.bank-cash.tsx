@@ -401,7 +401,7 @@ function BankCashPage() {
               <div className="space-y-6">
                 {/* Form Parameters */}
                 <div className="glass-card p-5">
-                  <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">{t("bankReconciliation")}</h3>
+                  <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">{t("bankReconciliation")}</h2>
                   <div className="grid gap-4 sm:grid-cols-4 items-end">
                     <div className="space-y-1">
                       <label className="block text-xs font-medium text-slate-700">{t("beginningDate")}</label>
@@ -450,12 +450,12 @@ function BankCashPage() {
                   <div className="glass-card p-6 border-blue-200/60 shadow-lg space-y-6">
                     {/* Header */}
                     <div className="flex flex-col gap-1 border-b border-slate-100 pb-4">
-                      <h3 className="text-base font-bold text-slate-900">
+                      <h2 className="text-base font-bold text-slate-900">
                         {lang === "en" ? "RECONCILE" : "SULUHISHA"}{" "}
                         {bankAccounts.find((b) => b.id === selectedBankId)?.bank.toUpperCase()}{" "}
                         {bankAccounts.find((b) => b.id === selectedBankId)?.branch.toUpperCase()}{" "}
                         {bankAccounts.find((b) => b.id === selectedBankId)?.account}
-                      </h3>
+                      </h2>
                       <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">
                         {t("statementEndingDate")}: {new Date(endingDate).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
                       </p>
@@ -587,7 +587,7 @@ function BankCashPage() {
                 {/* Bank Reconciliation Log List */}
                 <div className="glass-card p-5 space-y-4">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">{t("reconciliationList")}</h3>
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">{t("reconciliationList")}</h2>
                     
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                       <div className="flex items-center gap-1.5 text-xs text-slate-500">

@@ -345,7 +345,7 @@ export function ImportCard({ title, templateName }: { title: string; templateNam
       <div className="glass-card space-y-5 p-8">
         <div className="flex items-center gap-2">
           <Upload className="h-5 w-5 text-teal-600" />
-          <h3 className="text-base font-semibold">{title}</h3>
+          <h2 className="text-base font-semibold">{title}</h2>
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700">{lang === "en" ? "Select File:" : "Chagua Faili:"}</label>

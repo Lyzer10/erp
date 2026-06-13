@@ -183,7 +183,7 @@ function StaffPage() {
           <GlassCard>
             <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-12 text-center">
               <Upload className="mx-auto h-10 w-10 text-blue-500" />
-              <h3 className="mt-3 text-base font-semibold">{lang === "en" ? "Bulk upload staff records" : "Pakia kumbukumbu za wafanyakazi kwa pamoja"}</h3>
+              <h2 className="mt-3 text-base font-semibold">{lang === "en" ? "Bulk upload staff records" : "Pakia kumbukumbu za wafanyakazi kwa pamoja"}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {lang === "en" ? "Drag a CSV or Excel file here, or click to browse." : "Buruta faili la CSV au Excel hapa, au bonyeza ili kutafuta."}
               </p>

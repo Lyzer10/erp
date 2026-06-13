@@ -96,13 +96,13 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
   return (
     <aside
       className={cn(
-        "glass-nav fixed inset-y-0 left-0 z-40 hidden flex-col transition-[width] duration-300 lg:flex",
+        "glass-nav fixed inset-y-0 left-0 z-40 hidden flex-col lg:flex",
         collapsed ? "w-16" : "w-64",
       )}
     >
       {/* Logo */}
       <div className={cn(
-        "flex h-16 shrink-0 items-center gap-3 border-b border-slate-200",
+        "flex h-16 shrink-0 items-center gap-3 border-b border-slate-200 py-1",
         collapsed ? "justify-center px-2" : "px-5",
       )}>
         <Link
@@ -116,7 +116,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
           <img 
             src="/devele-logo.png" 
             alt="DeveleICT" 
-            className={cn("shrink-0 object-contain transition-all", collapsed ? "h-9 w-9" : "h-11 w-11")} 
+            className={cn("shrink-0 object-contain", collapsed ? "h-9 w-9" : "h-11 w-11")} 
           />
           {!collapsed && (
             <div className="min-w-0 flex-1">
@@ -265,7 +265,7 @@ export function AppSidebar({ onNavigate, collapsed = false, onToggle }: Props) {
       {!collapsed && (
         <div className="border-t border-slate-200 p-4">
           <div className="glass-card flex items-center gap-3 p-3">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-500 text-sm font-semibold text-white">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-100 text-sm font-semibold text-blue-900">
               AO
             </div>
             <div className="min-w-0 flex-1">

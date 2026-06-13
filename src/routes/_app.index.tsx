@@ -124,7 +124,7 @@ function Dashboard() {
             height={280}
             option={{
               legend: { show: false },
-              tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, confine: true },
               toolbox: {
                 show: true,
                 right: 10,
@@ -246,7 +246,7 @@ function Dashboard() {
           <EChart
             height={240}
             option={{
-              tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, confine: true },
               grid: { left: 90, right: 16, top: 8, bottom: 20 },
               xAxis: { type: "value", show: false },
               yAxis: {
@@ -329,7 +329,7 @@ function Card({ className, children }: { className?: string; children: React.Rea
 function CardHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-3">
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
     </div>
   );

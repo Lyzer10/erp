@@ -75,7 +75,7 @@ function CustomerStatementPage() {
         <GlassCard>
           <h3 className="mb-3 text-lg font-semibold">{lang === "en" ? "Aging Analysis" : "Uchanganuzi wa Madeni"}</h3>
           <EChart height={300} option={{
-            tooltip: { trigger: "item" },
+            tooltip: { trigger: "item", confine: true },
             legend: {
               show: true,
               top: "2%",
