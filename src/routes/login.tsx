@@ -34,11 +34,64 @@ function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-slate-50/50 px-4 overflow-hidden">
-      {/* Premium subtle background grid pattern & radial blur */}
-      <div className="absolute inset-0 -z-10 h-full w-full bg-slate-50 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_600px_at_50%_30%,#ccfbf1_40%,transparent_100%)] opacity-40" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_30%_80%,#e0f2fe_40%,transparent_100%)] opacity-30" />
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-50 px-4 overflow-hidden">
+      {/* Blueprint/Drawing Geometric Lines Background */}
+      <div className="absolute inset-0 -z-10 overflow-hidden bg-slate-50">
+        {/* Radial brand gradients */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_600px_at_50%_30%,#ccfbf1_40%,transparent_100%)] opacity-55" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_30%_80%,#e0f2fe_45%,transparent_100%)] opacity-45" />
+
+        {/* Fine grid background */}
+        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_0.75px,transparent_0.75px)] [background-size:24px_24px] opacity-40" />
+
+        {/* Slow-rotating geometric technical blueprint drawings */}
+        <svg 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[900px] w-[900px] text-slate-300 stroke-current opacity-70" 
+          viewBox="0 0 100 100" 
+          fill="none"
+        >
+          {/* Outer circle layout */}
+          <circle cx="50" cy="50" r="46" strokeWidth="0.1" />
+          <circle cx="50" cy="50" r="44" strokeWidth="0.08" strokeDasharray="1 3" />
+          
+          {/* Dynamic rotating outer compass-like rings */}
+          <circle cx="50" cy="50" r="38" strokeWidth="0.12" strokeDasharray="8 4" className="animate-[spin_160s_linear_infinite]" />
+          <circle cx="50" cy="50" r="36" strokeWidth="0.08" className="animate-[spin_240s_linear_infinite_reverse]" />
+          <circle cx="50" cy="50" r="28" strokeWidth="0.15" strokeDasharray="2 6" className="animate-[spin_90s_linear_infinite]" />
+          
+          {/* Inner details */}
+          <circle cx="50" cy="50" r="18" strokeWidth="0.08" />
+          <circle cx="50" cy="50" r="10" strokeWidth="0.15" strokeDasharray="3 1" className="animate-[spin_40s_linear_infinite_reverse]" />
+          
+          {/* Crosshairs & Diagonal drawing guides */}
+          <line x1="50" y1="2" x2="50" y2="98" strokeWidth="0.08" strokeDasharray="4 4" />
+          <line x1="2" y1="50" x2="98" y2="50" strokeWidth="0.08" strokeDasharray="4 4" />
+          
+          <line x1="16" y1="16" x2="84" y2="84" strokeWidth="0.06" />
+          <line x1="84" y1="16" x2="16" y2="84" strokeWidth="0.06" />
+          
+          {/* Coordinates / Dimensions Callouts */}
+          <path d="M 50 14 L 52 14 M 50 22 L 52 22 M 50 30 L 52 30 M 50 70 L 52 70 M 50 78 L 52 78 M 50 86 L 52 86" strokeWidth="0.15" />
+          <path d="M 14 50 L 14 52 M 22 50 L 22 52 M 30 50 L 30 52 M 70 50 L 70 52 M 78 50 L 78 52 M 86 50 L 86 52" strokeWidth="0.15" />
+          
+          {/* Accent colored precision details */}
+          <circle cx="50" cy="50" r="45" stroke="#1f9c88" strokeWidth="0.12" strokeOpacity="0.3" strokeDasharray="20 40" className="animate-[spin_120s_linear_infinite]" />
+          <circle cx="50" cy="50" r="24" stroke="#1f9c88" strokeWidth="0.15" strokeOpacity="0.25" strokeDasharray="40 10" className="animate-[spin_80s_linear_infinite_reverse]" />
+          <circle cx="50" cy="50" r="1.5" fill="#1f9c88" fillOpacity="0.15" stroke="#1f9c88" strokeWidth="0.2" />
+        </svg>
+
+        {/* Floating geometric corner lines and grids */}
+        <svg className="absolute top-10 left-10 h-32 w-32 text-slate-300 stroke-current opacity-60" viewBox="0 0 100 100" fill="none">
+          <path d="M 0 0 L 0 40 M 0 0 L 40 0" strokeWidth="0.3" />
+          <circle cx="0" cy="0" r="20" strokeWidth="0.15" />
+          <line x1="0" y1="0" x2="30" y2="30" strokeWidth="0.15" strokeDasharray="2 2" />
+        </svg>
+        <svg className="absolute bottom-10 right-10 h-40 w-40 text-slate-300 stroke-current opacity-60" viewBox="0 0 100 100" fill="none">
+          <path d="M 100 100 L 100 50 M 100 100 L 50 100" strokeWidth="0.3" />
+          <circle cx="100" cy="100" r="30" strokeWidth="0.15" />
+          <circle cx="100" cy="100" r="40" strokeWidth="0.1" strokeDasharray="3 3" />
+          <line x1="100" y1="100" x2="70" y2="70" strokeWidth="0.15" strokeDasharray="2 2" />
+        </svg>
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -61,7 +114,7 @@ function LoginPage() {
             <img
               src="/devele-logo.png"
               alt="DeveleICT"
-              className="h-14 w-14 rounded-xl object-contain shadow-sm bg-white p-1"
+              className="h-20 w-20 rounded-2xl object-contain shadow-sm bg-white p-1.5"
             />
             <div className="text-center">
               <h1 className="text-xl font-bold tracking-tight text-slate-900">DeveleERP</h1>

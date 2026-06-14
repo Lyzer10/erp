@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { 
   Building2, Palette, CreditCard, ShieldCheck, MessageSquare, Key, 
   Save, AlertCircle, Check, Plus, Trash2, Globe, Clock, Download, 
-  Upload, Eye, EyeOff, Sparkles, Server
+  Upload, Eye, EyeOff, Sparkles, Server, FileText, X
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/admin/settings")({
