@@ -34,13 +34,19 @@ function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-50/50 px-4 overflow-hidden">
+      {/* Premium subtle background grid pattern & radial blur */}
+      <div className="absolute inset-0 -z-10 h-full w-full bg-slate-50 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_600px_at_50%_30%,#ccfbf1_40%,transparent_100%)] opacity-40" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_30%_80%,#e0f2fe_40%,transparent_100%)] opacity-30" />
+      </div>
+
       <div className="relative w-full max-w-sm">
         {/* Language Selector */}
         <div className="absolute -top-14 right-0">
           <button
             onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-white/60 bg-white/50 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white/70 hover:border-slate-300 focus:outline-none"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-md transition hover:bg-white hover:border-slate-300 focus:outline-none cursor-pointer"
             title={lang === "en" ? "Badili kwenda Kiswahili" : "Change to English"}
           >
             <span className="text-base">{lang === "en" ? "🇬🇧" : "🇹🇿"}</span>
@@ -49,26 +55,26 @@ function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-white/80 bg-white/90 p-8 shadow-xl shadow-slate-200/60 backdrop-blur-sm">
+        <div className="rounded-2xl border border-slate-100 bg-white/80 p-8 shadow-2xl shadow-slate-200/50 backdrop-blur-md transition-all duration-300 hover:shadow-slate-200/70">
           {/* Logo */}
           <div className="mb-8 flex flex-col items-center gap-3">
             <img
               src="/devele-logo.png"
               alt="DeveleICT"
-              className="h-14 w-14 rounded-xl object-contain shadow-sm"
+              className="h-14 w-14 rounded-xl object-contain shadow-sm bg-white p-1"
             />
             <div className="text-center">
               <h1 className="text-xl font-bold tracking-tight text-slate-900">DeveleERP</h1>
-              <p className="text-xs font-medium uppercase tracking-widest text-slate-400">Enterprise Suite</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#1f9c88]">Enterprise Suite</p>
             </div>
           </div>
 
-          <h2 className="mb-1 text-center text-lg font-bold text-slate-900">{t("loginTitle")}</h2>
-          <p className="mb-6 text-center text-xs text-slate-500">{t("loginSub")}</p>
+          <h2 className="mb-1 text-center text-sm font-bold text-slate-800 uppercase tracking-wider">{t("loginTitle")}</h2>
+          <p className="mb-6 text-center text-xs text-slate-500 font-medium">{t("loginSub")}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="username" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <label htmlFor="username" className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">
                 {t("usernameLabel")}
               </label>
               <input
@@ -79,12 +85,12 @@ function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder={t("usernamePlaceholder")}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#1f9c88] focus:bg-white focus:ring-2 focus:ring-[#1f9c88]/15"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <label htmlFor="password" className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">
                 {t("password")}
               </label>
               <div className="relative">
@@ -96,7 +102,7 @@ function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t("passwordPlaceholder")}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 pr-10 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-[#1f9c88] focus:bg-white focus:ring-2 focus:ring-[#1f9c88]/15"
                 />
                 <button
                   type="button"
@@ -110,16 +116,16 @@ function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between pt-1">
-              <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-500">
+              <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-500 font-medium select-none">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded accent-blue-600"
+                  className="h-3.5 w-3.5 rounded border-slate-300 text-[#1f9c88] focus:ring-[#1f9c88] accent-[#1f9c88]"
                 />
                 {t("rememberMe")}
               </label>
-              <button type="button" className="text-xs font-medium text-blue-600 hover:underline">
+              <button type="button" className="text-xs font-semibold text-[#1f9c88] hover:text-[#177d6d] hover:underline cursor-pointer">
                 {t("forgotPassword")}
               </button>
             </div>
@@ -127,15 +133,15 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600 disabled:opacity-60"
+              className="mt-2 w-full rounded-xl bg-[#1f9c88] py-2.5 text-sm font-bold text-white shadow-lg shadow-[#1f9c88]/15 hover:bg-[#177d6d] disabled:opacity-60 transition cursor-pointer"
             >
               {loading ? t("signingIn") : t("signIn")}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-slate-400">
+          <p className="mt-6 text-center text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
             {lang === "en" ? "Powered by" : "Inaendeshwa na"}{" "}
-            <span className="font-semibold text-slate-500">DeveleICT</span>
+            <span className="font-extrabold text-slate-500">DeveleICT</span>
           </p>
         </div>
       </div>
