@@ -53,7 +53,7 @@ function SuppliersPage() {
             <ExportMenu />
             <button
               onClick={() => setCreateOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#177d6d] transition cursor-pointer"
             >
               <Plus className="h-4 w-4" /> {lang === "en" ? "New Supplier" : "Muuzaji Mpya"}
             </button>
@@ -312,20 +312,20 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{lang === "en" ? "New Supplier" : "Muuzaji Mpya"}</DialogTitle>
+      <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">{lang === "en" ? "New Supplier" : "Muuzaji Mpya"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Supplier Name" : "Jina la Muuzaji"}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Supplier Name" : "Jina la Muuzaji"} *</label>
             <input
               required
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Supplier A Co."
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -336,7 +336,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+255 712 100 001"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
             <div>
@@ -346,7 +346,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="a@supplier.com"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
           </div>
@@ -358,7 +358,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
                 placeholder="Dar es Salaam"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
             <div>
@@ -368,7 +368,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Kariakoo"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
           </div>
@@ -380,7 +380,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
                 value={tin}
                 onChange={(e) => setTin(e.target.value)}
                 placeholder="200-300-401"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
             <div>
@@ -390,21 +390,21 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
                 value={vrn}
                 onChange={(e) => setVrn(e.target.value)}
                 placeholder="40-223456-S"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
             >
               {lang === "en" ? "Cancel" : "Ghairi"}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-[#1f9c88] hover:bg-[#177d6d] px-4 py-2.5 text-xs font-bold text-white shadow-md transition cursor-pointer"
             >
               {lang === "en" ? "Save Supplier" : "Hifadhi Muuzaji"}
             </button>

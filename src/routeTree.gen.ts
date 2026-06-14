@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PosDisplayRouteImport } from './routes/pos-display'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
@@ -45,6 +46,11 @@ import { Route as AppSalesInvoicesProformaRouteImport } from './routes/_app.sale
 import { Route as AppSalesInvoicesNewRouteImport } from './routes/_app.sales.invoices.new'
 import { Route as AppProductsPurchaseOrdersNewRouteImport } from './routes/_app.products.purchase-orders.new'
 
+const PosDisplayRoute = PosDisplayRouteImport.update({
+  id: '/pos-display',
+  path: '/pos-display',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -233,6 +239,7 @@ const AppProductsPurchaseOrdersNewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/pos-display': typeof PosDisplayRoute
   '/pos': typeof AppPosRoute
   '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/pos-display': typeof PosDisplayRoute
   '/pos': typeof AppPosRoute
   '/': typeof AppIndexRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/pos-display': typeof PosDisplayRoute
   '/_app/pos': typeof AppPosRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/settings': typeof AppAdminSettingsRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/pos-display'
     | '/pos'
     | '/admin/settings'
     | '/admin/users'
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/pos-display'
     | '/pos'
     | '/'
     | '/admin/settings'
@@ -413,6 +424,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/login'
+    | '/pos-display'
     | '/_app/pos'
     | '/_app/'
     | '/_app/admin/settings'
@@ -451,10 +463,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PosDisplayRoute: typeof PosDisplayRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pos-display': {
+      id: '/pos-display'
+      path: '/pos-display'
+      fullPath: '/pos-display'
+      preLoaderRoute: typeof PosDisplayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -801,6 +821,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  PosDisplayRoute: PosDisplayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

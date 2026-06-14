@@ -58,7 +58,7 @@ function CustomersPage() {
             <ExportMenu />
             <button
               onClick={() => setCreateOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#177d6d] transition cursor-pointer"
             >
               <Plus className="h-4 w-4" /> {lang === "en" ? "New Customer" : "Mteja Mpya"}
             </button>
@@ -96,15 +96,15 @@ function ExportMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
+        <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 cursor-pointer">
           {lang === "en" ? "Export" : "Hamisha"} <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
-        <DropdownMenuItem className="gap-2 cursor-pointer">
+      <DropdownMenuContent align="end" className="w-36 bg-white border border-slate-100 shadow-lg rounded-xl">
+        <DropdownMenuItem className="gap-2 cursor-pointer text-xs font-semibold py-2">
           <FileSpreadsheet className="h-4 w-4 text-emerald-600" /> Excel
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 cursor-pointer">
+        <DropdownMenuItem className="gap-2 cursor-pointer text-xs font-semibold py-2">
           <FileText className="h-4 w-4 text-rose-600" /> PDF
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -144,13 +144,13 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
   return (
     <div className="glass-card overflow-hidden p-0">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-end gap-3 border-b border-white/40 p-4">
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-end gap-3 border-b border-slate-100 p-4 bg-slate-50/50">
+        <label className="flex items-center gap-2 text-xs text-muted-foreground font-semibold">
           {lang === "en" ? "Show" : "Onyesha"}
           <select
             value={perPage}
             onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs"
+            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs focus:border-[#1f9c88] focus:outline-none"
           >
             {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
@@ -162,7 +162,7 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(1); }}
             placeholder={lang === "en" ? "Search..." : "Tafuta..."}
-            className="w-56 rounded-md border border-slate-200 bg-white py-1.5 pl-8 pr-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-56 rounded-md border border-slate-200 bg-white py-1.5 pl-8 pr-2 text-xs focus:outline-none focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15"
           />
         </div>
       </div>
@@ -177,12 +177,12 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
                   ? (h === "Action" || h === "Status") 
                   : (h === "Kitendo" || h === "Hali");
                 return (
-                  <th key={index} className={`whitespace-nowrap px-3 py-3 font-medium ${isBalance ? "text-right" : isActionOrStatus ? "text-center" : "text-left"}`}>{h}</th>
+                  <th key={index} className={`whitespace-nowrap px-3 py-3 font-semibold ${isBalance ? "text-right" : isActionOrStatus ? "text-center" : "text-left"}`}>{h}</th>
                 );
               })}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100 text-sm text-slate-700 bg-white">
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">
@@ -191,13 +191,13 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
                 </td>
               </tr>
             ) : rows.map((c, i) => (
-              <tr key={c.id} className="border-b border-slate-100 hover:bg-slate-50/60">
+              <tr key={c.id} className="hover:bg-slate-50/50 transition">
                 <td className="px-3 py-3 text-slate-500">{start + i + 1}</td>
-                <td className="whitespace-nowrap px-3 py-3 font-medium text-foreground">{c.name}</td>
+                <td className="whitespace-nowrap px-3 py-3 font-semibold text-foreground">{c.name}</td>
                 <td className="whitespace-nowrap px-3 py-3">{c.phone}</td>
                 <td className="whitespace-nowrap px-3 py-3">{c.email}</td>
                 <td className="whitespace-nowrap px-3 py-3">{c.region}</td>
-                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold">{tzs(c.balance)}</td>
+                <td className="whitespace-nowrap px-3 py-3 text-right font-semibold text-slate-900">{tzs(c.balance)}</td>
                 <td className="px-3 py-3 text-center"><StatusPill status={c.status} /></td>
                 <td className="px-3 py-3">
                   <div className="flex items-center justify-center gap-1">
@@ -212,8 +212,8 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
         </table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-white/40 px-4 py-3 text-xs">
-        <span className="text-muted-foreground">
+      <div className="flex items-center justify-between border-t border-slate-150 px-4 py-3 text-xs bg-slate-50/20">
+        <span className="text-muted-foreground font-medium">
           {lang === "en" 
             ? `Showing ${filtered.length === 0 ? 0 : start + 1} to ${Math.min(start + perPage, filtered.length)} of ${filtered.length} entries`
             : `Inaonyesha ${filtered.length === 0 ? 0 : start + 1} hadi ${Math.min(start + perPage, filtered.length)} kati ya kumbukumbu ${filtered.length}`
@@ -221,23 +221,23 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
         </span>
         <div className="flex gap-2">
           <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">{lang === "en" ? "Previous" : "Nyuma"}</button>
-          <span className="rounded-md bg-blue-500 px-3 py-1 font-semibold text-white">{page}</span>
+            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-semibold disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer">{lang === "en" ? "Previous" : "Nyuma"}</button>
+          <span className="rounded-md bg-blue-100 text-blue-900 px-3 py-1 font-semibold">{page}</span>
           <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-medium disabled:opacity-40">{lang === "en" ? "Next" : "Mbele"}</button>
+            className="rounded-md border border-slate-200 bg-white px-3 py-1 font-semibold disabled:opacity-40 hover:bg-slate-50 transition cursor-pointer">{lang === "en" ? "Next" : "Mbele"}</button>
         </div>
       </div>
 
       {/* View dialog */}
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{lang === "en" ? "Customer Details" : "Maelezo ya Mteja"}</DialogTitle>
+        <DialogContent className="max-w-md bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
+          <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+            <DialogTitle className="text-base font-bold text-slate-900">{lang === "en" ? "Customer Details" : "Maelezo ya Mteja"}</DialogTitle>
           </DialogHeader>
           {viewing && (
             <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">{lang === "en" ? "Status" : "Hali"}</span>
+              <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 border border-slate-100">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{lang === "en" ? "Status" : "Hali"}</span>
                 <StatusPill status={viewing.status} />
               </div>
               <DetailRow label={lang === "en" ? "Name" : "Jina"}    value={viewing.name} />
@@ -257,24 +257,24 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
 
       {/* Delete confirm */}
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white rounded-2xl p-6 shadow-xl border border-slate-100">
           <AlertDialogHeader>
-            <AlertDialogTitle>{lang === "en" ? "Delete customer?" : "Futa mteja?"}</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base font-bold text-slate-900">{lang === "en" ? "Delete customer?" : "Futa mteja?"}</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500 text-sm">
               {lang === "en" 
                 ? `This will permanently remove ${toDelete?.name} from your records. This action cannot be undone.`
                 : `Hii itaondoa kabisa ${toDelete?.name} kutoka kwenye kumbukumbu zako. Kitendo hiki hakiwezi kubatilishwa.`
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{lang === "en" ? "Cancel" : "Ghairi"}</AlertDialogCancel>
+          <AlertDialogFooter className="pt-2 border-t border-slate-100 mt-4">
+            <AlertDialogCancel className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold px-4 py-2">{lang === "en" ? "Cancel" : "Ghairi"}</AlertDialogCancel>
             <AlertDialogAction onClick={() => {
               if (toDelete) {
                 setCustomers(prev => prev.filter(c => c.id !== toDelete.id));
               }
               setToDelete(null);
-            }} className="bg-rose-600 hover:bg-rose-700">{lang === "en" ? "Delete" : "Futa"}</AlertDialogAction>
+            }} className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold px-4 py-2">{lang === "en" ? "Delete" : "Futa"}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -284,9 +284,9 @@ function CustomersList({ customers, setCustomers }: CustomersListProps) {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="w-28 shrink-0 text-xs text-muted-foreground">{label}</span>
-      <span className="text-right text-sm font-medium text-foreground">{value}</span>
+    <div className="flex items-center justify-between gap-4 border-b border-slate-50 pb-2 last:border-0 last:pb-0">
+      <span className="w-28 shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
+      <span className="text-right text-sm font-semibold text-slate-800">{value}</span>
     </div>
   );
 }
@@ -301,22 +301,22 @@ function AdvancesTable() {
     <div className="glass-card overflow-hidden p-0">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
+          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600 border-b border-slate-100">
             <tr>
               {headers.map((h, idx) => {
                 const isBalance = lang === "en" ? h === "Balance" : h === "Salio";
                 const isAction = lang === "en" ? h === "Action" : h === "Kitendo";
                 return (
-                  <th key={idx} className={`px-3 py-3 font-medium ${isBalance ? "text-right" : isAction ? "text-center" : "text-left"}`}>{h}</th>
+                  <th key={idx} className={`px-3 py-3 font-semibold ${isBalance ? "text-right" : isAction ? "text-center" : "text-left"}`}>{h}</th>
                 );
               })}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100 text-sm text-slate-700 bg-white">
             {advancesMock.map((a, i) => (
-              <tr key={a.id} className="border-b border-slate-100 hover:bg-slate-50/60">
+              <tr key={a.id} className="hover:bg-slate-50/50 transition">
                 <td className="px-3 py-3 text-slate-500">{i + 1}</td>
-                <td className="px-3 py-3 font-medium">{a.name}</td>
+                <td className="px-3 py-3 font-bold">{a.name}</td>
                 <td className="px-3 py-3">{a.createdBy}</td>
                 <td className="px-3 py-3">{a.currency}</td>
                 <td className="px-3 py-3 text-right font-semibold">
@@ -342,24 +342,24 @@ export function ImportCard({ title, templateName }: { title: string; templateNam
   const [fileName, setFileName] = useState<string>("");
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="glass-card space-y-5 p-8">
-        <div className="flex items-center gap-2">
-          <Upload className="h-5 w-5 text-teal-600" />
-          <h2 className="text-base font-semibold">{title}</h2>
+      <div className="glass-card space-y-5 p-8 border border-slate-200">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <Upload className="h-5 w-5 text-[#1f9c88]" />
+          <h2 className="text-base font-semibold text-slate-800">{title}</h2>
         </div>
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-700">{lang === "en" ? "Select File:" : "Chagua Faili:"}</label>
-          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white/60 p-4 hover:bg-white/80">
-            <span className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{lang === "en" ? "Choose File" : "Chagua Faili"}</span>
-            <span className="text-sm text-muted-foreground">{fileName || (lang === "en" ? "No file chosen" : "Hakuna faili lililochaguliwa")}</span>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Select File:" : "Chagua Faili:"}</label>
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-4 hover:bg-slate-50 transition">
+            <span className="rounded-md bg-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700">{lang === "en" ? "Choose File" : "Chagua Faili"}</span>
+            <span className="text-sm text-slate-500 font-medium">{fileName || (lang === "en" ? "No file chosen" : "Hakuna faili lililochaguliwa")}</span>
             <input type="file" className="hidden" accept=".csv,.xlsx" onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")} />
           </label>
         </div>
-        <a href="#download-template" className="inline-flex items-center gap-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline">
-          <Download className="h-3.5 w-3.5" /> {lang === "en" ? "Download:" : "Pakua:"} {templateName}
+        <a href="#download-template" className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1f9c88] hover:text-[#177d6d] hover:underline">
+          <Download className="h-3.5 w-3.5" /> {lang === "en" ? "Download Template:" : "Pakua Kiolezo:"} {templateName}
         </a>
         <div className="pt-2">
-          <button className="rounded-lg bg-blue-500 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition">
+          <button className="rounded-lg bg-[#1f9c88] hover:bg-[#177d6d] px-5 py-2 text-sm font-semibold text-white shadow-sm transition cursor-pointer">
             {lang === "en" ? "Submit" : "Wasilisha"}
           </button>
         </div>
@@ -373,7 +373,7 @@ function IconBtn({
 }: { children: React.ReactNode; title: string; onClick: () => void; tone: "blue" | "amber" | "rose" }) {
   const tones = { blue: "text-blue-600 hover:bg-blue-50", amber: "text-amber-600 hover:bg-amber-50", rose: "text-rose-600 hover:bg-rose-50" };
   return (
-    <button onClick={onClick} title={title} className={`rounded-md p-1.5 transition ${tones[tone]}`}>{children}</button>
+    <button onClick={onClick} title={title} className={`rounded-md p-1.5 transition ${tones[tone]} cursor-pointer`}>{children}</button>
   );
 }
 
@@ -388,6 +388,17 @@ interface CreateCustomerDialogProps {
     tin: string;
     vrn: string;
     address: string;
+    companyName?: string;
+    mobile?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+    creditLimit?: number;
+    paymentTerms?: string;
+    pricingGroup?: string;
+    notes?: string;
   }) => void;
 }
 
@@ -400,11 +411,44 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
   const [tin, setTin] = useState("");
   const [vrn, setVrn] = useState("");
   const [address, setAddress] = useState("");
+  
+  // Advanced fields
+  const [companyName, setCompanyName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [country, setCountry] = useState("Tanzania");
+  const [creditLimit, setCreditLimit] = useState<number>(0);
+  const [paymentTerms, setPaymentTerms] = useState("Immediate");
+  const [pricingGroup, setPricingGroup] = useState("Retail");
+  const [notes, setNotes] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name) return;
-    onSubmit({ name, phone, email, region, tin, vrn, address });
+    onSubmit({
+      name,
+      phone,
+      email,
+      region,
+      tin,
+      vrn,
+      address: address || street || city || region,
+      companyName,
+      mobile,
+      street,
+      city,
+      state,
+      postalCode,
+      country,
+      creditLimit,
+      paymentTerms,
+      pricingGroup,
+      notes
+    });
+    // Reset states
     setName("");
     setPhone("");
     setEmail("");
@@ -412,104 +456,247 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
     setTin("");
     setVrn("");
     setAddress("");
+    setCompanyName("");
+    setMobile("");
+    setStreet("");
+    setCity("");
+    setState("");
+    setPostalCode("");
+    setCountry("Tanzania");
+    setCreditLimit(0);
+    setPaymentTerms("Immediate");
+    setPricingGroup("Retail");
+    setNotes("");
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{lang === "en" ? "New Customer" : "Mteja Mpya"}</DialogTitle>
+      <DialogContent className="max-w-xl bg-white rounded-2xl p-6 shadow-xl border border-slate-100 max-h-[85vh] overflow-y-auto pr-3">
+        <DialogHeader className="border-b border-slate-100 pb-3 mb-4">
+          <DialogTitle className="text-base font-bold text-slate-900">
+            {lang === "en" ? "New Customer" : "Mteja Mpya"}
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Customer Name" : "Jina la Mteja"}</label>
-            <input
-              required
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Acme Trading Ltd"
-              className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Phone Number" : "Namba ya Simu"}</label>
-              <input
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+255 712 000 001"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
+        <form onSubmit={handleSubmit} className="space-y-5 pt-1">
+          {/* Section 1: Basic Information */}
+          <div className="space-y-3">
+            <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
+              {lang === "en" ? "1. Basic Details" : "1. Taarifa za Msingi"}
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Full Name" : "Jina Kamili"} *</label>
+                <input
+                  required
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Acme Trading Ltd"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Company Name" : "Jina la Kampuni"}</label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="e.g. Acme Group"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Email" : "Barua Pepe"}</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="acme@email.com"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Region" : "Mkoa"}</label>
-              <input
-                type="text"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="Dar es Salaam"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Address" : "Anwani"}</label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Ilala"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "TIN Number" : "Namba ya TIN"}</label>
-              <input
-                type="text"
-                value={tin}
-                onChange={(e) => setTin(e.target.value)}
-                placeholder="100-200-300"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">VRN</label>
-              <input
-                type="text"
-                value={vrn}
-                onChange={(e) => setVrn(e.target.value)}
-                placeholder="40-123456-E"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-              />
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Phone Number" : "Namba ya Simu"}</label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+255 712 000 001"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Mobile Number" : "Simu ya Mkononi"}</label>
+                <input
+                  type="text"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  placeholder="+255 654 000 001"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Email Address" : "Barua Pepe"}</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="acme@email.com"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
+
+          {/* Section 2: Billing Address Details */}
+          <div className="space-y-3">
+            <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
+              {lang === "en" ? "2. Billing Address" : "2. Anwani ya Malipo"}
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Street Address" : "Anwani ya Mtaa"}</label>
+                <input
+                  type="text"
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  placeholder="e.g. Kariakoo St, Plot 4"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "City" : "Mji"}</label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="e.g. Dar es Salaam"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              <div className="col-span-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Region / State" : "Mkoa / Jimbo"}</label>
+                <input
+                  type="text"
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  placeholder="Ilala"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Postal Code" : "Msimbo"}</label>
+                <input
+                  type="text"
+                  value={postalCode}
+                  onChange={(e) => setPostalCode(e.target.value)}
+                  placeholder="e.g. 11000"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Country" : "Nchi"}</label>
+                <input
+                  type="text"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Financial settings & limits */}
+          <div className="space-y-3">
+            <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
+              {lang === "en" ? "3. Financial & Credit Details" : "3. Maelezo ya Kifedha na Mikopo"}
+            </h4>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Credit Limit (TZS)" : "Ukomo wa Mikopo (TZS)"}</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={creditLimit || ""}
+                  onChange={(e) => setCreditLimit(Number(e.target.value))}
+                  placeholder="e.g. 500000"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Payment Terms" : "Muda wa Malipo"}</label>
+                <select
+                  value={paymentTerms}
+                  onChange={(e) => setPaymentTerms(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                >
+                  <option value="Immediate">Immediate (Lipa Hapo Hapo)</option>
+                  <option value="Net 15">Net 15 Days</option>
+                  <option value="Net 30">Net 30 Days</option>
+                  <option value="Net 60">Net 60 Days</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Pricing Group" : "Kundi la Bei"}</label>
+                <select
+                  value={pricingGroup}
+                  onChange={(e) => setPricingGroup(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                >
+                  <option value="Retail">Retail (Rejareja)</option>
+                  <option value="Wholesale">Wholesale (Jumla)</option>
+                  <option value="Distributor">Distributor (Msambazaji)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Tax Registry & Notes */}
+          <div className="space-y-3">
+            <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
+              {lang === "en" ? "4. Tax & Additional Notes" : "4. Kodi na Maelezo ya Ziada"}
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "TIN Number" : "Namba ya TIN"}</label>
+                <input
+                  type="text"
+                  value={tin}
+                  onChange={(e) => setTin(e.target.value)}
+                  placeholder="100-200-300"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">VRN</label>
+                <input
+                  type="text"
+                  value={vrn}
+                  onChange={(e) => setVrn(e.target.value)}
+                  placeholder="40-123456-E"
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Notes / Additional Comments" : "Maelezo au Ufafanuzi Ziada"}</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Enter client credit histories, branch-specific details or comments..."
+                rows={2}
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Form Controls */}
+          <div className="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
             >
               {lang === "en" ? "Cancel" : "Ghairi"}
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-[#1f9c88] hover:bg-[#177d6d] px-4 py-2.5 text-xs font-bold text-white shadow-md transition cursor-pointer"
             >
               {lang === "en" ? "Save Customer" : "Hifadhi Mteja"}
             </button>

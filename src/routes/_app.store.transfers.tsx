@@ -127,7 +127,7 @@ function StoreTransfersPage() {
             <ExportMenu />
             <button
               onClick={() => setTransferOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition animate-fade-in"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#177d6d] transition animate-fade-in cursor-pointer"
             >
               <Plus className="h-4 w-4" /> {t("newTransfer")}
             </button>
@@ -192,7 +192,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
             >
               <option value="Inter Branch">{lang === "en" ? "Inter Branch" : "Uhamisho wa Matawi (IBT)"}</option>
               <option value="Inter Store">{lang === "en" ? "Inter Store" : "Uhamisho wa Stoo (IST)"}</option>
@@ -210,7 +210,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
                 placeholder="e.g. Main Store"
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
             <div>
@@ -221,7 +221,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
                 placeholder="e.g. Westlands Branch"
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
           </div>
@@ -235,7 +235,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
                 min={1}
                 value={items}
                 onChange={(e) => setItems(Number(e.target.value))}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
             <div>
@@ -246,7 +246,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
                 min={0}
                 value={value}
                 onChange={(e) => setValue(Number(e.target.value))}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
               />
             </div>
           </div>
@@ -258,7 +258,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
               onChange={(e) => setDescription(e.target.value)}
               placeholder={lang === "en" ? "Enter transfer details..." : "Weka maelezo ya uhamisho..."}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all resize-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all resize-none"
             />
           </div>
 
@@ -272,7 +272,7 @@ function CreateTransferDialog({ open, onOpenChange, onSubmit }: CreateTransferDi
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-blue-500 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-600 transition"
+              className="rounded-xl bg-[#1f9c88] hover:bg-[#177d6d] px-4 py-2.5 text-xs font-semibold text-white transition cursor-pointer"
             >
               {t("submit")}
             </button>

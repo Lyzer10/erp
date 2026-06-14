@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_app/products/purchase-orders/new")({
 const CURRENCIES = ["TZS", "USD", "EUR", "GBP", "KES"];
 const SUPPLIERS = ["Supplier A Co.", "Supplier B Holdings", "Supplier C Industries", "Supplier D Co.", "Supplier E Logistics"];
 
-const fmt = (n: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2 }).format(n);
+const fmt = (n: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 
 function CreateLPOPage() {
   const router = useRouter();
@@ -226,7 +226,7 @@ function CreateLPOPage() {
 
           <div className="space-y-2">
             <button
-              className="w-full rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"
+              className="w-full rounded-lg bg-[#1f9c88] px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#177d6d] transition cursor-pointer"
               onClick={() => router.history.back()}
             >
               {t("submitLpo")}
@@ -254,8 +254,8 @@ function CreateLPOPage() {
         }
         .input-field:focus {
           background: #ffffff;
-          border-color: rgb(37 99 235);
-          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+          border-color: #1f9c88;
+          box-shadow: 0 0 0 2px rgba(31, 156, 136, 0.15);
         }
       `}</style>
     </FormShell>
@@ -278,7 +278,7 @@ function SummaryRow({ label, value, muted, accent, bold }: { label: string; valu
   return (
     <div className="flex items-center justify-between gap-2">
       <span className={muted ? "text-slate-400" : "text-slate-600"}>{label}</span>
-      <span className={`tabular-nums ${bold ? "text-base font-bold text-slate-900" : accent ? "font-medium text-blue-600" : muted ? "text-slate-400" : "text-slate-700"}`}>
+      <span className={`tabular-nums ${bold ? "text-base font-bold text-slate-900" : accent ? "font-medium text-[#1f9c88]" : muted ? "text-slate-400" : "text-slate-700"}`}>
         {value}
       </span>
     </div>

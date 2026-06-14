@@ -186,12 +186,13 @@ function StockPage() {
         { key: "movement", label: lang === "en" ? "Movement" : "Mwenendo", render: () => (
           <GlassCard>
             <EChart height={320} option={{
-              legend: { data: [lang === "en" ? "In" : "Ingizo", lang === "en" ? "Out" : "Kutoka"] },
+              legend: { top: 0, left: "center", data: [lang === "en" ? "In" : "Ingizo", lang === "en" ? "Out" : "Kutoka"] },
+              grid: { top: 40, bottom: 30, left: 10, right: 10, containLabel: true },
               xAxis: { type: "category", data: lang === "en" ? ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] : ["Jumatatu","Jumanne","Jumatano","Alhamisi","Ijumaa","Jumamosi","Jumapili"] },
               yAxis: { type: "value" },
               series: [
-                { name: lang === "en" ? "In" : "Ingizo", type: "bar", data: [120, 180, 90, 220, 160, 80, 50], itemStyle: { borderRadius: [6,6,0,0] }, barWidth: 18 },
-                { name: lang === "en" ? "Out" : "Kutoka", type: "bar", data: [90, 110, 150, 180, 200, 60, 30], itemStyle: { borderRadius: [6,6,0,0] }, barWidth: 18 },
+                { name: lang === "en" ? "In" : "Ingizo", type: "bar", data: [120, 180, 90, 220, 160, 80, 50], itemStyle: { borderRadius: [6,6,0,0], color: "#3b82f6" }, barWidth: 18 },
+                { name: lang === "en" ? "Out" : "Kutoka", type: "bar", data: [90, 110, 150, 180, 200, 60, 30], itemStyle: { borderRadius: [6,6,0,0], color: "#10b981" }, barWidth: 18 },
               ],
             }} />
           </GlassCard>
