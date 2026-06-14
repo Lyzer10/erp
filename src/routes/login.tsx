@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, EyeOff, LogIn, UserPlus, Sun, Moon } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
 import { useTranslate, setLanguage } from "@/lib/i18n";
-import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign In — DeveleERP" }] }),
@@ -12,7 +11,6 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { lang } = useTranslate();
-  const { theme, toggleTheme } = useTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -51,9 +49,8 @@ function LoginPage() {
     <div
       className="flex min-h-screen w-full items-center justify-center p-4 sm:p-6"
       style={{
-        background: theme === "dark"
-          ? "radial-gradient(1200px 700px at 50% 0%, #0c201d 0%, #0d1214 55%, #080a0c 100%)"
-          : "radial-gradient(1200px 700px at 50% 0%, #eaf5f2 0%, #f4f6f7 55%, #e6ebee 100%)",
+        background:
+          "radial-gradient(1200px 700px at 50% 0%, #eaf5f2 0%, #f4f6f7 55%, #e6ebee 100%)",
       }}
     >
       <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/[0.04]">
@@ -68,22 +65,12 @@ function LoginPage() {
 
         {/* Top: language toggle + Sign Up */}
         <div className="relative flex items-center justify-between px-8 pt-7 sm:px-12">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
-              className="text-sm font-medium text-[#111113]/50 transition hover:text-[#111113] focus-visible:outline-none"
-            >
-              {lang === "en" ? "English" : "Kiswahili"} ▾
-            </button>
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="text-slate-400 transition hover:text-[#1f9c88] focus-visible:outline-none"
-              title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
-            >
-              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </button>
-          </div>
+          <button
+            onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
+            className="text-sm font-medium text-[#111113]/50 transition hover:text-[#111113] focus-visible:outline-none"
+          >
+            {lang === "en" ? "English" : "Kiswahili"} ▾
+          </button>
           <button
             type="button"
             className="flex items-center gap-1.5 text-sm font-semibold text-[#111113]/70 transition hover:text-[#1f9c88] focus-visible:outline-none"
