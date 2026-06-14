@@ -546,15 +546,57 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
             </div>
 
             <div>
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Image URL" : "URL ya Picha ya Bidhaa"}</label>
-              <input
-                type="text"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="e.g. https://images.unsplash.com/photo-..."
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
-              />
+              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Image" : "Picha ya Bidhaa"}</label>
+
+              {/* Upload + Preview row */}
+              <div className="mt-1 flex items-start gap-3">
+                {image ? (
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    <img src={image} className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImage("")}
+                      className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-[10px] font-bold text-white hover:bg-black/80"
+                      aria-label="Remove image"
+                    >×</button>
+                  </div>
+                ) : (
+                  <label className="flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-slate-300 bg-slate-50 text-[10px] font-semibold text-slate-500 hover:border-[#1f9c88] hover:text-[#1f9c88] transition">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    {lang === "en" ? "Upload" : "Pakia"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => setImage(typeof reader.result === "string" ? reader.result : "");
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </label>
+                )}
+
+                <div className="flex-1 space-y-1.5">
+                  <input
+                    type="text"
+                    value={image.startsWith("data:") ? "" : image}
+                    onChange={(e) => setImage(e.target.value)}
+                    placeholder={lang === "en" ? "Or paste image URL…" : "Au bandika URL ya picha…"}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400">
+                    {lang === "en"
+                      ? "Upload from device or paste an image URL."
+                      : "Pakia kutoka kifaani au bandika URL ya picha."}
+                  </p>
+                </div>
+              </div>
             </div>
+
           </div>
 
           {/* Form Actions */}
