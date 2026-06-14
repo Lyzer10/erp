@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Info, Lightbulb, ShieldCheck, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslate } from "@/lib/i18n";
 
 interface FormShellProps {
   readonly header?: ReactNode;
@@ -72,6 +73,7 @@ interface InfoRailProps {
 
 /** Standard 3-card rail: About + Why this matters + Quick Tips. */
 export function InfoRail({ about, tips, notice }: InfoRailProps) {
+  const { t } = useTranslate();
   return (
     <>
       <DarkCard title={about.title} icon={Info} tone="indigo">
@@ -88,7 +90,7 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
         )}
       </DarkCard>
 
-      <DarkCard title="Quick Tips" icon={Lightbulb} tone="amber">
+      <DarkCard title={t("quickTips")} icon={Lightbulb} tone="amber">
         <ul className="space-y-1.5">
           {tips.map((t) => (
             <li key={t} className="flex items-start gap-2">
@@ -100,7 +102,7 @@ export function InfoRail({ about, tips, notice }: InfoRailProps) {
       </DarkCard>
 
       {notice && (
-        <DarkCard title="Notice" icon={ShieldCheck} tone="emerald">
+        <DarkCard title={t("notice")} icon={ShieldCheck} tone="emerald">
           <p className="text-slate-600">{notice}</p>
         </DarkCard>
       )}

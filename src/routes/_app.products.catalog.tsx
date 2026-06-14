@@ -337,7 +337,7 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "1. Basic Information" : "1. Taarifa za Msingi"}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Product Name" : "Jina la Bidhaa"} *</label>
                 <input
@@ -378,7 +378,7 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "2. Identification & Unit" : "2. Utambulisho na Vipimo"}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Barcode / IMEI" : "Msimbo Pau (Barcode / IMEI)"}</label>
                 <input
@@ -429,7 +429,7 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "3. Pricing & Inventory" : "3. Bei na Hesabu ya Stoki"}
             </h4>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Cost (TZS)" : "Gharama (TZS)"}</label>
                 <input
@@ -464,7 +464,7 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Opening Stock Qty" : "Kiasi cha Stoki ya Kuanzia"}</label>
                 <input
@@ -493,7 +493,7 @@ function CreateProductDialog({ open, onOpenChange, onSubmit, brandsList, onCreat
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "4. Brands & Shipping" : "4. Chapa na Usafirishaji"}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex items-end gap-2">
                 <div className="flex-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Brand" : "Chapa"}</label>

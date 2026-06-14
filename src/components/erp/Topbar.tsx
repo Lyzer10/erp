@@ -135,6 +135,42 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
         </Link>
       </div>
 
+      {/* Quick actions dropdown for mobile */}
+      <div className="md:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm transition hover:bg-blue-700 focus:outline-none"
+              aria-label={lang === "en" ? "Quick Actions" : "Vitendo vya Haraka"}
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48 p-1">
+            <DropdownMenuItem asChild className="rounded-lg">
+              <Link to="/sales/invoices/new" className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold">
+                <Plus className="h-3.5 w-3.5" /> {t("invoice")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="rounded-lg">
+              <Link to="/sales/invoices/proforma" className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold">
+                <Plus className="h-3.5 w-3.5" /> {t("proforma")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="rounded-lg">
+              <Link to="/products/purchase-orders" className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold">
+                <Plus className="h-3.5 w-3.5" /> {t("purchaseOrder")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="rounded-lg">
+              <Link to="/products/self-service" className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold">
+                <Plus className="h-3.5 w-3.5" /> {t("paymentRequest")}
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {/* Breadcrumb on small screens */}
       <span className="ml-2 truncate text-xs font-medium capitalize text-muted-foreground md:hidden">
         {pathname === "/" ? t("dashboard") : pathname.split("/").filter(Boolean).join(" / ").replaceAll("-", " ")}

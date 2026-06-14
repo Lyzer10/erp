@@ -60,7 +60,7 @@ function InvoicesPage() {
           </>
         }
       />
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard label={lang === "en" ? "Total Issued" : "Jumla Zilizotolewa"} value={currency(totalIssued)} icon={Receipt} tint="blue" />
         <KpiCard label={lang === "en" ? "Paid" : "Zilizolipwa"} value={String(paidCount)} icon={CheckCircle2} tint="emerald" />
         <KpiCard label={lang === "en" ? "Pending" : "Zinazosubiri"} value={String(pendingCount)} icon={Clock} tint="amber" />

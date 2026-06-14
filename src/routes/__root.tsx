@@ -75,7 +75,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "DeveleERP — Enterprise Suite" },
       { name: "description", content: "Modern ERP for sales, inventory, finance, HR & payroll." },
       { name: "author", content: "DeveleICT" },

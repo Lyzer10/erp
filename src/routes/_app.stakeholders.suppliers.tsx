@@ -328,7 +328,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
               className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:bg-white focus:border-[#1f9c88] focus:ring-2 focus:ring-[#1f9c88]/15 transition-all"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Phone Number" : "Namba ya Simu"}</label>
               <input
@@ -350,7 +350,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "Region" : "Mkoa"}</label>
               <input
@@ -372,7 +372,7 @@ function CreateSupplierDialog({ open, onOpenChange, onSubmit }: CreateSupplierDi
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">{lang === "en" ? "TIN Number" : "Namba ya TIN"}</label>
               <input

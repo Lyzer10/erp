@@ -18,13 +18,13 @@ export function TabbedPage({ tabs, defaultKey }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="glass-card flex flex-wrap items-center gap-1 p-1.5">
+      <div className="glass-card flex flex-nowrap overflow-x-auto scrollbar-none items-center gap-1 p-1.5">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActive(t.key)}
             className={cn(
-              "rounded-lg px-4 py-2 text-sm font-medium transition",
+              "rounded-lg px-4 py-2 text-sm font-medium transition shrink-0",
               active === t.key
                 ? "bg-blue-100 text-blue-900 shadow-sm font-semibold"
                 : "text-foreground/70 hover:bg-slate-100 hover:text-foreground",

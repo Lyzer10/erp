@@ -26,7 +26,7 @@ export function EChart({ option, height = 280, className }: Props) {
   const merged = useMemo<EChartsOption>(
     () => ({
       color: palette,
-      textStyle: { fontFamily: "Plus Jakarta Sans, sans-serif", color: "#475569" },
+      textStyle: { fontFamily: "Outfit, ui-sans-serif, system-ui, sans-serif", color: "#475569" },
       grid: { left: 40, right: 20, top: 30, bottom: 30, containLabel: true },
       tooltip: {
         trigger: "axis",

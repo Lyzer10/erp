@@ -147,7 +147,7 @@ function LedgersPage() {
           </DialogHeader>
           <form onSubmit={handleRecordJournal} className="space-y-4 text-sm mt-2">
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                   {lang === "en" ? "Debit (DR) Account" : "Akaunti ya Deni (DR)"}
@@ -186,7 +186,7 @@ function LedgersPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                   {lang === "en" ? "Transaction Date" : "Tarehe ya Gonga"}

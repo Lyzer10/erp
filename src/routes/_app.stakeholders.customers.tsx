@@ -484,7 +484,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "1. Basic Details" : "1. Taarifa za Msingi"}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Full Name" : "Jina Kamili"} *</label>
                 <input
@@ -507,7 +507,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
                 />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Phone Number" : "Namba ya Simu"}</label>
                 <input
@@ -546,7 +546,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "2. Billing Address" : "2. Anwani ya Malipo"}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Street Address" : "Anwani ya Mtaa"}</label>
                 <input
@@ -568,7 +568,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
                 />
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="col-span-2">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Region / State" : "Mkoa / Jimbo"}</label>
                 <input
@@ -606,7 +606,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "3. Financial & Credit Details" : "3. Maelezo ya Kifedha na Mikopo"}
             </h4>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "Credit Limit (TZS)" : "Ukomo wa Mikopo (TZS)"}</label>
                 <input
@@ -651,7 +651,7 @@ function CreateCustomerDialog({ open, onOpenChange, onSubmit }: CreateCustomerDi
             <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#1f9c88]">
               {lang === "en" ? "4. Tax & Additional Notes" : "4. Kodi na Maelezo ya Ziada"}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{lang === "en" ? "TIN Number" : "Namba ya TIN"}</label>
                 <input

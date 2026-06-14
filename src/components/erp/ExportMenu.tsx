@@ -2,13 +2,15 @@ import { FileSpreadsheet, FileText, ChevronDown } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslate } from "@/lib/i18n";
 
 export function ExportMenu() {
+  const { t } = useTranslate();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-          Export <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+          {t("export")} <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">

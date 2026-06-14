@@ -203,7 +203,7 @@ function StaffPage() {
           <form onSubmit={handleAddStaff} className="space-y-4 text-sm mt-2">
             
             {/* Primary Details */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                   {lang === "en" ? "Full Name" : "Jina Kamili"}
@@ -230,7 +230,7 @@ function StaffPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                   {lang === "en" ? "Department" : "Idara"}
@@ -282,7 +282,7 @@ function StaffPage() {
               <span className="block text-xs font-bold text-slate-700 mb-2">
                 {lang === "en" ? "Statutory Deductions & Insurances" : "Makato ya Kisheria na Bima"}
               </span>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
                   <input
                     type="checkbox"
@@ -345,7 +345,7 @@ function StaffPage() {
               <span className="block text-xs font-bold text-slate-700 mb-2">
                 {lang === "en" ? "Emergency Relative Details" : "Taarifa za Ndugu wa Dharura"}
               </span>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                     {lang === "en" ? "Relative Name" : "Jina la Ndugu"}
@@ -388,7 +388,7 @@ function StaffPage() {
               <span className="block text-xs font-bold text-slate-700 mb-2">
                 {lang === "en" ? "Custom Loan & Deductions" : "Mikopo na Makato Maalum"}
               </span>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                     {lang === "en" ? "Loan Deduction (TZS)" : "Makato ya Mkopo (TZS)"}

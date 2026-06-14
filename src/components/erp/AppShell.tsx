@@ -4,8 +4,10 @@ import { AppSidebar } from "./AppSidebar";
 import { Topbar } from "./Topbar";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslate } from "@/lib/i18n";
 
 export function AppShell() {
+  const { lang } = useTranslate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -48,9 +50,19 @@ export function AppShell() {
         </main>
         <footer className="border-t border-slate-100 px-4 py-4 lg:px-8">
           <p className="text-center text-xs text-muted-foreground">
-            Copyright © 2026{" "}
-            <span className="font-semibold text-blue-600">DeveleERP Accounting Software.</span>{" "}
-            All rights reserved.
+            {lang === "en" ? (
+              <>
+                Copyright © 2026{" "}
+                <span className="font-semibold text-blue-600">DeveleERP Accounting Software.</span>{" "}
+                All rights reserved.
+              </>
+            ) : (
+              <>
+                Haki miliki © 2026{" "}
+                <span className="font-semibold text-blue-600">Programu ya Uhasibu ya DeveleERP.</span>{" "}
+                Haki zote zimehifadhiwa.
+              </>
+            )}
           </p>
         </footer>
       </div>

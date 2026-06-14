@@ -910,7 +910,7 @@ function BankCashPage() {
                   setNewBankSwift("");
                   setNewBankAddress("");
                 }}
-                className="grid grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 bg-slate-50/50"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 bg-slate-50/50"
               >
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Bank Code" : "Kodi ya Benki"}</label>
@@ -952,7 +952,7 @@ function BankCashPage() {
                     className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
                   />
                 </div>
-                <div className="col-span-2 flex justify-end">
+                <div className="col-span-1 sm:col-span-2 flex justify-end">
                   <button type="submit" className="rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600 transition cursor-pointer">
                     {lang === "en" ? "Add Bank" : "Ongeza Benki"}
                   </button>
@@ -1006,7 +1006,7 @@ function BankCashPage() {
                   setNewBranchName("");
                   setNewBranchCode("");
                 }}
-                className="grid grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 bg-slate-50/50"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-slate-100 rounded-xl p-3 bg-slate-50/50"
               >
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 mb-1">{lang === "en" ? "Bank Association" : "Benki Husika"}</label>
@@ -1051,7 +1051,7 @@ function BankCashPage() {
                     className="w-full text-xs rounded-lg border border-slate-200 bg-white p-2 outline-none"
                   />
                 </div>
-                <div className="col-span-2 flex justify-end">
+                <div className="col-span-1 sm:col-span-2 flex justify-end">
                   <button type="submit" className="rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-600 transition cursor-pointer">
                     {lang === "en" ? "Add Branch" : "Ongeza Tawi"}
                   </button>

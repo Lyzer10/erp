@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslate } from "@/lib/i18n";
 
 export interface Column<T> {
   key: string;
@@ -36,10 +37,13 @@ export function DataTable<T extends Record<string, unknown>>({
   columns,
   searchable = true,
   pageSize = 10,
-  emptyMessage = "No records found.",
+  emptyMessage,
 }: Readonly<Props<T>>) {
+  const { t, lang } = useTranslate();
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
+
+  const currentEmptyMessage = emptyMessage ?? t("noResults");
 
   const filtered = useMemo(() => {
     if (!q) return data;
@@ -62,11 +66,13 @@ export function DataTable<T extends Record<string, unknown>>({
             <Input
               value={q}
               onChange={(e) => { setQ(e.target.value); setPage(1); }}
-              placeholder="Search..."
+              placeholder={t("search") + "..."}
               className="h-8 bg-muted/50 pl-9 text-sm focus-visible:bg-card"
             />
           </div>
-          <span className="text-xs text-muted-foreground">{filtered.length} records</span>
+          <span className="text-xs text-muted-foreground">
+            {filtered.length} {lang === "en" ? "records" : "kumbukumbu"}
+          </span>
         </div>
       )}
       <div className="overflow-x-auto">
@@ -94,7 +100,7 @@ export function DataTable<T extends Record<string, unknown>>({
             {pageRows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-10 text-center text-sm text-muted-foreground">
-                  {emptyMessage}
+                  {currentEmptyMessage}
                 </td>
               </tr>
             ) : pageRows.map((row) => (
@@ -123,7 +129,7 @@ export function DataTable<T extends Record<string, unknown>>({
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-4 py-3">
           <span className="text-xs text-muted-foreground">
-            Page {page} of {totalPages} &mdash; {filtered.length} records
+            {lang === "en" ? "Page" : "Ukurasa"} {page} {t("of")} {totalPages} &mdash; {filtered.length} {lang === "en" ? "records" : "kumbukumbu"}
           </span>
           <div className="flex gap-1.5">
             <button
@@ -131,14 +137,14 @@ export function DataTable<T extends Record<string, unknown>>({
               disabled={page === 1}
               className="rounded-md border border-border bg-card px-3 py-1 text-xs font-medium transition hover:bg-muted disabled:opacity-40"
             >
-              Previous
+              {t("previous")}
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="rounded-md border border-border bg-card px-3 py-1 text-xs font-medium transition hover:bg-muted disabled:opacity-40"
             >
-              Next
+              {t("nextPage")}
             </button>
           </div>
         </div>

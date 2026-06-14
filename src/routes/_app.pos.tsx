@@ -57,6 +57,7 @@ export function PosPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [posTab, setPosTab] = useState<"products" | "services">("products");
+  const [activeMobileView, setActiveMobileView] = useState<"catalog" | "cart">("catalog");
 
   // Discount & Tax Config
   const [discountVal, setDiscountVal] = useState(0);
@@ -318,6 +319,7 @@ export function PosPage() {
     setCart([]);
     setDiscountVal(0);
     setStkStatus("idle");
+    setActiveMobileView("catalog");
   };
 
   // Calculator helper
@@ -415,7 +417,7 @@ export function PosPage() {
       {/* Main Terminal Screen Split */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {/* Left Catalog Grid Column */}
-        <div className="space-y-4 lg:col-span-8">
+        <div className={cn("space-y-4 lg:col-span-8", activeMobileView === "catalog" ? "block" : "hidden lg:block")}>
           {/* Search, Categories, and Type Selector */}
           <div className="glass-card p-4 space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -545,10 +547,19 @@ export function PosPage() {
         </div>
 
         {/* Right Active Cart Column */}
-        <div className="space-y-4 lg:col-span-4">
-          <div className="glass-card flex flex-col justify-between h-[73vh] p-4">
+        <div className={cn("space-y-4 lg:col-span-4", activeMobileView === "cart" ? "block" : "hidden lg:block")}>
+          <div className="glass-card flex flex-col justify-between h-[76vh] lg:h-[73vh] p-4">
             {/* Customer select and Cart Top info */}
             <div className="space-y-3">
+              {/* Mobile back to catalog button */}
+              <button
+                type="button"
+                onClick={() => setActiveMobileView("catalog")}
+                className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 lg:hidden mb-2"
+              >
+                &larr; {lang === "en" ? "Back to Products" : "Rudi kwenye Bidhaa"}
+              </button>
+
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <div className="flex items-center gap-1 text-slate-600">
                   <ShoppingCart className="h-4 w-4 text-blue-600" />
@@ -733,9 +744,31 @@ export function PosPage() {
         </div>
       </div>
 
+      {/* Floating mobile cart checkout indicator */}
+      {cart.length > 0 && activeMobileView === "catalog" && (
+        <div className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setActiveMobileView("cart")}
+            className="flex w-full items-center justify-between rounded-2xl bg-blue-600 px-5 py-4 text-white shadow-xl shadow-blue-500/20 active:scale-[0.98] transition-all"
+          >
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="text-sm font-bold">
+                {lang === "en" ? `View Cart (${cart.length} items)` : `Angalia Mkokoteni (${cart.length} bidhaa)`}
+              </span>
+            </div>
+            <span className="text-sm font-black">{tzs(cartTotal)}</span>
+          </button>
+        </div>
+      )}
+
       {/* FLOATING DRAGGABLE CALCULATOR WIDGET */}
       {calcOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-64 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+        <div className={cn(
+          "fixed z-50 w-64 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl",
+          cart.length > 0 && activeMobileView === "catalog" ? "bottom-24 right-4" : "bottom-6 right-6"
+        )}>
           <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
             <span className="text-xs font-bold text-slate-700">{lang === "en" ? "Quick Calculator" : "Kikokotoo cha Haraka"}</span>
             <button onClick={() => setCalcOpen(false)} className="rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
