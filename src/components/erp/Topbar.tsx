@@ -1,7 +1,8 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, ScanLine, Menu, Plus, PanelLeft, LogOut, User, Settings, ChevronDown } from "lucide-react";
+import { Bell, ScanLine, Menu, Plus, PanelLeft, LogOut, User, Settings, ChevronDown, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslate, setLanguage } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -43,6 +44,7 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
   const now = useNow();
   const [profileOpen, setProfileOpen] = useState(false);
   const { lang, t } = useTranslate();
+  const { theme, toggleTheme } = useTheme();
 
   const getDayName = (day: string) => {
     if (lang === "en") return day;
@@ -191,6 +193,16 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
         >
           <span className="text-base">{lang === "en" ? "🇬🇧" : "🇹🇿"}</span>
           <span className="text-xs font-bold uppercase tracking-wider text-slate-600">{lang === "en" ? "EN" : "SW"}</span>
+        </button>
+
+        {/* Dark Mode toggle */}
+        <button
+          onClick={toggleTheme}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-white/50 p-2 shadow-sm backdrop-blur-md transition hover:bg-white/70 hover:border-slate-300 dark:bg-slate-800/40 dark:border-slate-700 dark:hover:bg-slate-800/60"
+          aria-label={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+          title={theme === "light" ? (lang === "en" ? "Switch to Dark Mode" : "Badili kwenda Mandhari Meusi") : (lang === "en" ? "Switch to Light Mode" : "Badili kwenda Mandhari Mepesi")}
+        >
+          {theme === "light" ? <Moon className="h-4 w-4 text-slate-600" /> : <Sun className="h-4 w-4 text-amber-500" />}
         </button>
 
         <Link

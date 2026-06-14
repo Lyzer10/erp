@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo } from "react";
 import type { EChartsOption } from "echarts";
+import { useTheme } from "@/lib/theme";
 
 // Dynamic import so the ~800 KB ECharts bundle is NOT in the initial JS chunk.
 // It only fetches after the page first paints, eliminating the load-time lag.
@@ -17,29 +18,31 @@ function ChartSkeleton({ height }: { height: number | string }) {
   return (
     <div
       style={{ height, width: "100%" }}
-      className="animate-pulse rounded-xl bg-slate-100"
+      className="animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800"
     />
   );
 }
 
 export function EChart({ option, height = 280, className }: Props) {
+  const { theme } = useTheme();
+
   const merged = useMemo<EChartsOption>(
     () => ({
       color: palette,
-      textStyle: { fontFamily: "Outfit, ui-sans-serif, system-ui, sans-serif", color: "#475569" },
+      textStyle: { fontFamily: "Outfit, ui-sans-serif, system-ui, sans-serif", color: theme === "dark" ? "#cbd5e1" : "#475569" },
       grid: { left: 40, right: 20, top: 30, bottom: 30, containLabel: true },
       tooltip: {
         trigger: "axis",
-        backgroundColor: "rgba(255,255,255,0.92)",
-        borderColor: "rgba(203,213,225,0.6)",
+        backgroundColor: theme === "dark" ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.92)",
+        borderColor: theme === "dark" ? "rgba(51,65,85,0.6)" : "rgba(203,213,225,0.6)",
         borderWidth: 1,
-        textStyle: { color: "#1e293b" },
+        textStyle: { color: theme === "dark" ? "#f8fafc" : "#1e293b" },
         extraCssText: "backdrop-filter: blur(12px); border-radius: 12px; box-shadow: 0 8px 24px rgba(31,38,135,0.12);",
       },
-      legend: { textStyle: { color: "#64748b" }, top: 0 },
+      legend: { textStyle: { color: theme === "dark" ? "#94a3b8" : "#64748b" }, top: 0 },
       ...option,
     }),
-    [option],
+    [option, theme],
   );
 
   return (
@@ -55,3 +58,4 @@ export function EChart({ option, height = 280, className }: Props) {
 }
 
 export const chartPalette = palette;
+

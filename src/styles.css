@@ -149,8 +149,8 @@
 }
 
 @utility glass-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--border);
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.02),
     0 2px 4px -2px rgba(0, 0, 0, 0.02),
@@ -159,8 +159,8 @@
 }
 
 @utility glass-panel {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--border);
   box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.02),
     0 2px 4px -2px rgba(0, 0, 0, 0.02),
@@ -168,13 +168,13 @@
 }
 
 @utility glass-nav {
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--sidebar-border);
 }
 
 @utility glass-topbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
 }
 
 @layer base {
@@ -188,7 +188,91 @@
 
   body {
     color: var(--color-foreground);
-    background-color: #f4f6f7;
+    background-color: var(--background);
     min-height: 100vh;
+  }
+}
+
+/* Dark Mode semantic adapters for static light-themed utility classes */
+.dark {
+  /* Layout backgrounds & panels */
+  .bg-white,
+  .bg-card {
+    background-color: var(--card) !important;
+  }
+  
+  .bg-slate-50,
+  .bg-slate-100,
+  .bg-slate-150,
+  .bg-blue-50/50,
+  .bg-muted\/50 {
+    background-color: var(--muted) !important;
+  }
+  
+  .bg-blue-100,
+  .bg-slate-200,
+  .bg-emerald-50,
+  .bg-muted {
+    background-color: var(--accent) !important;
+  }
+
+  /* Borders */
+  .border-slate-100,
+  .border-slate-150,
+  .border-slate-200,
+  .border-slate-300,
+  .border-blue-100,
+  .border-blue-200,
+  .border-border,
+  .border-slate-200\/80,
+  .border-blue-100\/40,
+  .border-[#e2e8f0],
+  .border-[#e2e8f0]\/70 {
+    border-color: var(--border) !important;
+  }
+
+  /* Text Colors */
+  .text-slate-900,
+  .text-slate-800,
+  .text-slate-700,
+  .text-foreground,
+  .text-\[\#111113\] {
+    color: var(--foreground) !important;
+  }
+  
+  .text-slate-600,
+  .text-slate-500,
+  .text-slate-400,
+  .text-muted-foreground,
+  .text-blue-700,
+  .text-blue-800 {
+    color: var(--muted-foreground) !important;
+  }
+  
+  /* Form inputs & standard components */
+  input, select, textarea {
+    background-color: var(--card) !important;
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
+  }
+  
+  /* Custom overrides for redesigned login page specific classes */
+  .text-\[\#111113\]\/70,
+  .text-\[\#111113\]\/55,
+  .text-\[\#111113\]\/50,
+  .text-\[\#111113\]\/40 {
+    color: var(--muted-foreground) !important;
+  }
+  
+  .placeholder-\[\#111113\]\/40::placeholder {
+    color: var(--muted-foreground) !important;
+    opacity: 0.6;
+  }
+  
+  /* Dialog modal background override */
+  [role="dialog"],
+  .bg-white.rounded-2xl {
+    background-color: oklch(0.22 0.04 260) !important;
+    border-color: var(--border) !important;
   }
 }
