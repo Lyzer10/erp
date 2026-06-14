@@ -51,7 +51,7 @@ function LedgersPage() {
     const ref = `JV-${1000 + Math.floor(Math.random() * 9000)}`;
 
     const debitRow = {
-      id: localTransactions.length + 1,
+      id: String(localTransactions.length + 1),
       date: txDate,
       account: drAccount,
       description: `${txDesc} (DR)`,
@@ -60,7 +60,7 @@ function LedgersPage() {
     };
 
     const creditRow = {
-      id: localTransactions.length + 2,
+      id: String(localTransactions.length + 2),
       date: txDate,
       account: crAccount,
       description: `${txDesc} (CR)`,
