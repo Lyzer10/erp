@@ -42,7 +42,19 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
   const navigate = useNavigate();
   const now = useNow();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [isMoon, setIsMoon] = useState(false);
+  const [isMoon, setIsMoon] = useState(() => {
+    if (typeof document === "undefined") return false;
+    try {
+      const stored = localStorage.getItem("theme");
+      if (stored) return stored === "dark";
+    } catch {}
+    return document.documentElement.classList.contains("dark");
+  });
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.classList.toggle("dark", isMoon);
+    try { localStorage.setItem("theme", isMoon ? "dark" : "light"); } catch {}
+  }, [isMoon]);
   const { lang, t } = useTranslate();
 
   const getDayName = (day: string) => {
