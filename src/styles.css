@@ -121,53 +121,53 @@
 }
 
 .dark {
-  /* Deep teal-tinted obsidian — brand-cohesive, not generic indigo */
-  --background: #07110f;
-  --foreground: #e6f4f1;
+  /* Warm midnight — charcoal with copper warmth, inspired by editorial print + Linear */
+  --background: #14110d;
+  --foreground: #f4ede1;
 
-  --card: #0e1c1a;
-  --card-foreground: #e6f4f1;
-  --popover: #0e1c1a;
-  --popover-foreground: #e6f4f1;
+  --card: #1c1814;
+  --card-foreground: #f4ede1;
+  --popover: #1c1814;
+  --popover-foreground: #f4ede1;
 
-  --primary: #2dd4bf;
-  --primary-foreground: #04110f;
+  --primary: #e47a2f;
+  --primary-foreground: #1a0f06;
 
-  --secondary: #112826;
-  --secondary-foreground: #d6ece8;
+  --secondary: #221d18;
+  --secondary-foreground: #ebe2d3;
 
-  --muted: #102220;
-  --muted-foreground: #8ba8a2;
+  --muted: #1f1a15;
+  --muted-foreground: #a09384;
 
-  --accent: #1a3a36;
-  --accent-foreground: #c8efe7;
+  --accent: #2a2218;
+  --accent-foreground: #f4ede1;
 
-  --success: oklch(0.78 0.17 165);
-  --success-foreground: #04110f;
-  --warning: oklch(0.85 0.16 80);
+  --success: #6fcf97;
+  --success-foreground: #07120a;
+  --warning: #f0b95a;
   --warning-foreground: #1a1100;
 
-  --destructive: #f87171;
+  --destructive: #e5615a;
   --destructive-foreground: #1a0606;
 
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.06);
-  --ring: #2dd4bf;
+  --border: rgba(244, 237, 225, 0.07);
+  --input: rgba(244, 237, 225, 0.05);
+  --ring: #e47a2f;
 
-  --chart-1: #2dd4bf;
-  --chart-2: #38bdf8;
-  --chart-3: #fbbf24;
-  --chart-4: #f472b6;
-  --chart-5: #a78bfa;
+  --chart-1: #e47a2f;
+  --chart-2: #f0b95a;
+  --chart-3: #6fcf97;
+  --chart-4: #c98a8a;
+  --chart-5: #8aa6c9;
 
-  --sidebar: #0a1715;
-  --sidebar-foreground: #d6ece8;
-  --sidebar-primary: #2dd4bf;
-  --sidebar-primary-foreground: #04110f;
-  --sidebar-accent: #112826;
-  --sidebar-accent-foreground: #e6f4f1;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #2dd4bf;
+  --sidebar: #100d09;
+  --sidebar-foreground: #ebe2d3;
+  --sidebar-primary: #e47a2f;
+  --sidebar-primary-foreground: #1a0f06;
+  --sidebar-accent: #1f1a15;
+  --sidebar-accent-foreground: #f4ede1;
+  --sidebar-border: rgba(244, 237, 225, 0.05);
+  --sidebar-ring: #e47a2f;
 }
 
 @utility glass-card {
@@ -181,12 +181,11 @@
 }
 
 .dark .glass-card {
-  background: linear-gradient(180deg, rgba(45, 212, 191, 0.04), rgba(255, 255, 255, 0.01)), #0e1c1a;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #1c1814;
+  border: 1px solid rgba(244, 237, 225, 0.06);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 20px 40px -20px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(45, 212, 191, 0.04);
+    0 1px 0 rgba(244, 237, 225, 0.03) inset,
+    0 24px 48px -24px rgba(0, 0, 0, 0.7);
 }
 
 @utility glass-panel {
@@ -199,8 +198,8 @@
 }
 
 .dark .glass-panel {
-  background: #0e1c1a;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #1c1814;
+  border: 1px solid rgba(244, 237, 225, 0.06);
 }
 
 @utility glass-nav {
@@ -214,9 +213,9 @@
 }
 
 .dark .glass-topbar {
-  background: rgba(10, 23, 21, 0.85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(16, 13, 9, 0.88);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(244, 237, 225, 0.05);
 }
 
 @layer base {
@@ -238,10 +237,25 @@
   }
 
   .dark body {
-    background-color: #07110f;
+    background-color: #14110d;
     background-image:
-      radial-gradient(900px 500px at 15% -10%, rgba(45, 212, 191, 0.10), transparent 60%),
-      radial-gradient(700px 400px at 100% 10%, rgba(56, 189, 248, 0.07), transparent 60%),
-      radial-gradient(600px 400px at 50% 110%, rgba(167, 139, 250, 0.05), transparent 60%);
+      /* warm copper sunrise top-left */
+      radial-gradient(1000px 600px at 8% -15%, rgba(228, 122, 47, 0.10), transparent 55%),
+      /* deep amber ember bottom-right */
+      radial-gradient(800px 500px at 105% 110%, rgba(240, 185, 90, 0.06), transparent 60%),
+      /* very subtle film-grain wash */
+      linear-gradient(180deg, rgba(244, 237, 225, 0.015), transparent 40%);
+  }
+
+  /* Subtle grain texture for editorial feel */
+  .dark body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay;
   }
 }
