@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, ScanLine, Menu, Plus, PanelLeft, LogOut, User, Settings, ChevronDown, Sun, Moon } from "lucide-react";
+import { Bell, ScanLine, Menu, Plus, PanelLeft, LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslate, setLanguage } from "@/lib/i18n";
 import {
@@ -42,19 +42,6 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
   const navigate = useNavigate();
   const now = useNow();
   const [profileOpen, setProfileOpen] = useState(false);
-  const [isMoon, setIsMoon] = useState(() => {
-    if (typeof document === "undefined") return false;
-    try {
-      const stored = localStorage.getItem("theme");
-      if (stored) return stored === "dark";
-    } catch {}
-    return document.documentElement.classList.contains("dark");
-  });
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.classList.toggle("dark", isMoon);
-    try { localStorage.setItem("theme", isMoon ? "dark" : "light"); } catch {}
-  }, [isMoon]);
   const { lang, t } = useTranslate();
 
   const getDayName = (day: string) => {
@@ -206,14 +193,6 @@ export function Topbar({ onMenuClick, onToggleSidebar }: Readonly<Props>) {
           <span className="text-xs font-bold uppercase tracking-wider text-slate-600">{lang === "en" ? "EN" : "SW"}</span>
         </button>
 
-        {/* Mode switcher (dummy, unlinked) */}
-        <button
-          onClick={() => setIsMoon(!isMoon)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/60 bg-white/50 p-2 shadow-sm backdrop-blur-md transition hover:bg-white/70 hover:border-slate-300"
-          title={isMoon ? (lang === "en" ? "Switch to Light Mode" : "Badili kwenda Mandhari Mepesi") : (lang === "en" ? "Switch to Dark Mode" : "Badili kwenda Mandhari Meusi")}
-        >
-          {isMoon ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-slate-600" />}
-        </button>
 
         <Link
           to="/pos"
