@@ -192,25 +192,25 @@ export const payrollRuns = [...initialPayrollRuns];
 
 // SESSION-SCOPED IN-MEMORY DATA STORE WITH LAST ACCESSED TIMESTAMP
 export class SessionMockDataStore {
-  sessionId: string;
-  lastAccessedAt: number;
-  customers: any[];
-  suppliers: any[];
-  products: any[];
-  invoices: any[];
-  expenses: any[];
-  staff: any[];
-  transactions: any[];
-  purchaseOrders: any[];
-  payrollRuns: any[];
-  stores: any[];
-  transfers: any[];
-  leaveRequests: any[];
-  chartOfAccounts: any[];
-  paymentVouchers: any[];
-  reconciliations: any[];
-  usersList: any[];
-  settings: any;
+  sessionId: string = "";
+  lastAccessedAt: number = Date.now();
+  customers: any[] = [];
+  suppliers: any[] = [];
+  products: any[] = [];
+  invoices: any[] = [];
+  expenses: any[] = [];
+  staff: any[] = [];
+  transactions: any[] = [];
+  purchaseOrders: any[] = [];
+  payrollRuns: any[] = [];
+  stores: any[] = [];
+  transfers: any[] = [];
+  leaveRequests: any[] = [];
+  chartOfAccounts: any[] = [];
+  paymentVouchers: any[] = [];
+  reconciliations: any[] = [];
+  usersList: any[] = [];
+  settings: any = {};
 
   constructor(sessionId: string) {
     this.sessionId = sessionId;

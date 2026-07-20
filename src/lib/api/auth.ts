@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { setCookie, deleteCookie } from "@tanstack/react-start/server";
+import { setCookie, deleteCookie, getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "../../db";
@@ -122,7 +122,7 @@ export const loginUserFn = createServerFn({ method: "POST" })
     return res;
   });
 
-export const logoutUserFn = createServerFn({ method: "POST" }).handler(async ({ request }) => {
+export const logoutUserFn = createServerFn({ method: "POST" }).handler(async () => {
   try {
     deleteCookie("auth_token", { path: "/" });
     deleteCookie("is_test_user", { path: "/" });
@@ -130,7 +130,12 @@ export const logoutUserFn = createServerFn({ method: "POST" }).handler(async ({ 
     // Ignore context error
   }
 
-  const authUser = await authenticateRequest(request);
+  let req: Request | null = null;
+  try {
+    req = getRequest();
+  } catch (e) {}
+
+  const authUser = req ? await authenticateRequest(req) : null;
   if (authUser && authUser.isTestUser && authUser.sessionId) {
     sessionStoreManager.destroyStore(authUser.sessionId);
     return { success: true, message: `Demo session ${authUser.sessionId} evicted on logout.` };

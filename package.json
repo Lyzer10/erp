@@ -79,7 +79,7 @@
     "@lovable.dev/vite-tanstack-config": "^2.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^22.16.5",
+    "@types/node": "^26.1.1",
     "@types/pg": "^8.11.11",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

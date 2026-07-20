@@ -1,5 +1,6 @@
 import { authenticateRequest, AuthUser } from "./auth";
 import { sessionStoreManager, SessionMockDataStore } from "./mock";
+import { getRequest } from "@tanstack/react-start/server";
 import { db } from "../db";
 import { customers, suppliers, products, invoices, expenses, staff, payrollRuns, transactions, purchaseOrders } from "../db/schema";
 import { eq } from "drizzle-orm";
@@ -327,8 +328,17 @@ class PostgresDataSourceRepository implements IERPRepository {
   };
 }
 
-export async function resolveDataSource(req: Request): Promise<IERPRepository> {
-  const user = await authenticateRequest(req);
+export async function resolveDataSource(req?: Request): Promise<IERPRepository> {
+  let requestObj: Request | null = req || null;
+  if (!requestObj) {
+    try {
+      requestObj = getRequest();
+    } catch (e) {
+      // Executed outside HTTP server context
+    }
+  }
+
+  const user = requestObj ? await authenticateRequest(requestObj) : null;
 
   if (user && user.isTestUser) {
     return new MockDataSourceRepository(user);
