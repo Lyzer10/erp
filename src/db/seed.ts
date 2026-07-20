@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { db, pool } from "./index";
 import { users } from "./schema";
 import { eq } from "drizzle-orm";
+import { seededUserStore } from "../lib/api/auth";
 
 export function generateStrongPassword(prefix = "DeveleERP"): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*";
@@ -25,6 +26,28 @@ export async function seedDatabase() {
   const testUserPasswordHash = await bcrypt.hash(demoPlainPassword, 10);
   const realUserPasswordHash = await bcrypt.hash(realPlainPassword, 10);
 
+  // Populate fallback in-memory user store for bcrypt auth when DB is unseeded/offline
+  seededUserStore["erick"] = {
+    id: 1,
+    username: "erick",
+    email: "demo@devele.co",
+    passwordHash: testUserPasswordHash,
+    isTestUser: true,
+    role: "SuperAdmin",
+  };
+  seededUserStore["demo@devele.co"] = seededUserStore["erick"];
+
+  seededUserStore["realuser"] = {
+    id: 2,
+    username: "realuser",
+    email: "admin@devele.co",
+    passwordHash: realUserPasswordHash,
+    isTestUser: false,
+    role: "Manager",
+  };
+  seededUserStore["admin@devele.co"] = seededUserStore["realuser"];
+
+  // 1. Seed Demo User (is_test_user = true)
   const existingTestUser = await db
     .select()
     .from(users)
@@ -52,6 +75,7 @@ export async function seedDatabase() {
       .catch(() => {});
   }
 
+  // 2. Seed Real User (is_test_user = false)
   const existingRealUser = await db
     .select()
     .from(users)

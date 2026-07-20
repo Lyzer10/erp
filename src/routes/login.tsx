@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, AlertCircle } from "lucide-react";
 import { useTranslate, setLanguage } from "@/lib/i18n";
+import { loginUserFn } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign In — DeveleERP" }] }),
@@ -15,20 +16,39 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      try {
-        document.cookie = `is_logged_in=true; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
+    setErrorMessage(null);
+
+    try {
+      const res = await loginUserFn({ data: { username, password } });
+
+      if (res.success && res.token) {
+        // Store JWT token and test user status in cookies
+        document.cookie = `auth_token=${res.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        document.cookie = `is_test_user=${res.user?.isTestUser ? "true" : "false"}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        document.cookie = `is_logged_in=true; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
         localStorage.setItem("is_logged_in", "true");
-      } catch {
-        /* blocked */
+        localStorage.setItem("auth_token", res.token);
+        if (res.user?.isTestUser) {
+          localStorage.setItem("is_test_user", "true");
+        } else {
+          localStorage.removeItem("is_test_user");
+        }
+
+        setLoading(false);
+        navigate({ to: "/" });
+      } else {
+        setLoading(false);
+        setErrorMessage(res.message || "Invalid credentials");
       }
-      navigate({ to: "/" });
-    }, 700);
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMessage(err.message || "Authentication failed. Please check network connection.");
+    }
   }
 
   const copy = {
@@ -54,7 +74,6 @@ function LoginPage() {
       }}
     >
       <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/[0.04]">
-        {/* Soft brand glow accent */}
         <div
           className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
@@ -63,7 +82,6 @@ function LoginPage() {
           }}
         />
 
-        {/* Top: language toggle + Sign Up */}
         <div className="relative flex items-center justify-between px-8 pt-7 sm:px-12">
           <button
             onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
@@ -80,7 +98,6 @@ function LoginPage() {
           </button>
         </div>
 
-        {/* Logo — large & centered */}
         <div className="relative flex flex-col items-center px-8 pt-8 sm:px-12">
           <img
             src="/devele-logo.png"
@@ -92,7 +109,6 @@ function LoginPage() {
           </span>
         </div>
 
-        {/* Form */}
         <div className="relative px-8 pb-4 pt-8 sm:px-12">
           <div className="text-center">
             <h2 className="text-[34px] font-bold leading-none tracking-[-0.02em] text-[#111113]">
@@ -103,7 +119,14 @@ function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          {errorMessage && (
+            <div className="mt-6 flex items-center gap-2.5 rounded-2xl bg-rose-50 border border-rose-200/60 p-4 text-sm font-medium text-rose-700">
+              <AlertCircle className="h-5 w-5 shrink-0 text-rose-500" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <input
               id="login-email"
               type="text"
@@ -188,7 +211,6 @@ function LoginPage() {
           </form>
         </div>
 
-        {/* Footer */}
         <div className="relative mt-6 flex items-center justify-between border-t border-[#e2e8f0]/70 px-8 py-5 sm:px-12">
           <p className="text-xs font-medium text-[#111113]/40">
             {copy.copyright}

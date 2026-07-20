@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { StatusPill } from "@/components/erp/StatusPill";
 import { useTranslate } from "@/lib/i18n";
+import { getCustomersFn, createCustomerFn } from "@/lib/api/domain";
 import { Plus, Eye, Pencil, Trash2, FileSpreadsheet, FileText, Search, Inbox, Download, Upload, ChevronDown } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -45,11 +46,68 @@ export const Route = createFileRoute("/_app/stakeholders/customers")({
 
 function CustomersPage() {
   const { t, lang } = useTranslate();
-  const [customers, setCustomers] = useState<Customer[]>(customersMock);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isTestUser, setIsTestUser] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+
+  useEffect(() => {
+    async function loadCustomers() {
+      try {
+        setLoading(true);
+        const res = await getCustomersFn();
+        setIsTestUser(res.isTestUser);
+        if (Array.isArray(res.data)) {
+          setCustomers(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to load customers:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadCustomers();
+  }, []);
+
+  async function handleCreateCustomer(newCustomerData: any) {
+    try {
+      const res = await createCustomerFn({
+        data: {
+          name: newCustomerData.name,
+          phone: newCustomerData.phone,
+          email: newCustomerData.email,
+        },
+      });
+
+      // Refresh customers list
+      const refreshed = await getCustomersFn();
+      if (Array.isArray(refreshed.data)) {
+        setCustomers(refreshed.data);
+      }
+    } catch (err) {
+      console.error("Failed to create customer:", err);
+    }
+  }
 
   return (
     <div className="space-y-6">
+      {isTestUser !== null && (
+        <div className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+          isTestUser 
+            ? "bg-amber-50 text-amber-800 border-amber-200" 
+            : "bg-emerald-50 text-emerald-800 border-emerald-200"
+        }`}>
+          <span>
+            {isTestUser 
+              ? "⚡ DEMO MODE: Data is served from session-isolated in-memory store. Nothing persists to Postgres." 
+              : "🔒 PRODUCTION MODE: Connected directly to live PostgreSQL database."}
+          </span>
+          <span className="font-mono text-[10px] uppercase opacity-75">
+            {isTestUser ? "is_test_user = true" : "is_test_user = false"}
+          </span>
+        </div>
+      )}
+
       <PageHeader
         title={t("customers")}
         description={lang === "en" ? "Manage customers, advances, and imports." : "Simamia wateja, amana zao, na kuingiza faili."}
@@ -75,16 +133,7 @@ function CustomersPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         onSubmit={(newCustomer) => {
-          setCustomers(prev => [
-            {
-              id: prev.length > 0 ? Math.max(...prev.map(c => c.id)) + 1 : 1,
-              ...newCustomer,
-              balance: 0,
-              status: "Active",
-              branch: "Head Office"
-            },
-            ...prev
-          ]);
+          handleCreateCustomer(newCustomer);
         }}
       />
     </div>
