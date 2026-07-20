@@ -16,8 +16,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { getProductsFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/store/stock")({
   head: () => ({ meta: [{ title: "Stock — DeveleERP" }] }),
+  loader: () => getProductsFn(),
   component: StockPage,
 });
 
@@ -30,8 +33,10 @@ interface LedgerEntry {
 }
 
 function StockPage() {
+  const initialStockProducts = Route.useLoaderData();
   const { t, lang } = useTranslate();
-  const [localProducts, setLocalProducts] = useState(products);
+  const stockProductsData = (initialStockProducts as any)?.data || initialStockProducts;
+  const [localProducts, setLocalProducts] = useState((stockProductsData as typeof products) || products);
 
   const [mockConvertData, setMockConvertData] = useState([
     { 

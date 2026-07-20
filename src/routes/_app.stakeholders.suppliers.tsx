@@ -33,14 +33,19 @@ const suppliersMock: Supplier[] = [
   { id: 5, name: "Supplier E Logistics",  phone: "+255 744 100 005", tin: "200-300-405", vrn: "—",           email: "e@supplier.com", region: "Mbeya",         address: "Industrial", branch: "Branch C",    balance:         0, status: "Active" },
 ];
 
+import { getSuppliersFn, createSupplierFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/stakeholders/suppliers")({
   head: () => ({ meta: [{ title: "Suppliers — DeveleERP" }] }),
+  loader: () => getSuppliersFn(),
   component: SuppliersPage,
 });
 
 function SuppliersPage() {
+  const initialSuppliersData = Route.useLoaderData();
   const { t, lang } = useTranslate();
-  const [suppliers, setSuppliers] = useState<Supplier[]>(suppliersMock);
+  const suppliersData = (initialSuppliersData as any)?.data || initialSuppliersData;
+  const [suppliers, setSuppliers] = useState<Supplier[]>(suppliersData || suppliersMock);
   const [createOpen, setCreateOpen] = useState(false);
 
   return (

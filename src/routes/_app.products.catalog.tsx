@@ -10,8 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useTranslate } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
+import { getProductsFn, createProductFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/products/catalog")({
   head: () => ({ meta: [{ title: "Products & Services — DeveleERP" }] }),
+  loader: () => getProductsFn(),
   component: CatalogPage,
 });
 
@@ -46,9 +49,11 @@ const PRODUCT_TYPE_TRANSLATIONS: Record<string, Record<string, string>> = {
 };
 
 function CatalogPage() {
+  const initialProductsData = Route.useLoaderData();
   const { lang, t } = useTranslate();
+  const productsData = (initialProductsData as any)?.data || initialProductsData;
   const [productsList, setProductsList] = useState<Product[]>(
-    initialProducts.map((p, idx) => ({
+    ((productsData as Product[]) || initialProducts).map((p, idx) => ({
       ...p,
       type: idx % 4 === 0 ? "Service" : idx % 7 === 0 ? "Raw Material" : "Goods",
     }))

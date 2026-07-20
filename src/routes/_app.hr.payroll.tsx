@@ -8,8 +8,11 @@ import { payrollRuns, currency } from "@/lib/mock";
 import { Play } from "lucide-react";
 import { useTranslate } from "@/lib/i18n";
 
+import { getPayrollFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/hr/payroll")({
-  head: () => ({ meta: [{ title: "Payroll — Lumen ERP" }] }),
+  head: () => ({ meta: [{ title: "Payroll — DeveleERP" }] }),
+  loader: () => getPayrollFn(),
   component: PayrollPage,
 });
 

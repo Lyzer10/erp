@@ -7,6 +7,7 @@ import { ExportMenu } from "@/components/erp/ExportMenu";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTranslate } from "@/lib/i18n";
+import { getStoresFn } from "@/lib/api/domain";
 
 type Store = {
   code: string;
@@ -25,17 +26,22 @@ type Conversion = {
 
 export const Route = createFileRoute("/_app/store/stores")({
   head: () => ({ meta: [{ title: "Stores — DeveleERP" }] }),
+  loader: () => getStoresFn(),
   component: StoresPage,
 });
 
 function StoresPage() {
+  const initialStoresData = Route.useLoaderData();
   const { lang, t } = useTranslate();
-  const [stores, setStores] = useState<Store[]>([
-    { code: "ST-01", name: "Main Warehouse", location: "Industrial Area", manager: "John Mwangi", items: 1240 },
-    { code: "ST-02", name: "Westlands Store", location: "Westlands", manager: "Maria Banda", items: 580 },
-    { code: "ST-03", name: "Mombasa Outlet", location: "Mombasa", manager: "David Kumar", items: 412 },
-    { code: "ST-04", name: "Kisumu Depot", location: "Kisumu", manager: "Grace Mensah", items: 298 },
-  ]);
+  const storesData = (initialStoresData as any)?.data || initialStoresData;
+  const [stores, setStores] = useState<Store[]>(
+    (storesData as Store[]) || [
+      { code: "ST-01", name: "Main Warehouse", location: "Industrial Area", manager: "John Mwangi", items: 1240 },
+      { code: "ST-02", name: "Westlands Store", location: "Westlands", manager: "Maria Banda", items: 580 },
+      { code: "ST-03", name: "Mombasa Outlet", location: "Mombasa", manager: "David Kumar", items: 412 },
+      { code: "ST-04", name: "Kisumu Depot", location: "Kisumu", manager: "Grace Mensah", items: 298 },
+    ]
+  );
 
   const [conversions, setConversions] = useState<Conversion[]>([
     { code: "CF-01", from: "Sugar 50kg Bag", to: "Sugar 2kg Pack", ratio: "1 : 25" },

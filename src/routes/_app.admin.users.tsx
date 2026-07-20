@@ -8,13 +8,18 @@ import { ExportMenu } from "@/components/erp/ExportMenu";
 import { useTranslate } from "@/lib/i18n";
 import { Plus, KeyRound } from "lucide-react";
 
+import { getUsersListFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/admin/users")({
   head: () => ({ meta: [{ title: "Users — DeveleERP" }] }),
+  loader: () => getUsersListFn(),
   component: UsersPage,
 });
 
 function UsersPage() {
+  const initialUsersData = Route.useLoaderData();
   const { t, lang } = useTranslate();
+  const usersData = (initialUsersData as any)?.data || initialUsersData;
 
   const translateRole = (role: string) => {
     if (lang === "en") return role;

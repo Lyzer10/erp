@@ -8,13 +8,18 @@ import { invoices, currency } from "@/lib/mock";
 import { Plus, FileText, Receipt, Clock, CheckCircle2 } from "lucide-react";
 import { useTranslate } from "@/lib/i18n";
 
+import { getInvoicesFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/sales/invoices/")({
   head: () => ({ meta: [{ title: "Invoices — DeveleERP" }] }),
+  loader: () => getInvoicesFn(),
   component: InvoicesPage,
 });
 
 function InvoicesPage() {
+  const initialInvoicesData = Route.useLoaderData();
   const { t, lang } = useTranslate();
+  const invoicesData = (initialInvoicesData as any)?.data || initialInvoicesData || invoices;
 
   const cols = [
     { key: "id", header: lang === "en" ? "Invoice #" : "Ankara #" },
@@ -29,9 +34,9 @@ function InvoicesPage() {
   ];
   
   const byType = (type: string) => {
-    return invoices
-      .filter((i) => i.type === type)
-      .map(i => ({ ...i, amount: i.amount * 1000 }));
+    return (invoicesData as any[])
+      .filter((i: any) => i.type === type)
+      .map((i: any) => ({ ...i, amount: i.amount * 1000 }));
   };
 
   const totalIssued = invoices.reduce((s, i) => s + i.amount * 1000, 0);

@@ -9,6 +9,7 @@ import { expenses as initialExpenses, currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTranslate } from "@/lib/i18n";
+import { getExpensesFn } from "@/lib/api/domain";
 
 type Expense = {
   id: string;
@@ -29,6 +30,7 @@ type Category = {
 
 export const Route = createFileRoute("/_app/products/expenses")({
   head: () => ({ meta: [{ title: "Expenses — DeveleERP" }] }),
+  loader: () => getExpensesFn(),
   component: ExpensesPage,
 });
 
@@ -39,12 +41,17 @@ const CATEGORY_TRANSLATIONS: Record<string, Record<string, string>> = {
   Marketing: { en: "Marketing", sw: "Masoko" },
   Travel: { en: "Travel", sw: "Safari" },
   "Office Supplies": { en: "Office Supplies", sw: "Vifaa vya Ofisi" },
+  Office: { en: "Office", sw: "Ofisi" },
+  Maintenance: { en: "Maintenance", sw: "Ukarabati" },
+  Other: { en: "Other", sw: "Nyingine" },
 };
 
 function ExpensesPage() {
+  const initialExpensesData = Route.useLoaderData();
   const { lang, t } = useTranslate();
+  const expensesData = (initialExpensesData as any)?.data || initialExpensesData;
   const [expenseList, setExpenseList] = useState<Expense[]>(
-    initialExpenses.map(e => ({
+    ((expensesData as Expense[]) || initialExpenses).map(e => ({
       id: e.id,
       category: e.category,
       vendor: e.vendor,

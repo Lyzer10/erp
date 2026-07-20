@@ -16,13 +16,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { getStaffFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/hr/staff")({
   head: () => ({ meta: [{ title: "Staff — DeveleERP" }] }),
+  loader: () => getStaffFn(),
   component: StaffPage,
 });
 
 function StaffPage() {
+  const initialStaffData = Route.useLoaderData();
   const { t, lang } = useTranslate();
+  const staffData = (initialStaffData as any)?.data || initialStaffData || staff;
 
   const translateDept = (dept: string) => {
     if (lang === "en") return dept;

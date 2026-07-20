@@ -8,13 +8,18 @@ import { purchaseOrders, currency } from "@/lib/mock";
 import { Plus } from "lucide-react";
 import { useTranslate } from "@/lib/i18n";
 
+import { getPurchaseOrdersFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/products/purchase-orders/")({
   head: () => ({ meta: [{ title: "Purchase Orders — DeveleERP" }] }),
+  loader: () => getPurchaseOrdersFn(),
   component: PurchaseOrdersPage,
 });
 
 function PurchaseOrdersPage() {
+  const initialPOData = Route.useLoaderData();
   const { t, lang } = useTranslate();
+  const poData = ((initialPOData as any)?.data as typeof purchaseOrders) || initialPOData || purchaseOrders;
 
   const cols = [
     { key: "id", header: lang === "en" ? "LPO #" : "LPO #" }, 
@@ -44,10 +49,10 @@ function PurchaseOrdersPage() {
         } 
       />
       <TabbedPage tabs={[
-        { key: "all", label: lang === "en" ? "All" : "Zote", render: () => <DataTable data={purchaseOrders} columns={cols} /> },
-        { key: "approved", label: lang === "en" ? "Approved" : "Imeidhinishwa", render: () => <DataTable data={purchaseOrders.filter(p => p.status === "Approved")} columns={cols} /> },
-        { key: "pending", label: lang === "en" ? "Pending" : "Inasubiri", render: () => <DataTable data={purchaseOrders.filter(p => p.status === "Pending")} columns={cols} /> },
-        { key: "rejected", label: lang === "en" ? "Rejected" : "Imekataliwa", render: () => <DataTable data={purchaseOrders.filter(p => p.status === "Rejected")} columns={cols} /> },
+        { key: "all", label: lang === "en" ? "All" : "Zote", render: () => <DataTable data={poData} columns={cols} /> },
+        { key: "approved", label: lang === "en" ? "Approved" : "Imeidhinishwa", render: () => <DataTable data={poData.filter(p => p.status === "Approved")} columns={cols} /> },
+        { key: "pending", label: lang === "en" ? "Pending" : "Inasubiri", render: () => <DataTable data={poData.filter(p => p.status === "Pending")} columns={cols} /> },
+        { key: "rejected", label: lang === "en" ? "Rejected" : "Imekataliwa", render: () => <DataTable data={poData.filter(p => p.status === "Rejected")} columns={cols} /> },
       ]} />
     </div>
   );

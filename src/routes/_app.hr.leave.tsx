@@ -6,8 +6,11 @@ import { StatusPill } from "@/components/erp/StatusPill";
 import { ExportMenu } from "@/components/erp/ExportMenu";
 import { useTranslate } from "@/lib/i18n";
 
+import { getLeaveRequestsFn } from "@/lib/api/domain";
+
 export const Route = createFileRoute("/_app/hr/leave")({
   head: () => ({ meta: [{ title: "Leave — DeveleERP" }] }),
+  loader: () => getLeaveRequestsFn(),
   component: LeavePage,
 });
 

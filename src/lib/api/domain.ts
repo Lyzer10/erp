@@ -111,3 +111,15 @@ export const getPaymentVouchersFn = createServerFn({ method: "GET" }).handler(as
   const data = await ds.paymentVouchers.getAll();
   return { isTestUser: ds.isTestUser, data };
 });
+
+export const getPurchaseOrdersFn = createServerFn({ method: "GET" }).handler(async () => {
+  const ds = await resolveDataSource();
+  const data = await ds.purchaseOrders.getAll();
+  return { isTestUser: ds.isTestUser, data };
+});
+
+export const getUsersListFn = createServerFn({ method: "GET" }).handler(async () => {
+  const ds = await resolveDataSource();
+  const data = await ds.usersList.getAll();
+  return { isTestUser: ds.isTestUser, data };
+});

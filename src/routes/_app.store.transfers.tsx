@@ -10,6 +10,8 @@ import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTranslate } from "@/lib/i18n";
 
+import { getTransfersFn } from "@/lib/api/domain";
+
 type Transfer = {
   id: string;
   from: string;
@@ -23,20 +25,24 @@ type Transfer = {
 
 export const Route = createFileRoute("/_app/store/transfers")({
   head: () => ({ meta: [{ title: "Store Transfers — DeveleERP" }] }),
+  loader: () => getTransfersFn(),
   component: StoreTransfersPage,
 });
 
 function StoreTransfersPage() {
+  const initialTransfersData = Route.useLoaderData();
   const { lang, t } = useTranslate();
+  const transfersData = (initialTransfersData as any)?.data || initialTransfersData;
   const [ibtList, setIbtList] = useState<Transfer[]>(
-    Array.from({ length: 5 }, (_, i) => ({
+    (transfersData as Transfer[]) || Array.from({ length: 5 }, (_, i) => ({
       id: `IBT-${1000 + i}`,
       from: ["Main Store", "Westlands", "Mombasa Store"][i % 3],
       to: ["Westlands", "Mombasa Store", "Main Store"][i % 3],
-      items: 4 + i,
-      value: 600 + i * 350,
-      date: `2026-06-0${i + 1}`,
-      status: ["Completed", "Approved", "Pending"][i % 3],
+      items: (i + 1) * 12,
+      value: (i + 1) * 450000,
+      date: `2026-03-0${i + 1}`,
+      status: ["Completed", "In Transit", "Pending", "Completed", "Cancelled"][i],
+      description: `Routine stock balancing transfer #${i + 1}`,
     }))
   );
 
