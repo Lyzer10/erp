@@ -111,7 +111,6 @@ function CustomersPage() {
       />
       <TabbedPage tabs={[
         { key: "list",    label: lang === "en" ? "Customers List" : "Orodha ya Wateja",    render: () => <CustomersList customers={customers} setCustomers={setCustomers} /> },
-        { key: "advance", label: lang === "en" ? "Customer Advances" : "Amana za Wateja", render: () => <AdvancesTable /> },
         { key: "import",  label: lang === "en" ? "Import Customers" : "Ingiza Wateja",  render: () => <ImportCard title={lang === "en" ? "Import Customers" : "Ingiza Wateja"} templateName={lang === "en" ? "CUSTOMERS TEMPLATE" : "KIELELEZO CHA WATEJA"} /> },
       ]} />
 
@@ -322,52 +321,6 @@ function DetailRow({ label, value }: { label: string; value: string }) {
     <div className="flex items-center justify-between gap-4 border-b border-slate-50 pb-2 last:border-0 last:pb-0">
       <span className="w-28 shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
       <span className="text-right text-sm font-semibold text-slate-800">{value}</span>
-    </div>
-  );
-}
-
-function AdvancesTable() {
-  const { lang } = useTranslate();
-  const headers = lang === "en"
-    ? ["#", "Customer Name", "Created By", "Currency", "Balance", "Action"]
-    : ["#", "Jina la Mteja", "Imeundwa na", "Sarafu", "Salio", "Kitendo"];
-
-  return (
-    <div className="glass-card overflow-hidden p-0">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600 border-b border-slate-100">
-            <tr>
-              {headers.map((h, idx) => {
-                const isBalance = lang === "en" ? h === "Balance" : h === "Salio";
-                const isAction = lang === "en" ? h === "Action" : h === "Kitendo";
-                return (
-                  <th key={idx} className={`px-3 py-3 font-semibold ${isBalance ? "text-right" : isAction ? "text-center" : "text-left"}`}>{h}</th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-sm text-slate-700 bg-white">
-            {advancesMock.map((a, i) => (
-              <tr key={a.id} className="hover:bg-slate-50/50 transition">
-                <td className="px-3 py-3 text-slate-500">{i + 1}</td>
-                <td className="px-3 py-3 font-bold">{a.name}</td>
-                <td className="px-3 py-3">{a.createdBy}</td>
-                <td className="px-3 py-3">{a.currency}</td>
-                <td className="px-3 py-3 text-right font-semibold">
-                  {a.currency === "TZS" ? tzs(a.balance) : new Intl.NumberFormat("en-US", { style: "currency", currency: a.currency }).format(a.balance)}
-                </td>
-                <td className="px-3 py-3">
-                  <div className="flex items-center justify-center gap-1">
-                    <IconBtn title={lang === "en" ? "View" : "Angalia"} onClick={() => {}} tone="blue"><Eye className="h-3.5 w-3.5" /></IconBtn>
-                    <IconBtn title={lang === "en" ? "Delete" : "Futa"} onClick={() => {}} tone="rose"><Trash2 className="h-3.5 w-3.5" /></IconBtn>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }
