@@ -27,18 +27,8 @@ function LoginPage() {
       const res = await loginUserFn({ data: { username, password } });
 
       if (res.success && res.token) {
-        // Store JWT token and test user status in cookies
-        document.cookie = `auth_token=${res.token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-        document.cookie = `is_test_user=${res.user?.isTestUser ? "true" : "false"}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-        document.cookie = `is_logged_in=true; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+        // Token is safely stored server-side as HttpOnly cookie by loginUserFn
         localStorage.setItem("is_logged_in", "true");
-        localStorage.setItem("auth_token", res.token);
-        if (res.user?.isTestUser) {
-          localStorage.setItem("is_test_user", "true");
-        } else {
-          localStorage.removeItem("is_test_user");
-        }
-
         setLoading(false);
         navigate({ to: "/" });
       } else {

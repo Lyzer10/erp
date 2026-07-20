@@ -4,7 +4,13 @@ import { db } from "../db";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
 
-const JWT_SECRET = process.env.JWT_SECRET || "devele_erp_demo_jwt_secret_2026";
+export function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable must be set.");
+  }
+  return secret;
+}
 
 export type AuthUser = {
   id: number | string;
@@ -16,6 +22,7 @@ export type AuthUser = {
 };
 
 export function generateToken(user: Partial<AuthUser>): string {
+  const secret = getJwtSecret();
   const sessionId = user.sessionId || crypto.randomUUID();
   return jwt.sign(
     {
@@ -26,12 +33,13 @@ export function generateToken(user: Partial<AuthUser>): string {
       role: user.role,
       sessionId,
     },
-    JWT_SECRET,
+    secret,
     { expiresIn: "7d" }
   );
 }
 
 export async function authenticateRequest(req: Request): Promise<AuthUser | null> {
+  const secret = getJwtSecret();
   const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
   const cookieHeader = req.headers.get("cookie") || "";
   const headerSessionId = req.headers.get("x-session-id");
@@ -44,24 +52,12 @@ export async function authenticateRequest(req: Request): Promise<AuthUser | null
     token = cookieHeader.split("auth_token=")[1]?.split(";")[0] || null;
   }
 
-  const headerTestUser = req.headers.get("x-test-user");
-  if (headerTestUser === "true" || (!token && cookieHeader.includes("is_test_user=true"))) {
-    return {
-      id: "demo-user-1",
-      username: "erick",
-      email: "demo@devele.co",
-      isTestUser: true,
-      role: "SuperAdmin",
-      sessionId: headerSessionId || "demo-session-default",
-    };
-  }
-
   if (!token) {
     return null;
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, secret) as any;
     const sessionId = decoded.sessionId || headerSessionId || `session-${decoded.username}-${decoded.id}`;
 
     const dbUsers = await db.select().from(users).where(eq(users.username, decoded.username)).limit(1).catch(() => []);

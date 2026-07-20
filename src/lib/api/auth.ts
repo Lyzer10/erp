@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { setCookie, deleteCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "../../db";
@@ -97,10 +98,38 @@ export const loginUserFn = createServerFn({ method: "POST" })
     })
   )
   .handler(async ({ data }) => {
-    return loginUserInternal(data);
+    const res = await loginUserInternal(data);
+    if (res.success && res.token) {
+      try {
+        setCookie("auth_token", res.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60,
+        });
+        setCookie("is_test_user", res.user?.isTestUser ? "true" : "false", {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60,
+        });
+      } catch (e) {
+        // Fallback when invoked outside HTTP context
+      }
+    }
+    return res;
   });
 
 export const logoutUserFn = createServerFn({ method: "POST" }).handler(async ({ request }) => {
+  try {
+    deleteCookie("auth_token", { path: "/" });
+    deleteCookie("is_test_user", { path: "/" });
+  } catch (e) {
+    // Ignore context error
+  }
+
   const authUser = await authenticateRequest(request);
   if (authUser && authUser.isTestUser && authUser.sessionId) {
     sessionStoreManager.destroyStore(authUser.sessionId);

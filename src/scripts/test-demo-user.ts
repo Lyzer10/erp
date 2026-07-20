@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { seedDatabase } from "../db/seed";
 import { generateToken } from "../lib/auth";
 import { resolveDataSource } from "../lib/data-source";

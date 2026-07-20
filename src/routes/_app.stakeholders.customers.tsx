@@ -25,20 +25,6 @@ type Customer = {
   balance: number; status: "Active" | "Inactive";
 };
 
-const customersMock: Customer[] = [
-  { id: 1, name: "Acme Trading Ltd",    phone: "+255 712 000 001", tin: "100-200-300", vrn: "40-123456-E", email: "acme@email.com",   region: "Dar es Salaam", address: "Ilala",        branch: "Head Office", balance: 4_200_000, status: "Active" },
-  { id: 2, name: "Skyline Holdings",    phone: "+255 754 000 002", tin: "100-200-301", vrn: "40-123457-E", email: "sky@email.com",    region: "Arusha",        address: "CBD",          branch: "Branch A",    balance: 1_800_000, status: "Active" },
-  { id: 3, name: "Bluepeak Industries", phone: "+255 765 000 003", tin: "100-200-302", vrn: "—",           email: "blue@email.com",   region: "Mwanza",        address: "Nyamagana",    branch: "Branch B",    balance:   950_000, status: "Inactive" },
-  { id: 4, name: "Greenfield Co.",      phone: "+255 713 000 004", tin: "100-200-303", vrn: "40-123458-E", email: "green@email.com",  region: "Dodoma",        address: "City Centre",  branch: "Head Office", balance:   320_000, status: "Active" },
-  { id: 5, name: "Harbor Logistics",    phone: "+255 744 000 005", tin: "100-200-304", vrn: "—",           email: "harbor@email.com", region: "Tanga",         address: "Port Area",    branch: "Branch C",    balance:         0, status: "Active" },
-];
-
-const advancesMock = [
-  { id: 1, name: "Acme Trading Ltd", createdBy: "Aisha O.", currency: "TZS", balance: 250_000 },
-  { id: 2, name: "Skyline Holdings", createdBy: "John M.",  currency: "TZS", balance: 120_000 },
-  { id: 3, name: "Greenfield Co.",   createdBy: "Aisha O.", currency: "USD", balance:   1_500 },
-];
-
 export const Route = createFileRoute("/_app/stakeholders/customers")({
   head: () => ({ meta: [{ title: "Customers — DeveleERP" }] }),
   component: CustomersPage,
