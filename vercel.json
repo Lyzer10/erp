@@ -1,3 +1,10 @@
 {
-  "installCommand": "npm install --cache /tmp/clean-cache --no-audit --prefer-online"
+  "installCommand": "npm install --cache /tmp/clean-cache --no-audit --prefer-online",
+  "outputDirectory": "dist/client",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }

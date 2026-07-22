@@ -21,6 +21,7 @@ export default defineConfig({
   plugins: [
     tanstackStart({
       server: { entry: "server" },
+      spa: { enabled: true },
     }),
     viteReact(),
     tailwindcss(),
