@@ -22,7 +22,11 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "server" },
       spa: { enabled: true },
-      prerender: { enabled: true },
+      prerender: {
+        enabled: true,
+        failOnError: false,
+        autoStaticPathsDiscovery: false,
+      },
     }),
     viteReact(),
     tailwindcss(),
