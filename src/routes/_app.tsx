@@ -1,46 +1,7 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AppShell } from "@/components/erp/AppShell";
-import { useEffect, useState } from "react";
-import { useTranslate } from "@/lib/i18n";
 
 function AppShellWrapper() {
-  const navigate = useNavigate();
-  const [checking, setChecking] = useState(true);
-  const { t, lang } = useTranslate();
-
-  useEffect(() => {
-    const hasCookie = document.cookie
-      .split("; ")
-      .some((item) => item.trim().startsWith("is_logged_in=true"));
-    const hasLocal =
-      typeof localStorage !== "undefined" && localStorage.getItem("is_logged_in") === "true";
-
-    if (!hasCookie && !hasLocal) {
-      navigate({ to: "/login", replace: true });
-    } else {
-      setChecking(false);
-    }
-  }, [navigate]);
-
-  if (checking) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
-        <div className="relative text-center">
-          <div className="relative mx-auto h-12 w-12">
-            <div className="absolute inset-0 rounded-full border-4 border-slate-100" />
-            <div className="absolute inset-0 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-          </div>
-          <p className="mt-4 text-sm font-semibold tracking-wide text-slate-600 uppercase">
-            {lang === "en" ? "Verifying Session" : "Kuhakiki Kipindi cha Kuingia"}
-          </p>
-          <p className="mt-1 text-xs text-slate-400 font-medium">
-            {lang === "en" ? "Please wait while we secure your connection..." : "Tafadhali subiri wakati tunalinda muunganisho wako..."}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return <AppShell />;
 }
 
