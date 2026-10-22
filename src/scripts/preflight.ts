@@ -33,23 +33,25 @@ async function preflight() {
   const missing = requiredTables.filter((name) => !present.has(name));
   if (missing.length) throw new Error(`Missing tables: ${missing.join(", ")}`);
 
-  const [admins, settings, invalidProducts, invalidBatches, inconsistentStock] = await Promise.all([
-    client.query(
-      "SELECT 1 FROM users WHERE role IN ('SuperAdmin', 'Admin') AND status = 'Active' LIMIT 1",
-    ),
-    client.query("SELECT 1 FROM business_settings LIMIT 1"),
-    client.query("SELECT id FROM products WHERE stock < 0 OR price < 0 OR cost < 0 LIMIT 1"),
-    client.query(
-      "SELECT id FROM product_batches WHERE quantity < 0 OR expiry_date IS NULL LIMIT 1",
-    ),
-    client.query(`
+  // A pg Client executes one query at a time. Sequential checks remain
+  // compatible with pg 9 and preserve the precise failing query.
+  const admins = await client.query(
+    "SELECT 1 FROM users WHERE role IN ('SuperAdmin', 'Admin') AND status = 'Active' LIMIT 1",
+  );
+  const settings = await client.query("SELECT 1 FROM business_settings LIMIT 1");
+  const invalidProducts = await client.query(
+    "SELECT id FROM products WHERE stock < 0 OR price < 0 OR cost < 0 LIMIT 1",
+  );
+  const invalidBatches = await client.query(
+    "SELECT id FROM product_batches WHERE quantity < 0 OR expiry_date IS NULL LIMIT 1",
+  );
+  const inconsistentStock = await client.query(`
       SELECT p.id
       FROM products p
       WHERE EXISTS (SELECT 1 FROM product_batches b WHERE b.product_id = p.id)
         AND p.stock <> (SELECT COALESCE(SUM(b.quantity), 0) FROM product_batches b WHERE b.product_id = p.id)
       LIMIT 1
-    `),
-  ]);
+    `);
   if (!admins.rowCount) throw new Error("No active administrator exists; run npm run seed.");
   if (!settings.rowCount) throw new Error("Business settings are missing; run npm run seed.");
   if (invalidProducts.rowCount) throw new Error("Invalid product totals detected.");

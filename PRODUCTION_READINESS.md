@@ -76,4 +76,4 @@ acceptance test, monitoring, and Tanzanian regulatory confirmation.
 - Changed TypeScript/TSX files pass ESLint; the full repository lint is too slow under the current workspace limit.
 - `npm run build`: passing with the Vite 8/Nitro full-stack production output on 2026-10-21.
 - `npm audit --omit=dev`: zero production vulnerabilities on 2026-10-21. Four moderate development-only findings remain through Drizzle Kit's legacy esbuild loader.
-- Database migration/preflight execution remains intentionally pending because this workspace has no configured `DATABASE_URL`.
+- Blank-database migrations, administrator seed, credential verification, and database preflight passed against local PostgreSQL 17 on 2026-10-22.

@@ -17,6 +17,7 @@
     "migrate": "npx tsx src/db/migrate.ts",
     "seed": "npx tsx src/db/seed.ts",
     "preflight": "npx tsx src/scripts/preflight.ts",
+    "verify:login": "npx tsx src/scripts/verify-login.ts",
     "backup": "powershell -ExecutionPolicy Bypass -File scripts/backup.ps1",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "test": "npx tsx --test src/**/*.test.ts",
