@@ -108,11 +108,11 @@ function SuppliersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={lang === "en" ? "Suppliers" : "Wauzaji"}
+        title={lang === "en" ? "Suppliers" : "Wasambazaji"}
         description={
           lang === "en"
             ? "Supplier directory and outstanding purchase balances."
-            : "Orodha ya wauzaji na madeni ya manunuzi."
+            : "Orodha ya wasambazaji na madeni unayodaiwa kuwalipa."
         }
         actions={
           <button

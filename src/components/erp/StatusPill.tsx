@@ -19,7 +19,7 @@ const styles: Record<string, string> = {
 };
 
 const labels: Record<string, Record<string, string>> = {
-  Active: { en: "Active", sw: "Hai" },
+  Active: { en: "Active", sw: "Inatumika" },
   Paid: { en: "Paid", sw: "Imelipwa" },
   Approved: { en: "Approved", sw: "Imeidhinishwa" },
   Received: { en: "Received", sw: "Imepokelewa" },
@@ -32,7 +32,7 @@ const labels: Record<string, Record<string, string>> = {
   "On Hold": { en: "On Hold", sw: "Imesimamishwa" },
   Overdue: { en: "Overdue", sw: "Muda Umeisha" },
   Rejected: { en: "Rejected", sw: "Imekataliwa" },
-  Inactive: { en: "Inactive", sw: "Siyo Hai" },
+  Inactive: { en: "Inactive", sw: "Haitumiki" },
 };
 
 export function StatusPill({ status }: { status: string }) {

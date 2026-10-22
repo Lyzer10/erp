@@ -158,19 +158,19 @@ function CreatePurchasePage() {
 
         <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
           {lang === "en"
-            ? "This creates an internal purchase order in DeveleERP. It does not automatically send anything to the supplier."
-            : "Hii inatengeneza agizo la manunuzi ndani ya DeveleERP. Haitumi taarifa moja kwa moja kwa msambazaji."}
+            ? "This purchase order will be saved in DeveleERP."
+            : "Oda hii ya manunuzi itahifadhiwa ndani ya DeveleERP."}
         </p>
 
         <section className="glass-card grid gap-4 p-5 sm:grid-cols-3">
-          <Field label={lang === "en" ? "Supplier" : "Muuzaji"}>
+          <Field label={lang === "en" ? "Supplier" : "Msambazaji"}>
             <select
               required
               value={supplierId}
               onChange={(event) => setSupplierId(Number(event.target.value) || "")}
               className="input-field"
             >
-              <option value="">{lang === "en" ? "Choose supplier" : "Chagua muuzaji"}</option>
+              <option value="">{lang === "en" ? "Choose supplier" : "Chagua msambazaji"}</option>
               {suppliers.map((supplier) => (
                 <option key={supplier.id} value={supplier.id}>
                   {supplier.name}

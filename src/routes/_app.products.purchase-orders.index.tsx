@@ -51,7 +51,7 @@ function PurchaseOrdersPage() {
 
   const cols = [
     { key: "code", header: lang === "en" ? "LPO #" : "LPO #" },
-    { key: "supplier", header: lang === "en" ? "Supplier" : "Muuzaji" },
+    { key: "supplier", header: lang === "en" ? "Supplier" : "Msambazaji" },
     { key: "date", header: lang === "en" ? "Date" : "Tarehe" },
     { key: "items", header: lang === "en" ? "Items" : "Vitu", align: "right" as const },
     {
@@ -91,11 +91,11 @@ function PurchaseOrdersPage() {
         </p>
       )}
       <PageHeader
-        title={lang === "en" ? "Purchase Orders (LPO)" : "Maagizo ya Manunuzi (LPO)"}
+        title={lang === "en" ? "Purchase Orders (LPO)" : "Oda za Manunuzi (LPO)"}
         description={
           lang === "en"
             ? "Create, approve, and reject local purchase orders."
-            : "LPO ni agizo la manunuzi unalotengeneza kwa ajili ya msambazaji."
+            : "LPO ni oda ya bidhaa unayotengeneza kwa ajili ya msambazaji."
         }
         actions={
           <div className="flex items-center gap-2">
@@ -105,15 +105,15 @@ function PurchaseOrdersPage() {
               className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition"
             >
               <Plus className="h-4 w-4" />
-              {lang === "en" ? "Create LPO" : "Tengeneza LPO"}
+              {lang === "en" ? "Create LPO" : "Tengeneza oda (LPO)"}
             </Link>
           </div>
         }
       />
       <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
         {lang === "en"
-          ? "An LPO is saved inside DeveleERP as your internal purchase record. It is not automatically sent to the supplier; share it separately by email, WhatsApp, or a printed copy."
-          : "LPO huhifadhiwa ndani ya DeveleERP kama kumbukumbu yako ya manunuzi. Haitumwi moja kwa moja kwa msambazaji; mtumie mwenyewe kwa barua pepe, WhatsApp, au nakala iliyochapishwa."}
+          ? "An LPO is saved inside DeveleERP as your purchase record."
+          : "LPO huhifadhiwa ndani ya DeveleERP kama kumbukumbu ya manunuzi."}
       </p>
       <TabbedPage
         tabs={[
