@@ -51,12 +51,21 @@ function LoginPage() {
 
   return (
     <div
-      className="flex min-h-screen w-full items-center justify-center p-4 sm:p-6"
+      className="relative flex min-h-screen w-full items-center justify-center p-4 sm:p-6"
       style={{
+        // Teal-tinted overlay keeps the sign-in card legible over the pharmacy photo.
         background:
-          "radial-gradient(1200px 700px at 50% 0%, #eaf5f2 0%, #f4f6f7 55%, #e6ebee 100%)",
+          "linear-gradient(135deg, rgba(15, 61, 54, 0.72) 0%, rgba(31, 156, 136, 0.45) 100%), url('/login-bg.jpg') center / cover no-repeat, #0f3d36",
       }}
     >
+      <a
+        href="https://www.magnific.com/free-photo/two-african-american-pharmacist-working-drugstore-hospital-pharmacy-african-healthcare_26075676.htm"
+        target="_blank"
+        rel="noreferrer"
+        className="absolute bottom-3 right-4 text-[11px] text-white/60 transition hover:text-white/90"
+      >
+        Photo by ASphotofamily on Freepik
+      </a>
       <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/[0.04]">
         <div
           className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
