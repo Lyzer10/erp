@@ -51,7 +51,7 @@ acceptance test, monitoring, and Tanzanian regulatory confirmation.
 
 ### Operations
 
-- [x] Complete ordered migrations include a blank-database baseline; execution awaits a database URL.
+- [x] Complete ordered migrations include a blank-database baseline and passed against local PostgreSQL 17.
 - [x] First-administrator seed does not print passwords.
 - [~] Pure sale/FEFO tests exist; database transaction/permission integration tests require staging PostgreSQL.
 - [x] Backup/restore tools and runbook exist; the operator must perform and record the first restore drill.
