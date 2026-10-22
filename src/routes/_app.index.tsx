@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  CalendarX,
   FileWarning,
   Package,
   PackageCheck,
@@ -24,6 +25,7 @@ type DashboardData = {
   grossMargin: number;
   lowStock: number;
   outOfStock: number;
+  expired: number;
   nearExpiry: number;
   topProducts: Array<{ name: string; quantity: number; revenue: number }>;
   topCustomers: Array<{ name: string; revenue: number }>;
@@ -117,21 +119,32 @@ function Dashboard() {
           </div>
           <div className="divide-y divide-slate-100">
             <AlertLink
-              to="/store/stock"
+              tab="stock"
+              filter="low"
               icon={PackageCheck}
               label={lang === "en" ? "Low stock" : "Bidhaa chache"}
               count={data.lowStock}
               tone="amber"
             />
             <AlertLink
-              to="/store/stock"
+              tab="stock"
+              filter="out"
               icon={PackageX}
               label={lang === "en" ? "Out of stock" : "Bidhaa zimeisha"}
               count={data.outOfStock}
               tone="red"
             />
             <AlertLink
-              to="/store/stock"
+              tab="batches"
+              filter="expired"
+              icon={CalendarX}
+              label={lang === "en" ? "Expired batches" : "Makundi yaliyoisha muda"}
+              count={data.expired}
+              tone="red"
+            />
+            <AlertLink
+              tab="batches"
+              filter="expiring"
               icon={FileWarning}
               label={lang === "en" ? "Expiring within 90 days" : "Zinaisha muda ndani ya siku 90"}
               count={data.nearExpiry}
@@ -339,27 +352,33 @@ function RankingCard({
 }
 
 function AlertLink({
-  to,
+  tab,
+  filter,
   icon: Icon,
   label,
   count,
   tone,
 }: {
-  to: string;
+  tab: "stock" | "batches";
+  filter: "low" | "out" | "expired" | "expiring";
   icon: LucideIcon;
   label: string;
   count: number;
   tone: "amber" | "red" | "orange";
 }) {
+  // A non-zero red count is shown solid so problems stand out at a glance.
   const badgeColor =
     tone === "red"
-      ? "bg-rose-100 text-rose-700"
+      ? count > 0
+        ? "bg-rose-600 text-white"
+        : "bg-rose-100 text-rose-700"
       : tone === "orange"
         ? "bg-orange-100 text-orange-700"
         : "bg-amber-100 text-amber-700";
   return (
     <Link
-      to={to}
+      to="/store/stock"
+      search={{ tab, filter }}
       className="flex items-center gap-3 px-1 py-3 transition-colors hover:bg-slate-50/80"
     >
       <Icon className="h-4 w-4 shrink-0 text-slate-400" />

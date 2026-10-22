@@ -341,13 +341,14 @@ export const getDashboardFn = createServerFn({ method: "GET" }).handler(async ()
     .where(sql`${purchaseOrders.date}::date = ${today}::date`);
   const [stockTotals] = await db
     .select({
-      lowStock: sql<number>`count(*) filter (where ${products.stock} <= ${products.reorder})::int`,
+      lowStock: sql<number>`count(*) filter (where ${products.stock} > 0 and ${products.stock} <= ${products.reorder})::int`,
       outOfStock: sql<number>`count(*) filter (where ${products.stock} <= 0)::int`,
     })
     .from(products);
   const [expiryTotals] = await db
     .select({
-      nearExpiry: sql<number>`count(*) filter (where ${productBatches.quantity} > 0 and ${productBatches.expiryDate} <= current_date + interval '90 days')::int`,
+      expired: sql<number>`count(*) filter (where ${productBatches.quantity} > 0 and ${productBatches.expiryDate} < current_date)::int`,
+      nearExpiry: sql<number>`count(*) filter (where ${productBatches.quantity} > 0 and ${productBatches.expiryDate} >= current_date and ${productBatches.expiryDate} <= current_date + interval '90 days')::int`,
     })
     .from(productBatches);
   const topProducts = await db
