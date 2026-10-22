@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  ChevronDown,
   ChevronsLeft,
   ChevronsRight,
   LayoutDashboard,
@@ -7,26 +8,18 @@ import {
   Receipt,
   ScanLine,
   Settings,
+  ShoppingCart,
   Users,
   Warehouse,
   type LucideIcon,
 } from "lucide-react";
+import { useState } from "react";
+import { useTranslate } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { ShellUser } from "./Topbar";
 
-type Item = { label: string; to: string };
-
-const links: Array<Item & { icon: LucideIcon }> = [
-  { label: "Customers", to: "/stakeholders/customers", icon: Users },
-  { label: "Suppliers", to: "/stakeholders/suppliers", icon: Users },
-  { label: "Receipts", to: "/sales/receipts", icon: Receipt },
-  { label: "Sales reports", to: "/sales/reports", icon: Receipt },
-  { label: "Customer statement", to: "/sales/customer-statement", icon: Receipt },
-  { label: "Medicine catalog", to: "/products/catalog", icon: Package },
-  { label: "Purchase orders", to: "/products/purchase-orders", icon: Package },
-  { label: "Expenses", to: "/products/expenses", icon: Receipt },
-  { label: "Stock & expiry", to: "/store/stock", icon: Warehouse },
-];
+type NavItem = { label: string; to: string };
+type NavGroup = { label: string; icon: LucideIcon; items: NavItem[] };
 
 export function AppSidebar({
   onNavigate,
@@ -40,16 +33,54 @@ export function AppSidebar({
   readonly user: ShellUser;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const visibleLinks = [
-    ...links,
-    ...(["SuperAdmin", "Admin"].includes(user.role)
-      ? [
-          { label: "Users & audit", to: "/admin/users", icon: Settings },
-          { label: "Business settings", to: "/admin/settings", icon: Settings },
-        ]
-      : []),
-  ];
+  const { t } = useTranslate();
   const initials = user.username.slice(0, 2).toUpperCase();
+  const groups: NavGroup[] = [
+    {
+      label: t("stakeholders"),
+      icon: Users,
+      items: [
+        { label: t("customers"), to: "/stakeholders/customers" },
+        { label: t("suppliers"), to: "/stakeholders/suppliers" },
+      ],
+    },
+    {
+      label: t("sales"),
+      icon: Receipt,
+      items: [
+        { label: t("receipts"), to: "/sales/receipts" },
+        { label: t("salesReports"), to: "/sales/reports" },
+        { label: t("customerStatement"), to: "/sales/customer-statement" },
+      ],
+    },
+    {
+      label: t("inventory"),
+      icon: Warehouse,
+      items: [
+        { label: t("currentStock"), to: "/store/stock" },
+        { label: t("manageItems"), to: "/products/catalog" },
+        { label: t("adjustment"), to: "/store/stock?tab=adjustment" },
+      ],
+    },
+    {
+      label: t("procurement"),
+      icon: ShoppingCart,
+      items: [
+        { label: t("suppliers"), to: "/stakeholders/suppliers" },
+        { label: t("purchases"), to: "/products/purchase-orders" },
+      ],
+    },
+    { label: t("humanResource"), icon: Users, items: [{ label: t("staff"), to: "/hr/staff" }] },
+  ];
+  if (["SuperAdmin", "Admin"].includes(user.role))
+    groups.push({
+      label: t("administration"),
+      icon: Settings,
+      items: [
+        { label: t("usersAudit"), to: "/admin/users" },
+        { label: t("businessSettings"), to: "/admin/settings" },
+      ],
+    });
 
   return (
     <aside
@@ -87,63 +118,51 @@ export function AppSidebar({
           <button
             type="button"
             onClick={onToggle}
-            className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-slate-100 hover:text-foreground"
+            className="rounded-lg p-1.5 text-muted-foreground hover:bg-slate-100"
             aria-label="Collapse sidebar"
-            title="Collapse sidebar"
           >
             <ChevronsLeft className="h-4 w-4" />
           </button>
         )}
       </div>
-
       {collapsed && onToggle && (
         <button
           type="button"
           onClick={onToggle}
-          className="mx-auto mt-3 rounded-lg p-1.5 text-muted-foreground transition hover:bg-slate-100 hover:text-foreground"
+          className="mx-auto mt-3 rounded-lg p-1.5 text-muted-foreground hover:bg-slate-100"
           aria-label="Expand sidebar"
-          title="Expand sidebar"
         >
           <ChevronsRight className="h-4 w-4" />
         </button>
       )}
-
-      <nav className={cn("flex-1 space-y-0.5 overflow-y-auto py-4", collapsed ? "px-2" : "px-3")}>
+      <nav className={cn("flex-1 space-y-1 overflow-y-auto py-4", collapsed ? "px-2" : "px-3")}>
         <DirectLink
           to="/"
-          label="Dashboard"
+          label={t("dashboard")}
           icon={LayoutDashboard}
           active={pathname === "/"}
           collapsed={collapsed}
           onNavigate={onNavigate}
         />
-        <div className="pt-3">
-          <DirectLink
-            to="/pos"
-            label="Point of Sale"
-            icon={ScanLine}
-            active={pathname === "/pos"}
-            collapsed={collapsed}
-            onNavigate={onNavigate}
-            badge="New"
-          />
-        </div>
-
+        <DirectLink
+          to="/pos"
+          label={t("pointOfSale")}
+          icon={ScanLine}
+          active={pathname === "/pos"}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
         <div className="my-3 h-px bg-slate-200" />
-
-        {visibleLinks.map(({ label, to, icon }) => (
-          <DirectLink
-            key={to}
-            to={to}
-            label={label}
-            icon={icon}
-            active={pathname === to || pathname.startsWith(`${to}/`)}
+        {groups.map((group) => (
+          <NavGroupSection
+            key={group.label}
+            group={group}
+            pathname={pathname}
             collapsed={collapsed}
             onNavigate={onNavigate}
           />
         ))}
       </nav>
-
       {!collapsed && (
         <div className="border-t border-slate-200 p-4">
           <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
@@ -161,6 +180,72 @@ export function AppSidebar({
   );
 }
 
+function NavGroupSection({
+  group,
+  pathname,
+  collapsed,
+  onNavigate,
+}: {
+  group: NavGroup;
+  pathname: string;
+  collapsed: boolean;
+  onNavigate?: () => void;
+}) {
+  const active = group.items.some(
+    (item) =>
+      pathname === item.to.split("?")[0] || pathname.startsWith(`${item.to.split("?")[0]}/`),
+  );
+  const [open, setOpen] = useState(active);
+  if (collapsed)
+    return (
+      <DirectLink
+        to={group.items[0].to}
+        label={group.label}
+        icon={group.icon}
+        active={active}
+        collapsed
+        onNavigate={onNavigate}
+      />
+    );
+  const Icon = group.icon;
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-slate-100",
+          active && "text-[#177d6d]",
+        )}
+        aria-expanded={open}
+      >
+        <Icon className="h-4 w-4" />
+        <span className="flex-1 text-left">{group.label}</span>
+        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="ml-5 border-l border-slate-200 py-1 pl-3">
+          {group.items.map((item) => (
+            <Link
+              key={`${item.to}-${item.label}`}
+              to={item.to}
+              onClick={onNavigate}
+              className={cn(
+                "block rounded-lg px-3 py-2 text-sm transition hover:bg-slate-100",
+                pathname === item.to.split("?")[0]
+                  ? "font-semibold text-[#177d6d]"
+                  : "text-slate-600",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DirectLink({
   to,
   label,
@@ -168,7 +253,6 @@ function DirectLink({
   active,
   collapsed,
   onNavigate,
-  badge,
 }: {
   to: string;
   label: string;
@@ -176,7 +260,6 @@ function DirectLink({
   active: boolean;
   collapsed: boolean;
   onNavigate?: () => void;
-  badge?: string;
 }) {
   return (
     <Link
@@ -187,22 +270,12 @@ function DirectLink({
         "flex items-center rounded-xl text-sm font-medium transition",
         collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
         active
-          ? "bg-blue-100 font-semibold text-blue-900 shadow-sm"
+          ? "bg-blue-100 font-semibold text-blue-900"
           : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
       {!collapsed && <span className="flex-1">{label}</span>}
-      {!collapsed && badge && (
-        <span
-          className={cn(
-            "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
-            active ? "bg-white text-blue-600" : "bg-emerald-100 text-emerald-800",
-          )}
-        >
-          {badge}
-        </span>
-      )}
     </Link>
   );
 }

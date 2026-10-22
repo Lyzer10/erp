@@ -16,6 +16,7 @@ type Product = {
   reorder: number;
   cost: number;
   price: number;
+  image?: string | null;
 };
 type Batch = {
   id: number;
@@ -127,6 +128,23 @@ function StockPage() {
               <DataTable
                 data={products}
                 columns={[
+                  {
+                    key: "image",
+                    header: "Image",
+                    render: (row: Product) =>
+                      row.image ? (
+                        <img
+                          src={row.image}
+                          alt=""
+                          loading="lazy"
+                          className="h-10 w-10 rounded-lg border border-slate-200 object-cover"
+                        />
+                      ) : (
+                        <span className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100 text-xs text-slate-400">
+                          —
+                        </span>
+                      ),
+                  },
                   { key: "sku", header: "SKU" },
                   { key: "name", header: "Product" },
                   { key: "category", header: "Category" },

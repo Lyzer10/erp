@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { ImagePlus, Package, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/erp/DataTable";
 import { PageHeader } from "@/components/erp/PageHeader";
@@ -24,7 +24,25 @@ type Product = {
   cost: number;
   stock: number;
   reorder: number;
+  image?: string | null;
 };
+
+const emptyForm = () => ({
+  name: "",
+  genericName: "",
+  category: "",
+  brand: "",
+  dosageForm: "",
+  strength: "",
+  barcode: "",
+  purchaseUnit: "",
+  sellingUnit: "",
+  unitsPerPurchaseUnit: "",
+  requiresPrescription: false,
+  price: "",
+  cost: "",
+  reorder: "",
+});
 
 export const Route = createFileRoute("/_app/products/catalog")({
   head: () => ({ meta: [{ title: "Medicine Catalog — DeveleERP" }] }),
@@ -35,26 +53,16 @@ export const Route = createFileRoute("/_app/products/catalog")({
 const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(value)}`;
 
 function CatalogPage() {
-  const { lang } = useTranslate();
+  const { lang, t } = useTranslate();
   const loaded = Route.useLoaderData();
   const [products, setProducts] = useState<Product[]>(loaded.data as Product[]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    genericName: "",
-    category: "Medicine",
-    brand: "",
-    dosageForm: "",
-    strength: "",
-    barcode: "",
-    purchaseUnit: "box",
-    sellingUnit: "piece",
-    unitsPerPurchaseUnit: 1,
-    requiresPrescription: false,
-    price: 0,
-    cost: 0,
-    reorder: 10,
-  });
+  const [form, setForm] = useState(emptyForm);
+  const [imageUpload, setImageUpload] = useState<{
+    dataUrl: string;
+    fileName: string;
+    contentType: "image/jpeg" | "image/png" | "image/webp";
+  } | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,32 +82,19 @@ function CatalogPage() {
           barcode: form.barcode || undefined,
           purchaseUnit: form.purchaseUnit,
           sellingUnit: form.sellingUnit,
-          unitsPerPurchaseUnit: form.unitsPerPurchaseUnit,
+          unitsPerPurchaseUnit: Number(form.unitsPerPurchaseUnit),
           requiresPrescription: form.requiresPrescription,
-          price: form.price,
-          cost: form.cost,
-          reorder: form.reorder,
+          price: Number(form.price),
+          cost: Number(form.cost),
+          reorder: Number(form.reorder),
           stock: 0,
+          imageUpload: imageUpload || undefined,
         },
       });
       setProducts((current) => [response.result as Product, ...current]);
       setOpen(false);
-      setForm({
-        name: "",
-        genericName: "",
-        category: "Medicine",
-        brand: "",
-        dosageForm: "",
-        strength: "",
-        barcode: "",
-        purchaseUnit: "box",
-        sellingUnit: "piece",
-        unitsPerPurchaseUnit: 1,
-        requiresPrescription: false,
-        price: 0,
-        cost: 0,
-        reorder: 10,
-      });
+      setForm(emptyForm());
+      setImageUpload(null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Product could not be saved.");
     } finally {
@@ -108,6 +103,16 @@ function CatalogPage() {
   }
   function field<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function chooseImage(file?: File) {
+    if (!file) return;
+    try {
+      setError(null);
+      setImageUpload(await resizeProductImage(file));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : t("imageCouldNotBeRead"));
+    }
   }
 
   return (
@@ -124,19 +129,42 @@ function CatalogPage() {
             onClick={() => setOpen(true)}
             className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
           >
-            <Plus className="h-4 w-4" /> New product
+            <Plus className="h-4 w-4" /> {t("newProduct")}
           </button>
         }
       />
       <DataTable
         data={products}
         columns={[
+          {
+            key: "image",
+            header: t("image"),
+            render: (row: Product) =>
+              row.image ? (
+                <img
+                  src={row.image}
+                  alt=""
+                  loading="lazy"
+                  className="h-11 w-11 rounded-lg border border-slate-200 object-cover"
+                />
+              ) : (
+                <span className="grid h-11 w-11 place-items-center rounded-lg bg-slate-100 text-slate-400">
+                  <Package className="h-5 w-5" />
+                </span>
+              ),
+          },
           { key: "sku", header: "SKU" },
-          { key: "barcode", header: "Barcode" },
-          { key: "name", header: "Product" },
-          { key: "genericName", header: "Generic" },
-          { key: "strength", header: "Strength" },
-          { key: "dosageForm", header: "Form" },
+          { key: "barcode", header: t("barcode") },
+          { key: "name", header: t("productName") },
+          { key: "genericName", header: t("genericName") },
+          { key: "strength", header: t("strength") },
+          { key: "dosageForm", header: t("dosageForm") },
+          {
+            key: "pack",
+            header: t("packaging"),
+            render: (row: Product) =>
+              `${row.unitsPerPurchaseUnit} ${row.sellingUnit} / ${row.purchaseUnit}`,
+          },
           {
             key: "cost",
             header: "Cost",
@@ -176,76 +204,119 @@ function CatalogPage() {
             onMouseDown={(event) => event.stopPropagation()}
             className="my-8 w-full max-w-2xl space-y-4 rounded-2xl bg-white p-6"
           >
-            <h2 className="text-lg font-bold">New medicine or product</h2>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold">{t("newMedicineOrProduct")}</h2>
+                <p className="text-sm text-muted-foreground">{t("productFormHelp")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-lg p-2 hover:bg-slate-100"
+                aria-label={t("close")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
             <div className="grid gap-4 sm:grid-cols-2">
+              <label className="sm:col-span-2 block text-sm font-semibold">
+                {t("productImage")}
+                <span className="mt-1 flex min-h-28 items-center gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
+                  {imageUpload ? (
+                    <img
+                      src={imageUpload.dataUrl}
+                      alt={t("productImagePreview")}
+                      className="h-24 w-24 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <span className="grid h-20 w-20 place-items-center rounded-lg bg-white text-slate-400">
+                      <ImagePlus className="h-7 w-7" />
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold text-slate-800">
+                      {imageUpload ? imageUpload.fileName : t("chooseProductImage")}
+                    </span>
+                    <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                      {t("imageHelp")}
+                    </span>
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="max-w-52 text-xs"
+                    onChange={(event) => void chooseImage(event.target.files?.[0])}
+                  />
+                </span>
+              </label>
               <Text
-                label="Product name"
+                label={t("productName")}
                 value={form.name}
                 setValue={(value) => field("name", value)}
                 required
               />
               <Text
-                label="Generic name"
+                label={t("genericName")}
                 value={form.genericName}
                 setValue={(value) => field("genericName", value)}
               />
               <Text
-                label="Category"
+                label={t("category")}
                 value={form.category}
                 setValue={(value) => field("category", value)}
                 required
               />
               <Text
-                label="Brand / manufacturer"
+                label={t("brandManufacturer")}
                 value={form.brand}
                 setValue={(value) => field("brand", value)}
               />
               <Text
-                label="Dosage form"
+                label={t("dosageForm")}
                 value={form.dosageForm}
                 setValue={(value) => field("dosageForm", value)}
               />
               <Text
-                label="Strength"
+                label={t("strength")}
                 value={form.strength}
                 setValue={(value) => field("strength", value)}
               />
               <Text
-                label="Barcode"
+                label={t("barcode")}
                 value={form.barcode}
                 setValue={(value) => field("barcode", value)}
               />
               <Text
-                label="Purchase unit"
+                label={t("purchaseUnit")}
                 value={form.purchaseUnit}
                 setValue={(value) => field("purchaseUnit", value)}
                 required
               />
               <Text
-                label="Selling unit"
+                label={t("sellingUnit")}
                 value={form.sellingUnit}
                 setValue={(value) => field("sellingUnit", value)}
                 required
               />
               <NumberField
-                label="Units per purchase unit"
+                label={t("unitsPerPurchaseUnit")}
                 value={form.unitsPerPurchaseUnit}
                 setValue={(value) => field("unitsPerPurchaseUnit", value)}
                 min={1}
               />
               <NumberField
-                label="Cost per selling unit (TZS)"
+                label={t("costPerSellingUnit")}
                 value={form.cost}
                 setValue={(value) => field("cost", value)}
               />
               <NumberField
-                label="Selling price (TZS)"
+                label={t("sellingPrice")}
                 value={form.price}
                 setValue={(value) => field("price", value)}
               />
               <NumberField
-                label="Reorder level"
+                label={t("reorderLevel")}
                 value={form.reorder}
                 setValue={(value) => field("reorder", value)}
               />
@@ -256,11 +327,10 @@ function CatalogPage() {
                 checked={form.requiresPrescription}
                 onChange={(event) => field("requiresPrescription", event.target.checked)}
               />{" "}
-              Requires a prescription
+              {t("requiresPrescription")}
             </label>
             <p className="rounded-xl bg-blue-50 p-3 text-xs text-blue-900">
-              Opening stock is intentionally not entered here. Receive it through a supplier
-              purchase or an audited positive stock adjustment with batch and expiry information.
+              {t("openingStockHelp")}
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -268,13 +338,13 @@ function CatalogPage() {
                 onClick={() => setOpen(false)}
                 className="rounded-xl border px-4 py-2 text-sm font-semibold"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 disabled={saving}
                 className="rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white"
               >
-                {saving ? "Saving..." : "Save product"}
+                {saving ? t("saving") : t("saveProduct")}
               </button>
             </div>
           </form>
@@ -314,8 +384,8 @@ function NumberField({
   min = 0,
 }: {
   label: string;
-  value: number;
-  setValue: (value: number) => void;
+  value: string;
+  setValue: (value: string) => void;
   min?: number;
 }) {
   return (
@@ -326,9 +396,27 @@ function NumberField({
         min={min}
         type="number"
         value={value}
-        onChange={(event) => setValue(Number(event.target.value))}
+        onChange={(event) => setValue(event.target.value)}
         className="input-field mt-1"
       />
     </label>
   );
+}
+
+async function resizeProductImage(file: File) {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    throw new Error("Use a JPG, PNG, or WebP image.");
+  }
+  if (file.size > 8_000_000) throw new Error("Choose an image smaller than 8 MB.");
+  const source = await createImageBitmap(file);
+  const scale = Math.min(1, 1200 / Math.max(source.width, source.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(source.width * scale));
+  canvas.height = Math.max(1, Math.round(source.height * scale));
+  canvas.getContext("2d")?.drawImage(source, 0, 0, canvas.width, canvas.height);
+  source.close();
+  const contentType = "image/webp" as const;
+  const dataUrl = canvas.toDataURL(contentType, 0.82);
+  if (dataUrl.length > 2_700_000) throw new Error("The compressed image is still too large.");
+  return { dataUrl, fileName: file.name, contentType };
 }

@@ -32,7 +32,7 @@ export function Topbar({
 
   const breadcrumb =
     pathname === "/"
-      ? "Dashboard"
+      ? t("dashboard")
       : pathname
           .split("/")
           .filter(Boolean)
@@ -58,21 +58,24 @@ export function Topbar({
       >
         <PanelLeft className="h-4 w-4" />
       </button>
-
       <span className="truncate text-xs font-medium capitalize text-muted-foreground sm:text-sm">
         {breadcrumb}
       </span>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        <button
-          type="button"
-          onClick={() => setLanguage(lang === "en" ? "sw" : "en")}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
-          title={lang === "en" ? "Change to Kiswahili" : "Badili kwenda Kiingereza"}
-        >
-          <span aria-hidden="true">{lang === "en" ? "🇬🇧" : "🇹🇿"}</span>
-          {lang === "en" ? "EN" : "SW"}
-        </button>
+        <label className="relative">
+          <span className="sr-only">{t("language")}</span>
+          <select
+            value={lang}
+            onChange={(event) => setLanguage(event.target.value as "en" | "sw")}
+            className="appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs font-bold text-slate-700 transition hover:bg-slate-50 focus:border-[#1f9c88] focus:outline-none focus:ring-2 focus:ring-[#1f9c88]/20"
+            aria-label={t("language")}
+          >
+            <option value="en">English</option>
+            <option value="sw">Kiswahili</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+        </label>
         <Link
           to="/pos"
           className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#177d6d]"
@@ -105,7 +108,7 @@ export function Topbar({
               onClick={logout}
               className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
             >
-              <LogOut className="h-4 w-4" /> Log out
+              <LogOut className="h-4 w-4" /> {lang === "en" ? "Log out" : "Toka"}
             </button>
           </div>
         </div>
