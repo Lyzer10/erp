@@ -162,13 +162,60 @@ export const createProductFn = createServerFn({ method: "POST" })
       sellingUnit: z.string().trim().min(1).max(50).default("piece"),
       unitsPerPurchaseUnit: z.number().int().positive().default(1),
       requiresPrescription: z.boolean().default(false),
+      openingStock: z
+        .object({
+          quantity: z.number().int().positive(),
+          batchNumber: z.string().trim().min(1).max(100),
+          expiryDate: z.string().date(),
+          reason: z.string().trim().min(3).max(300),
+        })
+        .optional(),
     }),
   )
   .handler(async ({ data }) => {
     const ds = await resolveDataSource();
     const image = data.imageUpload ? await uploadProductImage(data.imageUpload) : data.image;
-    const { imageUpload: _imageUpload, ...productData } = data;
-    const result = await ds.products.create({ ...productData, image });
+    if (
+      data.openingStock?.expiryDate &&
+      data.openingStock.expiryDate <= new Date().toISOString().slice(0, 10)
+    ) {
+      throw new Error("Expired stock cannot be added.");
+    }
+    const { imageUpload: _imageUpload, openingStock, ...productData } = data;
+    const result = await db.transaction(async (tx) => {
+      const [product] = await tx
+        .insert(products)
+        .values({
+          ...productData,
+          sku: `SKU-${Date.now()}`,
+          stock: openingStock?.quantity ?? 0,
+          image,
+        })
+        .returning();
+      if (openingStock) {
+        const [batch] = await tx
+          .insert(productBatches)
+          .values({
+            productId: product.id,
+            batchNumber: openingStock.batchNumber,
+            expiryDate: openingStock.expiryDate,
+            quantity: openingStock.quantity,
+            unitCost: product.cost,
+          })
+          .returning();
+        await tx.insert(inventoryMovements).values({
+          productId: product.id,
+          batchId: batch.id,
+          movementType: "OPENING_STOCK",
+          quantity: openingStock.quantity,
+          referenceType: "PRODUCT_CREATION",
+          referenceId: product.id,
+          performedBy: Number(ds.user.id),
+          reason: openingStock.reason,
+        });
+      }
+      return product;
+    });
     return { isTestUser: ds.isTestUser, result };
   });
 

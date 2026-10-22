@@ -54,7 +54,7 @@ const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(va
 function StockPage() {
   const search = Route.useSearch();
   const router = useRouter();
-  const { lang } = useTranslate();
+  const { t } = useTranslate();
   const initial = Route.useLoaderData();
   const [products, setProducts] = useState<Product[]>(initial.products as Product[]);
   const [batches, setBatches] = useState<Batch[]>(initial.batches as Batch[]);
@@ -98,7 +98,7 @@ function StockPage() {
       setBatchNumber("");
       setExpiryDate("");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Stock adjustment failed.");
+      setError(cause instanceof Error ? cause.message : t("stockAdjustmentFailed"));
     } finally {
       setSaving(false);
     }
@@ -110,18 +110,14 @@ function StockPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={lang === "en" ? "Pharmacy Stock" : "Bidhaa za Duka la Dawa"}
-        description={
-          lang === "en"
-            ? "Live stock, batches, expiry dates and an immutable movement history."
-            : "Bidhaa, makundi, mwisho wa matumizi na historia ya mabadiliko."
-        }
+        title={t("pharmacyStock")}
+        description={t("pharmacyStockDescription")}
         actions={
           <button
             onClick={() => setAdjustOpen(true)}
             className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
           >
-            <Plus className="h-4 w-4" /> Adjust stock
+            <Plus className="h-4 w-4" /> {t("adjustStock")}
           </button>
         }
       />
@@ -129,14 +125,14 @@ function StockPage() {
         tabs={[
           {
             key: "stock",
-            label: "Stock",
+            label: t("stock"),
             render: () => (
               <DataTable
                 data={products}
                 columns={[
                   {
                     key: "image",
-                    header: "Image",
+                    header: t("image"),
                     render: (row: Product) =>
                       row.image ? (
                         <img
@@ -152,11 +148,11 @@ function StockPage() {
                       ),
                   },
                   { key: "sku", header: "SKU" },
-                  { key: "name", header: "Product" },
-                  { key: "category", header: "Category" },
+                  { key: "name", header: t("productName") },
+                  { key: "category", header: t("category") },
                   {
                     key: "stock",
-                    header: "On hand",
+                    header: t("onHand"),
                     align: "right",
                     render: (row: Product) => (
                       <span
@@ -168,10 +164,10 @@ function StockPage() {
                       </span>
                     ),
                   },
-                  { key: "reorder", header: "Reorder", align: "right" },
+                  { key: "reorder", header: t("reorder"), align: "right" },
                   {
                     key: "value",
-                    header: "Value",
+                    header: t("value"),
                     align: "right",
                     render: (row: Product) => money(row.stock * row.cost),
                   },
@@ -181,17 +177,17 @@ function StockPage() {
           },
           {
             key: "batches",
-            label: "Batches & Expiry",
+            label: t("batchesAndExpiry"),
             render: () => (
               <DataTable
                 data={batches}
                 columns={[
                   { key: "sku", header: "SKU" },
-                  { key: "productName", header: "Product" },
-                  { key: "batchNumber", header: "Batch" },
+                  { key: "productName", header: t("productName") },
+                  { key: "batchNumber", header: t("batch") },
                   {
                     key: "expiryDate",
-                    header: "Expiry",
+                    header: t("expiry"),
                     render: (row: Batch) => (
                       <span
                         className={
@@ -206,10 +202,10 @@ function StockPage() {
                       </span>
                     ),
                   },
-                  { key: "quantity", header: "Quantity", align: "right" },
+                  { key: "quantity", header: t("quantity"), align: "right" },
                   {
                     key: "unitCost",
-                    header: "Unit cost",
+                    header: t("unitCost"),
                     align: "right",
                     render: (row: Batch) => money(row.unitCost),
                   },
@@ -219,21 +215,21 @@ function StockPage() {
           },
           {
             key: "movements",
-            label: "Movement history",
+            label: t("movementHistory"),
             render: () => (
               <DataTable
                 data={movements}
                 columns={[
                   {
                     key: "createdAt",
-                    header: "Date",
+                    header: t("date"),
                     render: (row: Movement) => new Date(row.createdAt).toLocaleString(),
                   },
-                  { key: "productId", header: "Product ID" },
-                  { key: "movementType", header: "Type" },
+                  { key: "productId", header: t("productId") },
+                  { key: "movementType", header: t("type") },
                   {
                     key: "quantity",
-                    header: "Quantity",
+                    header: t("quantity"),
                     align: "right",
                     render: (row: Movement) => (
                       <span
@@ -248,8 +244,8 @@ function StockPage() {
                       </span>
                     ),
                   },
-                  { key: "referenceType", header: "Reference" },
-                  { key: "reason", header: "Reason" },
+                  { key: "referenceType", header: t("reference") },
+                  { key: "reason", header: t("reason") },
                 ]}
               />
             ),
@@ -268,10 +264,8 @@ function StockPage() {
             className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6 shadow-2xl"
           >
             <div>
-              <h2 className="text-lg font-bold">Stock adjustment</h2>
-              <p className="text-sm text-muted-foreground">
-                Use a negative quantity to remove stock. Every change is audited.
-              </p>
+              <h2 className="text-lg font-bold">{t("stockAdjustment")}</h2>
+              <p className="text-sm text-muted-foreground">{t("stockAdjustmentHelp")}</p>
             </div>
             {error && (
               <p
@@ -282,23 +276,23 @@ function StockPage() {
               </p>
             )}
             <label className="block text-sm font-semibold">
-              Product
+              {t("productName")}
               <select
                 required
                 value={productId}
                 onChange={(event) => setProductId(Number(event.target.value) || "")}
                 className="input-field mt-1"
               >
-                <option value="">Choose product</option>
+                <option value="">{t("chooseProduct")}</option>
                 {products.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {product.name} — {product.stock} available
+                    {product.name} — {product.stock} {t("available")}
                   </option>
                 ))}
               </select>
             </label>
             <label className="block text-sm font-semibold">
-              Quantity change
+              {t("quantityChange")}
               <input
                 required
                 type="number"
@@ -310,7 +304,7 @@ function StockPage() {
             {quantity > 0 && (
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-sm font-semibold">
-                  Batch number
+                  {t("batchNumber")}
                   <input
                     required
                     value={batchNumber}
@@ -319,7 +313,7 @@ function StockPage() {
                   />
                 </label>
                 <label className="block text-sm font-semibold">
-                  Expiry date
+                  {t("expiryDate")}
                   <input
                     required
                     type="date"
@@ -331,7 +325,7 @@ function StockPage() {
               </div>
             )}
             <label className="block text-sm font-semibold">
-              Reason
+              {t("reason")}
               <textarea
                 required
                 minLength={3}
@@ -341,8 +335,7 @@ function StockPage() {
               />
             </label>
             <div className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">
-              <AlertTriangle className="h-4 w-4 shrink-0" /> Adjustments cannot be silently deleted;
-              reverse an error with a second explained adjustment.
+              <AlertTriangle className="h-4 w-4 shrink-0" /> {t("adjustmentAuditWarning")}
             </div>
             <div className="flex justify-end gap-2">
               <button
@@ -350,13 +343,13 @@ function StockPage() {
                 onClick={() => setAdjustOpen(false)}
                 className="rounded-xl border px-4 py-2 text-sm font-semibold"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 disabled={saving}
                 className="rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {saving ? "Saving..." : "Save adjustment"}
+                {saving ? t("saving") : t("saveAdjustment")}
               </button>
             </div>
           </form>

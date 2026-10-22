@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, ImagePlus, Package, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/erp/DataTable";
@@ -42,6 +42,10 @@ const emptyForm = () => ({
   price: "",
   cost: "",
   reorder: "",
+  openingQuantity: "",
+  openingBatchNumber: "",
+  openingExpiryDate: "",
+  openingReason: "",
 });
 
 export const Route = createFileRoute("/_app/products/catalog")({
@@ -81,7 +85,6 @@ const sellingUnits = [
 ] as const;
 
 function CatalogPage() {
-  const navigate = useNavigate();
   const { lang, t } = useTranslate();
   const loaded = Route.useLoaderData();
   const [products, setProducts] = useState<Product[]>(loaded.data as Product[]);
@@ -101,8 +104,6 @@ function CatalogPage() {
 
   async function create(event: React.FormEvent) {
     event.preventDefault();
-    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    const addStockAfterSave = submitter?.value === "add-stock";
     setSaving(true);
     setError(null);
     try {
@@ -123,6 +124,14 @@ function CatalogPage() {
           cost: Number(form.cost),
           reorder: Number(form.reorder),
           stock: 0,
+          openingStock: form.openingQuantity
+            ? {
+                quantity: Number(form.openingQuantity),
+                batchNumber: form.openingBatchNumber,
+                expiryDate: form.openingExpiryDate,
+                reason: form.openingReason,
+              }
+            : undefined,
           imageUpload: imageUpload || undefined,
         },
       });
@@ -130,12 +139,6 @@ function CatalogPage() {
       setOpen(false);
       setForm(emptyForm());
       setImageUpload(null);
-      if (addStockAfterSave) {
-        await navigate({
-          to: "/store/stock",
-          search: { adjust: true, productId: (response.result as Product).id },
-        });
-      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Product could not be saved.");
     } finally {
@@ -586,9 +589,46 @@ function CatalogPage() {
               />{" "}
               {t("requiresPrescription")}
             </label>
-            <p className="rounded-xl bg-blue-50 p-3 text-xs text-blue-900">
-              {t("openingStockHelp")}
-            </p>
+            <fieldset className="space-y-3 rounded-xl border border-slate-200 p-4">
+              <legend className="px-1 text-sm font-bold text-slate-900">{t("openingStock")}</legend>
+              <p className="text-xs text-slate-600">{t("openingStockHelp")}</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <NumberField
+                  label={t("openingQuantity")}
+                  value={form.openingQuantity}
+                  setValue={(value) => field("openingQuantity", value)}
+                  help={t("openingQuantityHelp")}
+                  min={1}
+                />
+                <Text
+                  label={t("batchNumber")}
+                  value={form.openingBatchNumber}
+                  setValue={(value) => field("openingBatchNumber", value)}
+                  required={Boolean(form.openingQuantity)}
+                  help={t("batchNumberHelp")}
+                />
+                <label className="block text-sm font-semibold">
+                  {t("expiryDate")}
+                  <input
+                    required={Boolean(form.openingQuantity)}
+                    type="date"
+                    value={form.openingExpiryDate}
+                    onChange={(event) => field("openingExpiryDate", event.target.value)}
+                    className="input-field mt-1"
+                  />
+                  <span className="mt-1 block text-xs font-normal text-slate-500">
+                    {t("expiryDateHelp")}
+                  </span>
+                </label>
+                <Text
+                  label={t("openingStockReason")}
+                  value={form.openingReason}
+                  setValue={(value) => field("openingReason", value)}
+                  required={Boolean(form.openingQuantity)}
+                  help={t("openingStockReasonHelp")}
+                />
+              </div>
+            </fieldset>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
@@ -604,14 +644,6 @@ function CatalogPage() {
                 className="rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white"
               >
                 {saving ? t("saving") : t("saveProduct")}
-              </button>
-              <button
-                disabled={saving}
-                type="submit"
-                value="add-stock"
-                className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
-              >
-                {saving ? t("saving") : t("saveAndAddStock")}
               </button>
             </div>
           </form>
