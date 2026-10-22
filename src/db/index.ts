@@ -9,9 +9,9 @@ const connectionString =
 
 export const pool = new Pool({
   connectionString,
-  max: Number(process.env.DB_POOL_MAX || 5),
+  max: Number(process.env.DB_POOL_MAX || 1),
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
 });
 
 export const db = drizzle(pool, { schema });
