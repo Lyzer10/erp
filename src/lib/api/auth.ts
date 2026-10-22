@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { setCookie, deleteCookie, getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -6,96 +6,73 @@ import { db } from "../../db";
 import { users } from "../../db/schema";
 import { eq, or } from "drizzle-orm";
 import { generateToken, authenticateRequest } from "../auth";
-import { sessionStoreManager } from "../mock";
 
-// In-memory user fallback store when Postgres is offline/empty
-// Demo user password hash is updated upon seedDatabase() execution
-export const seededUserStore: Record<string, { id: number; username: string; email: string; passwordHash: string; isTestUser: boolean; role: string }> = {};
+export const loginUserInternal = createServerOnlyFn(
+  async ({ username, password }: { username: string; password: string }) => {
+    try {
+      const dbUsers = await db
+        .select()
+        .from(users)
+        .where(or(eq(users.username, username), eq(users.email, username)))
+        .limit(1);
 
-export async function loginUserInternal({ username, password }: { username: string; password: string }) {
-  // 1. Check Postgres database first
-  try {
-    const dbUsers = await db
-      .select()
-      .from(users)
-      .where(or(eq(users.username, username), eq(users.email, username)))
-      .limit(1);
-
-    if (dbUsers.length > 0) {
-      const user = dbUsers[0];
-      // Compare password against stored bcrypt hash (NO hardcoded password string)
-      const isMatch = await bcrypt.compare(password, user.passwordHash);
-      if (isMatch) {
-        const authUser = {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          isTestUser: Boolean(user.isTestUser),
-          role: user.role,
-        };
-        const token = generateToken(authUser);
-        return {
-          success: true,
-          token,
-          user: authUser,
-          message: `Logged in successfully as ${user.isTestUser ? "DEMO" : "REAL"} user`,
-        };
-      } else {
-        return {
-          success: false,
-          token: null,
-          user: null,
-          message: "Invalid password for user",
-        };
+      if (dbUsers.length > 0) {
+        const user = dbUsers[0];
+        if (user.isTestUser) {
+          return {
+            success: false,
+            token: null,
+            user: null,
+            message: "Invalid username or password.",
+          };
+        }
+        if (user.status !== "Active") {
+          return {
+            success: false,
+            token: null,
+            user: null,
+            message: "Invalid username or password.",
+          };
+        }
+        // Compare password against stored bcrypt hash (NO hardcoded password string)
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (isMatch) {
+          const authUser = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            isTestUser: false,
+            role: user.role,
+          };
+          const token = generateToken(authUser);
+          return {
+            success: true,
+            token,
+            user: authUser,
+            message: "Logged in successfully",
+          };
+        }
       }
+    } catch (error) {
+      console.error("Login database error", error);
+      return { success: false, token: null, user: null, message: "Login service is unavailable." };
     }
-  } catch (e) {
-    // Postgres database unreachable or offline
-  }
 
-  // 2. Fallback check against seeded in-memory user store (strict bcrypt comparison)
-  const fallbackUser = seededUserStore[username.toLowerCase()] || seededUserStore[username];
-  if (fallbackUser) {
-    const isMatch = await bcrypt.compare(password, fallbackUser.passwordHash);
-    if (isMatch) {
-      const authUser = {
-        id: fallbackUser.id,
-        username: fallbackUser.username,
-        email: fallbackUser.email,
-        isTestUser: fallbackUser.isTestUser,
-        role: fallbackUser.role,
-      };
-      const token = generateToken(authUser);
-      return {
-        success: true,
-        token,
-        user: authUser,
-        message: `Logged in successfully as ${fallbackUser.isTestUser ? "DEMO" : "REAL"} user`,
-      };
-    } else {
-      return {
-        success: false,
-        token: null,
-        user: null,
-        message: "Invalid password for user",
-      };
-    }
-  }
-
-  return {
-    success: false,
-    token: null,
-    user: null,
-    message: "User account not found",
-  };
-}
+    return {
+      success: false,
+      token: null,
+      user: null,
+      message: "Invalid username or password.",
+    };
+  },
+);
 
 export const loginUserFn = createServerFn({ method: "POST" })
-  .inputValidator(
+  .validator(
     z.object({
       username: z.string().min(1),
       password: z.string().min(1),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const res = await loginUserInternal(data);
@@ -115,30 +92,34 @@ export const loginUserFn = createServerFn({ method: "POST" })
           path: "/",
           maxAge: 7 * 24 * 60 * 60,
         });
-      } catch (e) {
+      } catch {
         // Fallback when invoked outside HTTP context
       }
     }
     return res;
   });
 
+export const getCurrentUserFn = createServerFn({ method: "GET" }).handler(async () => {
+  const req = getRequest();
+  const user = await authenticateRequest(req);
+  return user
+    ? {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        isTestUser: user.isTestUser,
+      }
+    : null;
+});
+
 export const logoutUserFn = createServerFn({ method: "POST" }).handler(async () => {
   try {
     deleteCookie("auth_token", { path: "/" });
     deleteCookie("is_test_user", { path: "/" });
-  } catch (e) {
+  } catch {
     // Ignore context error
   }
 
-  let req: Request | null = null;
-  try {
-    req = getRequest();
-  } catch (e) {}
-
-  const authUser = req ? await authenticateRequest(req) : null;
-  if (authUser && authUser.isTestUser && authUser.sessionId) {
-    sessionStoreManager.destroyStore(authUser.sessionId);
-    return { success: true, message: `Demo session ${authUser.sessionId} evicted on logout.` };
-  }
   return { success: true, message: "Logged out successfully." };
 });

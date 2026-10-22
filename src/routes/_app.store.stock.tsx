@@ -1,405 +1,343 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { AlertTriangle, Plus } from "lucide-react";
+import { useState } from "react";
+import { DataTable } from "@/components/erp/DataTable";
 import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
-import { DataTable } from "@/components/erp/DataTable";
-import { GlassCard } from "@/components/erp/GlassCard";
-import { EChart } from "@/components/charts/EChart";
-import { ExportMenu } from "@/components/erp/ExportMenu";
-import { products, currency } from "@/lib/mock";
+import { adjustStockFn, getInventoryFn } from "@/lib/api/operations";
 import { useTranslate } from "@/lib/i18n";
-import { Plus, History } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
-import { getProductsFn } from "@/lib/api/domain";
+type Product = {
+  id: number;
+  sku: string;
+  name: string;
+  category: string;
+  stock: number;
+  reorder: number;
+  cost: number;
+  price: number;
+};
+type Batch = {
+  id: number;
+  productId: number;
+  productName: string;
+  sku: string;
+  batchNumber: string;
+  expiryDate: string;
+  quantity: number;
+  unitCost: number;
+};
+type Movement = {
+  id: number;
+  productId: number;
+  movementType: string;
+  quantity: number;
+  referenceType: string;
+  reason?: string | null;
+  createdAt: Date | string;
+};
 
 export const Route = createFileRoute("/_app/store/stock")({
-  head: () => ({ meta: [{ title: "Stock — DeveleERP" }] }),
-  loader: () => getProductsFn(),
+  head: () => ({ meta: [{ title: "Pharmacy Stock — DeveleERP" }] }),
+  loader: () => getInventoryFn(),
   component: StockPage,
 });
 
-interface LedgerEntry {
-  date: string;
-  ref: string;
-  store: string;
-  qty: number;
-  balance: number;
-}
+const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(value)}`;
 
 function StockPage() {
-  const initialStockProducts = Route.useLoaderData();
-  const { t, lang } = useTranslate();
-  const stockProductsData = (initialStockProducts as any)?.data || initialStockProducts;
-  const [localProducts, setLocalProducts] = useState((stockProductsData as typeof products) || products);
+  const router = useRouter();
+  const { lang } = useTranslate();
+  const initial = Route.useLoaderData();
+  const [products, setProducts] = useState<Product[]>(initial.products as Product[]);
+  const [batches, setBatches] = useState<Batch[]>(initial.batches as Batch[]);
+  const [movements, setMovements] = useState<Movement[]>(initial.movements as Movement[]);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [productId, setProductId] = useState<number | "">("");
+  const [quantity, setQuantity] = useState(0);
+  const [reason, setReason] = useState("");
+  const [batchNumber, setBatchNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [mockConvertData, setMockConvertData] = useState([
-    { 
-      from: lang === "en" ? "Sugar 50kg Bag" : "Mfuko wa Sukari 50kg", 
-      fromSku: "PROD-001",
-      to: lang === "en" ? "Sugar 2kg Pack" : "Paketi ya Sukari 2kg", 
-      toSku: "PROD-002",
-      ratio: 25 
-    },
-    { 
-      from: lang === "en" ? "Cooking Oil 20L" : "Mafuta ya Kupikia 20L", 
-      fromSku: "PROD-003",
-      to: lang === "en" ? "Cooking Oil 5L" : "Mafuta ya Kupikia 5L", 
-      toSku: "PROD-004",
-      ratio: 4 
-    },
-  ]);
+  async function refresh() {
+    const next = await getInventoryFn();
+    setProducts(next.products as Product[]);
+    setBatches(next.batches as Batch[]);
+    setMovements(next.movements as Movement[]);
+    await router.invalidate();
+  }
 
-  const [mockAdjustments, setMockAdjustments] = useState(
-    products.slice(0, 8).map((p, i) => {
-      const reasonsEn = ["Damaged", "Lost", "Found", "Count diff"];
-      const reasonsSw = ["Imeharibika", "Imepotea", "Imepatikana", "Tofauti ya Hesabu"];
-      return {
-        id: `ADJ-${100 + i}`,
-        sku: p.sku,
-        product: p.name,
-        reason: lang === "en" ? reasonsEn[i % 4] : reasonsSw[i % 4],
-        qty: i % 2 ? 5 : -3
-      };
-    })
-  );
-
-  // Conversion Modal State
-  const [convertOpen, setConvertOpen] = useState(false);
-  const [convFromSku, setConvFromSku] = useState("PROD-001");
-  const [convToSku, setConvToSku] = useState("PROD-002");
-  const [convRatio, setConvRatio] = useState(25);
-  const [convQty, setConvQty] = useState(1);
-  const [convStore, setConvStore] = useState("Main Store");
-
-  // Ledger Modal State
-  const [ledgerOpen, setLedgerOpen] = useState(false);
-  const [selectedSku, setSelectedSku] = useState<string | null>(null);
-
-  const selectedProduct = useMemo(() => {
-    return localProducts.find((p) => p.sku === selectedSku);
-  }, [localProducts, selectedSku]);
-
-  // Mock ledger details per product
-  const productLedgers = useMemo<Record<string, LedgerEntry[]>>(() => {
-    return {
-      "PROD-001": [
-        { date: "2026-06-10", ref: "IBT-1002", store: "Main Store", qty: -10, balance: 140 },
-        { date: "2026-06-11", ref: "RCV-3001", store: "Main Store", qty: 50, balance: 190 },
-        { date: "2026-06-12", ref: "CONV-101", store: "Main Store", qty: -5, balance: 185 },
-      ],
-      "PROD-002": [
-        { date: "2026-06-08", ref: "SALE-4022", store: "Main Store", qty: -12, balance: 400 },
-        { date: "2026-06-12", ref: "CONV-101", store: "Main Store", qty: 125, balance: 525 },
-      ]
-    };
-  }, []);
-
-  const currentLedger = useMemo(() => {
-    if (!selectedSku) return [];
-    return productLedgers[selectedSku] || [
-      { date: "2026-06-12", ref: "INIT-001", store: "Main Store", qty: selectedProduct?.stock || 0, balance: selectedProduct?.stock || 0 }
-    ];
-  }, [selectedSku, selectedProduct, productLedgers]);
-
-  const handleConvert = (e: React.FormEvent) => {
-    e.preventDefault();
-    const parent = localProducts.find(p => p.sku === convFromSku);
-    const child = localProducts.find(p => p.sku === convToSku);
-
-    if (!parent || !child || parent.stock < convQty) {
-      alert(lang === "en" ? "Insufficient stock for conversion!" : "Hifadhi haitoshi kwa ubadilishaji!");
-      return;
+  async function submitAdjustment(event: React.FormEvent) {
+    event.preventDefault();
+    if (!productId || !quantity) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await adjustStockFn({
+        data: {
+          productId,
+          quantity,
+          reason,
+          batchNumber: quantity > 0 ? batchNumber : undefined,
+          expiryDate: quantity > 0 ? expiryDate : undefined,
+        },
+      });
+      await refresh();
+      setAdjustOpen(false);
+      setQuantity(0);
+      setReason("");
+      setBatchNumber("");
+      setExpiryDate("");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Stock adjustment failed.");
+    } finally {
+      setSaving(false);
     }
+  }
 
-    // Update stock numbers
-    setLocalProducts(prev => prev.map(p => {
-      if (p.sku === convFromSku) {
-        return { ...p, stock: p.stock - convQty };
-      }
-      if (p.sku === convToSku) {
-        return { ...p, stock: p.stock + (convQty * convRatio) };
-      }
-      return p;
-    }));
-
-    // Add to conversions table display
-    setMockConvertData(prev => [
-      {
-        from: parent.name,
-        fromSku: convFromSku,
-        to: child.name,
-        toSku: convToSku,
-        ratio: convRatio
-      },
-      ...prev
-    ]);
-
-    setConvertOpen(false);
-  };
+  const today = new Date().toISOString().slice(0, 10);
+  const warningDate = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title={t("stock")} 
-        description={lang === "en" ? "Stock levels, movements, adjustments, and conversions." : "Viwango vya stoo, mienendo, marekebisho, na ubadilishaji."}
+      <PageHeader
+        title={lang === "en" ? "Pharmacy Stock" : "Bidhaa za Duka la Dawa"}
+        description={
+          lang === "en"
+            ? "Live stock, batches, expiry dates and an immutable movement history."
+            : "Bidhaa, makundi, mwisho wa matumizi na historia ya mabadiliko."
+        }
         actions={
-          <div className="flex items-center gap-2">
-            <ExportMenu />
-            <button
-              onClick={() => setConvertOpen(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-600 transition cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              {lang === "en" ? "Run Conversion" : "Fanya Ubadilishaji"}
-            </button>
-          </div>
-        } 
+          <button
+            onClick={() => setAdjustOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
+          >
+            <Plus className="h-4 w-4" /> Adjust stock
+          </button>
+        }
       />
-      <TabbedPage tabs={[
-        { key: "report", label: lang === "en" ? "Stock Report" : "Ripoti ya Stoo", render: () => (
-          <DataTable data={localProducts} columns={[
-            { key: "sku", header: "SKU" }, 
-            { key: "name", header: lang === "en" ? "Product" : "Bidhaa" }, 
-            { key: "category", header: t("category") },
-            { key: "stock", header: lang === "en" ? "On Hand" : "Zilizopo", align: "right", render: (r: any) => <span className={r.stock < r.reorder ? "font-medium text-rose-600" : ""}>{r.stock}</span> },
-            { key: "reorder", header: lang === "en" ? "Reorder" : "Agiza Tena", align: "right" },
-            { key: "price", header: lang === "en" ? "Value" : "Thamani", align: "right", render: (r: any) => currency(r.price * r.stock) },
-            { 
-              key: "action", 
-              header: lang === "en" ? "Action" : "Kitendo",
-              render: (r: any) => (
-                <button
-                  onClick={() => {
-                    setSelectedSku(r.sku);
-                    setLedgerOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 cursor-pointer"
-                >
-                  <History className="h-3 w-3" />
-                  {lang === "en" ? "View Ledger" : "Mwenendo"}
-                </button>
-              )
-            }
-          ]} />
-        )},
-        { key: "movement", label: lang === "en" ? "Movement" : "Mwenendo", render: () => (
-          <GlassCard>
-            <EChart height={320} option={{
-              legend: { top: 0, left: "center", data: [lang === "en" ? "In" : "Ingizo", lang === "en" ? "Out" : "Kutoka"] },
-              grid: { top: 40, bottom: 30, left: 10, right: 10, containLabel: true },
-              xAxis: { type: "category", data: lang === "en" ? ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] : ["Jumatatu","Jumanne","Jumatano","Alhamisi","Ijumaa","Jumamosi","Jumapili"] },
-              yAxis: { type: "value" },
-              series: [
-                { name: lang === "en" ? "In" : "Ingizo", type: "bar", data: [120, 180, 90, 220, 160, 80, 50], itemStyle: { borderRadius: [6,6,0,0], color: "#3b82f6" }, barWidth: 18 },
-                { name: lang === "en" ? "Out" : "Kutoka", type: "bar", data: [90, 110, 150, 180, 200, 60, 30], itemStyle: { borderRadius: [6,6,0,0], color: "#10b981" }, barWidth: 18 },
-              ],
-            }} />
-          </GlassCard>
-        )},
-        { key: "by-product", label: lang === "en" ? "By Product" : "Kwa Bidhaa", render: () => (
-          <DataTable data={localProducts.slice(0, 12).map((p) => ({ ...p, in: 120 + p.stock % 50, out: 80 + p.stock % 40 }))}
-            columns={[
-              { key: "sku", header: "SKU" }, 
-              { key: "name", header: lang === "en" ? "Product" : "Bidhaa" },
-              { key: "in", header: lang === "en" ? "In" : "Ingizo", align: "right" }, 
-              { key: "out", header: lang === "en" ? "Out" : "Kutoka", align: "right" },
-              { key: "stock", header: lang === "en" ? "Balance" : "Salio", align: "right" },
-              { 
-                key: "action", 
-                header: lang === "en" ? "Action" : "Kitendo",
-                render: (r: any) => (
-                  <button
-                    onClick={() => {
-                      setSelectedSku(r.sku);
-                      setLedgerOpen(true);
-                    }}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 cursor-pointer"
-                  >
-                    <History className="h-3 w-3" />
-                    {lang === "en" ? "View Ledger" : "Mwenendo"}
-                  </button>
-                )
-              }
-            ]} 
-          />
-        )},
-        { key: "adjust", label: lang === "en" ? "Adjust Stock" : "Rekebisha Stoo", render: () => (
-          <DataTable data={mockAdjustments}
-            columns={[
-              { key: "id", header: lang === "en" ? "Adj #" : "Marekebisho #" }, 
-              { key: "sku", header: "SKU" }, 
-              { key: "product", header: lang === "en" ? "Product" : "Bidhaa" },
-              { key: "reason", header: lang === "en" ? "Reason" : "Sababu" }, 
-              { key: "qty", header: lang === "en" ? "Qty" : "Idadi", align: "right", render: (r: any) => <span className={r.qty < 0 ? "text-rose-600" : "text-emerald-600"}>{r.qty > 0 ? "+" : ""}{r.qty}</span> }
-            ]} 
-          />
-        )},
-        { key: "convert", label: lang === "en" ? "Convert" : "Badilisha", render: () => (
-          <DataTable data={mockConvertData} 
-            columns={[
-              { key: "from", header: lang === "en" ? "From" : "Kutoka" }, 
-              { key: "to", header: lang === "en" ? "To" : "Kwenda" }, 
-              { key: "ratio", header: lang === "en" ? "Ratio" : "Uwiano", render: (r: any) => `1:${r.ratio}` }
-            ]} 
-          />
-        )},
-        { key: "import", label: lang === "en" ? "Import Stock" : "Ingiza Bidhaa za Stoo", render: () => (
-          <GlassCard>
-            <p className="text-sm text-muted-foreground">
-              {lang === "en" ? "Upload a stock import file to bulk update inventory." : "Pakia faili la kuingiza stoo ili kusasisha hesabu ya bidhaa kwa jumla."}
-            </p>
-          </GlassCard>
-        )},
-      ]} />
+      <TabbedPage
+        tabs={[
+          {
+            key: "stock",
+            label: "Stock",
+            render: () => (
+              <DataTable
+                data={products}
+                columns={[
+                  { key: "sku", header: "SKU" },
+                  { key: "name", header: "Product" },
+                  { key: "category", header: "Category" },
+                  {
+                    key: "stock",
+                    header: "On hand",
+                    align: "right",
+                    render: (row: Product) => (
+                      <span
+                        className={
+                          row.stock <= row.reorder ? "font-bold text-rose-600" : "font-bold"
+                        }
+                      >
+                        {row.stock}
+                      </span>
+                    ),
+                  },
+                  { key: "reorder", header: "Reorder", align: "right" },
+                  {
+                    key: "value",
+                    header: "Value",
+                    align: "right",
+                    render: (row: Product) => money(row.stock * row.cost),
+                  },
+                ]}
+              />
+            ),
+          },
+          {
+            key: "batches",
+            label: "Batches & Expiry",
+            render: () => (
+              <DataTable
+                data={batches}
+                columns={[
+                  { key: "sku", header: "SKU" },
+                  { key: "productName", header: "Product" },
+                  { key: "batchNumber", header: "Batch" },
+                  {
+                    key: "expiryDate",
+                    header: "Expiry",
+                    render: (row: Batch) => (
+                      <span
+                        className={
+                          row.expiryDate < today
+                            ? "font-bold text-rose-700"
+                            : row.expiryDate <= warningDate
+                              ? "font-bold text-amber-700"
+                              : ""
+                        }
+                      >
+                        {row.expiryDate}
+                      </span>
+                    ),
+                  },
+                  { key: "quantity", header: "Quantity", align: "right" },
+                  {
+                    key: "unitCost",
+                    header: "Unit cost",
+                    align: "right",
+                    render: (row: Batch) => money(row.unitCost),
+                  },
+                ]}
+              />
+            ),
+          },
+          {
+            key: "movements",
+            label: "Movement history",
+            render: () => (
+              <DataTable
+                data={movements}
+                columns={[
+                  {
+                    key: "createdAt",
+                    header: "Date",
+                    render: (row: Movement) => new Date(row.createdAt).toLocaleString(),
+                  },
+                  { key: "productId", header: "Product ID" },
+                  { key: "movementType", header: "Type" },
+                  {
+                    key: "quantity",
+                    header: "Quantity",
+                    align: "right",
+                    render: (row: Movement) => (
+                      <span
+                        className={
+                          row.quantity < 0
+                            ? "font-bold text-rose-600"
+                            : "font-bold text-emerald-700"
+                        }
+                      >
+                        {row.quantity > 0 ? "+" : ""}
+                        {row.quantity}
+                      </span>
+                    ),
+                  },
+                  { key: "referenceType", header: "Reference" },
+                  { key: "reason", header: "Reason" },
+                ]}
+              />
+            ),
+          },
+        ]}
+      />
 
-      {/* Run Conversion Modal */}
-      <Dialog open={convertOpen} onOpenChange={setConvertOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              {lang === "en" ? "Run Stock Conversion" : "Fanya Ubadilishaji wa Stoo"}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleConvert} className="space-y-4 text-sm mt-2">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  {lang === "en" ? "From Product (Source)" : "Kutoka Bidhaa (Chanzo)"}
-                </label>
-                <select
-                  value={convFromSku}
-                  onChange={(e) => setConvFromSku(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 p-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  {localProducts.map(p => (
-                    <option key={p.sku} value={p.sku}>{p.name} ({lang === "en" ? "Qty" : "Idadi"}: {p.stock})</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  {lang === "en" ? "To Product (Target)" : "Kwenda Bidhaa (Lengo)"}
-                </label>
-                <select
-                  value={convToSku}
-                  onChange={(e) => setConvToSku(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 p-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  {localProducts.map(p => (
-                    <option key={p.sku} value={p.sku}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
+      {adjustOpen && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4"
+          onMouseDown={() => setAdjustOpen(false)}
+        >
+          <form
+            onSubmit={submitAdjustment}
+            onMouseDown={(event) => event.stopPropagation()}
+            className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6 shadow-2xl"
+          >
+            <div>
+              <h2 className="text-lg font-bold">Stock adjustment</h2>
+              <p className="text-sm text-muted-foreground">
+                Use a negative quantity to remove stock. Every change is audited.
+              </p>
             </div>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  {lang === "en" ? "Quantity to Convert" : "Kiasi cha Kubadilisha"}
+            {error && (
+              <p
+                role="alert"
+                className="rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700"
+              >
+                {error}
+              </p>
+            )}
+            <label className="block text-sm font-semibold">
+              Product
+              <select
+                required
+                value={productId}
+                onChange={(event) => setProductId(Number(event.target.value) || "")}
+                className="input-field mt-1"
+              >
+                <option value="">Choose product</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} — {product.stock} available
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-sm font-semibold">
+              Quantity change
+              <input
+                required
+                type="number"
+                value={quantity}
+                onChange={(event) => setQuantity(Number(event.target.value))}
+                className="input-field mt-1"
+              />
+            </label>
+            {quantity > 0 && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block text-sm font-semibold">
+                  Batch number
+                  <input
+                    required
+                    value={batchNumber}
+                    onChange={(event) => setBatchNumber(event.target.value)}
+                    className="input-field mt-1"
+                  />
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={convQty}
-                  onChange={(e) => setConvQty(Number(e.target.value))}
-                  className="w-full rounded-lg border border-slate-200 p-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  {lang === "en" ? "Conversion Ratio" : "Uwiano wa Kubadilisha"}
+                <label className="block text-sm font-semibold">
+                  Expiry date
+                  <input
+                    required
+                    type="date"
+                    value={expiryDate}
+                    onChange={(event) => setExpiryDate(event.target.value)}
+                    className="input-field mt-1"
+                  />
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={convRatio}
-                  onChange={(e) => setConvRatio(Number(e.target.value))}
-                  className="w-full rounded-lg border border-slate-200 p-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  {lang === "en" ? "Warehouse / Store" : "Ghala / Stoo"}
-                </label>
-                <select
-                  value={convStore}
-                  onChange={(e) => setConvStore(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 p-2 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="Main Store">Main Store</option>
-                  <option value="Westlands">Westlands</option>
-                  <option value="Mombasa Store">Mombasa Store</option>
-                </select>
-              </div>
+            )}
+            <label className="block text-sm font-semibold">
+              Reason
+              <textarea
+                required
+                minLength={3}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                className="input-field mt-1 min-h-20"
+              />
+            </label>
+            <div className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">
+              <AlertTriangle className="h-4 w-4 shrink-0" /> Adjustments cannot be silently deleted;
+              reverse an error with a second explained adjustment.
             </div>
-
-            <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setConvertOpen(false)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+                onClick={() => setAdjustOpen(false)}
+                className="rounded-xl border px-4 py-2 text-sm font-semibold"
               >
-                {lang === "en" ? "Cancel" : "Ghairi"}
+                Cancel
               </button>
               <button
-                type="submit"
-                className="rounded-lg bg-blue-500 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-600 cursor-pointer"
+                disabled={saving}
+                className="rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {lang === "en" ? "Execute Conversion" : "Tekeleza Ubadilishaji"}
+                {saving ? "Saving..." : "Save adjustment"}
               </button>
             </div>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Movement History Modal */}
-      <Dialog open={ledgerOpen} onOpenChange={setLedgerOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              {lang === "en" ? "Stock Movement History" : "Kumbukumbu ya Mzunguko wa Stoo"}
-              {selectedProduct && <span className="text-blue-600 ml-1">({selectedProduct.name})</span>}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-2 space-y-4">
-            <DataTable
-              data={currentLedger}
-              pageSize={5}
-              columns={[
-                { key: "date", header: lang === "en" ? "Date" : "Tarehe" },
-                { key: "ref", header: lang === "en" ? "Reference" : "Rejea" },
-                { key: "store", header: lang === "en" ? "Store" : "Stoo" },
-                { 
-                  key: "qty", 
-                  header: lang === "en" ? "Quantity" : "Idadi", 
-                  align: "right",
-                  render: (r: any) => (
-                    <span className={r.qty < 0 ? "text-rose-600 font-medium" : "text-emerald-600 font-medium"}>
-                      {r.qty > 0 ? "+" : ""}{r.qty}
-                    </span>
-                  ) 
-                },
-                { key: "balance", header: lang === "en" ? "Balance" : "Salio", align: "right" }
-              ]}
-            />
-            <div className="flex justify-end border-t border-slate-100 pt-3">
-              <button
-                type="button"
-                onClick={() => setLedgerOpen(false)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
-              >
-                {lang === "en" ? "Close" : "Funga"}
-              </button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,75 +1,151 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHeader } from "@/components/erp/PageHeader";
-import { TabbedPage } from "@/components/erp/TabbedPage";
+import { useState } from "react";
 import { DataTable } from "@/components/erp/DataTable";
-import { ExportMenu } from "@/components/erp/ExportMenu";
-import { invoices, customers, currency } from "@/lib/mock";
+import { PageHeader } from "@/components/erp/PageHeader";
+import { StatusPill } from "@/components/erp/StatusPill";
+import { getSalesFn, voidSaleFn } from "@/lib/api/operations";
 import { useTranslate } from "@/lib/i18n";
 
+type Sale = {
+  id: number;
+  receiptNumber: string;
+  customer?: string | null;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  status: string;
+  createdAt: Date | string;
+};
+
 export const Route = createFileRoute("/_app/sales/receipts")({
-  head: () => ({ meta: [{ title: "Receipts & Delivery — DeveleERP" }] }),
+  head: () => ({ meta: [{ title: "Receipts — DeveleERP" }] }),
+  loader: () => getSalesFn(),
   component: ReceiptsPage,
 });
 
+const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(value)}`;
+
 function ReceiptsPage() {
-  const { t, lang } = useTranslate();
+  const { lang } = useTranslate();
+  const [sales, setSales] = useState<Sale[]>(Route.useLoaderData() as Sale[]);
+  const [voiding, setVoiding] = useState<Sale | null>(null);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const receiptsData = invoices.slice(0, 12).map((i, k) => ({ 
-    id: `RCP-${4000 + k}`, 
-    customer: i.customer, 
-    date: i.date, 
-    ref: i.id, 
-    amount: i.amount * 1000 
-  }));
-
-  const deliveryData = customers.slice(0, 10).map((c, k) => ({ 
-    id: `DN-${5000 + k}`, 
-    customer: c.name, 
-    date: c.createdAt || "2026-06-12", 
-    items: 3 + k, 
-    status: lang === "en" ? "Delivered" : "Imewasilishwa" 
-  }));
-
-  const mergeData = invoices.slice(0, 10).map(i => ({
-    ...i,
-    amount: i.amount * 1000
-  }));
+  async function voidSale(event: React.FormEvent) {
+    event.preventDefault();
+    if (!voiding) return;
+    setError(null);
+    try {
+      await voidSaleFn({ data: { saleId: voiding.id, reason } });
+      setSales((current) =>
+        current.map((sale) => (sale.id === voiding.id ? { ...sale, status: "Voided" } : sale)),
+      );
+      setVoiding(null);
+      setReason("");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Sale could not be voided.");
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title={lang === "en" ? "Receipts & Delivery" : "Stakabadhi na Uwasilishaji"} 
-        description={lang === "en" ? "Customer receipts, delivery notes, and invoice merging." : "Stakabadhi za wateja, hati za uwasilishaji (delivery notes), na kuunganisha ankara."}
-        actions={<ExportMenu />} 
+      <PageHeader
+        title={lang === "en" ? "Sales Receipts" : "Risiti za Mauzo"}
+        description={
+          lang === "en"
+            ? "Posted sales from the point of sale. Voids restore the original stock batches."
+            : "Mauzo halisi kutoka sehemu ya mauzo."
+        }
       />
-      <TabbedPage tabs={[
-        { key: "receipts", label: lang === "en" ? "Receipts" : "Stakabadhi", render: () => (
-          <DataTable data={receiptsData} columns={[
-            { key: "id", header: lang === "en" ? "Receipt #" : "Stakabadhi #" }, 
-            { key: "customer", header: lang === "en" ? "Customer" : "Mteja" },
-            { key: "ref", header: lang === "en" ? "Invoice Ref" : "Rejeo la Ankara" }, 
-            { key: "date", header: lang === "en" ? "Date" : "Tarehe" },
-            { key: "amount", header: lang === "en" ? "Amount" : "Kiasi", align: "right", render: (r) => currency(r.amount) },
-          ]} />
-        )},
-        { key: "delivery", label: lang === "en" ? "Delivery Notes" : "Hati za Uwasilishaji", render: () => (
-          <DataTable data={deliveryData} columns={[
-            { key: "id", header: "DN #" }, 
-            { key: "customer", header: lang === "en" ? "Customer" : "Mteja" },
-            { key: "date", header: lang === "en" ? "Date" : "Tarehe" }, 
-            { key: "items", header: lang === "en" ? "Items" : "Vitu", align: "right" },
-            { key: "status", header: lang === "en" ? "Status" : "Hali" },
-          ]} />
-        )},
-        { key: "merge", label: lang === "en" ? "Merge Invoices" : "Unganisha Ankara", render: () => (
-          <DataTable data={mergeData} columns={[
-            { key: "id", header: lang === "en" ? "Invoice #" : "Ankara #" }, 
-            { key: "customer", header: lang === "en" ? "Customer" : "Mteja" },
-            { key: "date", header: lang === "en" ? "Date" : "Tarehe" },
-            { key: "amount", header: lang === "en" ? "Amount" : "Kiasi", align: "right", render: (r) => currency(r.amount) },
-          ]} />
-        )},
-      ]} />
+      <DataTable
+        data={sales}
+        columns={[
+          { key: "receiptNumber", header: "Receipt" },
+          {
+            key: "createdAt",
+            header: "Date",
+            render: (row: Sale) => new Date(row.createdAt).toLocaleString(),
+          },
+          {
+            key: "customer",
+            header: "Customer",
+            render: (row: Sale) => row.customer || "Walk-in Customer",
+          },
+          {
+            key: "subtotal",
+            header: "Subtotal",
+            align: "right",
+            render: (row: Sale) => money(row.subtotal),
+          },
+          { key: "tax", header: "Tax", align: "right", render: (row: Sale) => money(row.tax) },
+          {
+            key: "total",
+            header: "Total",
+            align: "right",
+            render: (row: Sale) => money(row.total),
+          },
+          {
+            key: "status",
+            header: "Status",
+            render: (row: Sale) => <StatusPill status={row.status} />,
+          },
+          {
+            key: "action",
+            header: "",
+            render: (row: Sale) =>
+              row.status === "Completed" ? (
+                <button
+                  onClick={() => setVoiding(row)}
+                  className="rounded-lg border border-rose-200 px-3 py-1 text-xs font-bold text-rose-700"
+                >
+                  Void
+                </button>
+              ) : null,
+          },
+        ]}
+      />
+      {voiding && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4"
+          onMouseDown={() => setVoiding(null)}
+        >
+          <form
+            onSubmit={voidSale}
+            onMouseDown={(event) => event.stopPropagation()}
+            className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6"
+          >
+            <h2 className="text-lg font-bold">Void {voiding.receiptNumber}?</h2>
+            <p className="text-sm text-muted-foreground">
+              This posts a reversing stock movement and preserves the original receipt for audit.
+            </p>
+            {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
+            <label className="block text-sm font-semibold">
+              Reason
+              <textarea
+                required
+                minLength={3}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                className="input-field mt-1 min-h-20"
+              />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setVoiding(null)}
+                className="rounded-xl border px-4 py-2 text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
+                Void sale
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

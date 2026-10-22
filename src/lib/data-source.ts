@@ -1,348 +1,126 @@
-import { authenticateRequest, AuthUser } from "./auth";
-import { sessionStoreManager, SessionMockDataStore } from "./mock";
 import { getRequest } from "@tanstack/react-start/server";
+import { createServerOnlyFn } from "@tanstack/react-start";
 import { db } from "../db";
-import { customers, suppliers, products, invoices, expenses, staff, payrollRuns, transactions, purchaseOrders } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { customers, expenses, products, purchaseOrders, suppliers } from "../db/schema";
+import { authenticateRequest, type AuthUser } from "./auth";
+
+type Input = Record<string, unknown>;
+type Collection<T> = { getAll: () => Promise<T[]>; create: (data: Input) => Promise<T> };
+type ReadCollection<T> = { getAll: () => Promise<T[]> };
+
+type Customer = typeof customers.$inferSelect;
+type Supplier = typeof suppliers.$inferSelect;
+type Product = typeof products.$inferSelect;
+type Expense = typeof expenses.$inferSelect;
+type PurchaseOrder = typeof purchaseOrders.$inferSelect;
 
 export interface IERPRepository {
-  isTestUser: boolean;
-  user: AuthUser | null;
-  resetDemoData: () => Promise<{ success: boolean; message: string }>;
-  customers: {
-    getAll: () => Promise<any[]>;
-    create: (data: any) => Promise<any>;
-  };
-  suppliers: {
-    getAll: () => Promise<any[]>;
-    create: (data: any) => Promise<any>;
-  };
-  products: {
-    getAll: () => Promise<any[]>;
-    create: (data: any) => Promise<any>;
-  };
-  invoices: {
-    getAll: () => Promise<any[]>;
-    create: (data: any) => Promise<any>;
-  };
-  expenses: {
-    getAll: () => Promise<any[]>;
-    create: (data: any) => Promise<any>;
-  };
-  staff: {
-    getAll: () => Promise<any[]>;
-    create: (data: any) => Promise<any>;
-  };
-  payroll: {
-    getAll: () => Promise<any[]>;
-  };
-  transactions: {
-    getAll: () => Promise<any[]>;
-  };
-  purchaseOrders: {
-    getAll: () => Promise<any[]>;
-  };
-  stores: {
-    getAll: () => Promise<any[]>;
-  };
-  transfers: {
-    getAll: () => Promise<any[]>;
-  };
-  leaveRequests: {
-    getAll: () => Promise<any[]>;
-  };
-  chartOfAccounts: {
-    getAll: () => Promise<any[]>;
-  };
-  paymentVouchers: {
-    getAll: () => Promise<any[]>;
-  };
-  reconciliations: {
-    getAll: () => Promise<any[]>;
-  };
-  usersList: {
-    getAll: () => Promise<any[]>;
-  };
-  settings: {
-    get: () => Promise<any>;
-  };
+  isTestUser: false;
+  user: AuthUser;
+  customers: Collection<Customer>;
+  suppliers: Collection<Supplier>;
+  products: Collection<Product>;
+  expenses: Collection<Expense>;
+  purchaseOrders: ReadCollection<PurchaseOrder>;
 }
 
-class MockDataSourceRepository implements IERPRepository {
-  isTestUser = true;
-  user: AuthUser | null;
+const text = (value: unknown, fallback = "") => (typeof value === "string" ? value : fallback);
+const integer = (value: unknown, fallback = 0) =>
+  Number.isSafeInteger(Number(value)) ? Number(value) : fallback;
 
-  constructor(user: AuthUser | null) {
-    this.user = user;
-  }
-
-  private get store(): SessionMockDataStore {
-    const sessionId = this.user?.sessionId || "default-session";
-    return sessionStoreManager.getStore(sessionId);
-  }
-
-  resetDemoData = async () => {
-    const sessionId = this.user?.sessionId || "default-session";
-    sessionStoreManager.resetStore(sessionId);
-    return { success: true, message: `Demo session ${sessionId} data has been reset to pristine seed state.` };
-  };
-
-  customers = {
-    getAll: async () => this.store.getCustomers(),
-    create: async (data: any) => this.store.createCustomer(data),
-  };
-
-  suppliers = {
-    getAll: async () => this.store.getSuppliers(),
-    create: async (data: any) => this.store.createSupplier(data),
-  };
-
-  products = {
-    getAll: async () => this.store.getProducts(),
-    create: async (data: any) => this.store.createProduct(data),
-  };
-
-  invoices = {
-    getAll: async () => this.store.getInvoices(),
-    create: async (data: any) => this.store.createInvoice(data),
-  };
-
-  expenses = {
-    getAll: async () => this.store.getExpenses(),
-    create: async (data: any) => this.store.createExpense(data),
-  };
-
-  staff = {
-    getAll: async () => this.store.getStaff(),
-    create: async (data: any) => this.store.createStaff(data),
-  };
-
-  payroll = {
-    getAll: async () => this.store.getPayrollRuns(),
-  };
-
-  transactions = {
-    getAll: async () => this.store.getTransactions(),
-  };
-
-  purchaseOrders = {
-    getAll: async () => this.store.getPurchaseOrders(),
-  };
-
-  stores = {
-    getAll: async () => this.store.getStores(),
-  };
-
-  transfers = {
-    getAll: async () => this.store.getTransfers(),
-  };
-
-  leaveRequests = {
-    getAll: async () => this.store.getLeaveRequests(),
-  };
-
-  chartOfAccounts = {
-    getAll: async () => this.store.getChartOfAccounts(),
-  };
-
-  paymentVouchers = {
-    getAll: async () => this.store.getPaymentVouchers(),
-  };
-
-  reconciliations = {
-    getAll: async () => this.store.getReconciliations(),
-  };
-
-  usersList = {
-    getAll: async () => this.store.getUsersList(),
-  };
-
-  settings = {
-    get: async () => this.store.getSettings(),
-  };
-}
-
-class PostgresDataSourceRepository implements IERPRepository {
-  isTestUser = false;
-  user: AuthUser | null;
-
-  constructor(user: AuthUser | null) {
-    this.user = user;
-  }
-
-  resetDemoData = async () => {
-    return { success: false, message: "Reset demo data is not available for real production database users." };
-  };
-
-  customers = {
-    getAll: async () => db.select().from(customers).catch(() => []),
-    create: async (data: any) =>
-      db
+class PostgresRepository implements IERPRepository {
+  isTestUser = false as const;
+  constructor(public user: AuthUser) {}
+  customers: Collection<Customer> = {
+    getAll: async () => db.select().from(customers),
+    create: async (data) => {
+      const [row] = await db
         .insert(customers)
         .values({
-          code: data.code || `CUS-${Date.now().toString().slice(-4)}`,
-          name: data.name,
-          contact: data.contact || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          balance: data.balance || 0,
-          status: data.status || "Active",
+          code: text(data.code, `CUS-${Date.now()}`),
+          name: text(data.name),
+          contact: text(data.contact),
+          email: text(data.email),
+          phone: text(data.phone),
+          balance: integer(data.balance),
+          status: text(data.status, "Active"),
         })
-        .returning()
-        .catch(() => ({ ...data, id: Date.now() })),
+        .returning();
+      return row;
+    },
   };
-
-  suppliers = {
-    getAll: async () => db.select().from(suppliers).catch(() => []),
-    create: async (data: any) =>
-      db
+  suppliers: Collection<Supplier> = {
+    getAll: async () => db.select().from(suppliers),
+    create: async (data) => {
+      const [row] = await db
         .insert(suppliers)
         .values({
-          code: data.code || `SUP-${Date.now().toString().slice(-4)}`,
-          name: data.name,
-          contact: data.contact || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          payable: data.payable || 0,
-          status: data.status || "Active",
+          code: text(data.code, `SUP-${Date.now()}`),
+          name: text(data.name),
+          contact: text(data.contact),
+          email: text(data.email),
+          phone: text(data.phone),
+          payable: integer(data.payable),
+          status: text(data.status, "Active"),
         })
-        .returning()
-        .catch(() => ({ ...data, id: Date.now() })),
+        .returning();
+      return row;
+    },
   };
-
-  products = {
-    getAll: async () => db.select().from(products).catch(() => []),
-    create: async (data: any) =>
-      db
+  products: Collection<Product> = {
+    getAll: async () => db.select().from(products),
+    create: async (data) => {
+      const [row] = await db
         .insert(products)
         .values({
-          sku: data.sku || `SKU-${Date.now().toString().slice(-4)}`,
-          name: data.name,
-          category: data.category || "General",
-          brand: data.brand || "",
-          price: Number(data.price) || 0,
-          cost: Number(data.cost) || 0,
-          stock: Number(data.stock) || 0,
-          reorder: Number(data.reorder) || 50,
-          image: data.image || "",
+          sku: text(data.sku, `SKU-${Date.now()}`),
+          name: text(data.name),
+          category: text(data.category, "General"),
+          brand: text(data.brand) || null,
+          genericName: text(data.genericName) || null,
+          dosageForm: text(data.dosageForm) || null,
+          strength: text(data.strength) || null,
+          barcode: text(data.barcode) || null,
+          purchaseUnit: text(data.purchaseUnit, "piece"),
+          sellingUnit: text(data.sellingUnit, "piece"),
+          unitsPerPurchaseUnit: integer(data.unitsPerPurchaseUnit, 1),
+          requiresPrescription: Boolean(data.requiresPrescription),
+          price: integer(data.price),
+          cost: integer(data.cost),
+          stock: integer(data.stock),
+          reorder: integer(data.reorder, 10),
+          image: text(data.image) || null,
         })
-        .returning()
-        .catch(() => ({ ...data, id: Date.now() })),
+        .returning();
+      return row;
+    },
   };
-
-  invoices = {
-    getAll: async () => db.select().from(invoices).catch(() => []),
-    create: async (data: any) =>
-      db
-        .insert(invoices)
-        .values({
-          code: data.code || `INV-${Date.now().toString().slice(-4)}`,
-          customer: data.customer,
-          date: data.date || new Date().toISOString().slice(0, 10),
-          due: data.due || new Date().toISOString().slice(0, 10),
-          amount: Number(data.amount) || 0,
-          status: data.status || "Pending",
-          type: data.type || "Invoice",
-        })
-        .returning()
-        .catch(() => ({ ...data, id: Date.now() })),
-  };
-
-  expenses = {
-    getAll: async () => db.select().from(expenses).catch(() => []),
-    create: async (data: any) =>
-      db
+  expenses: Collection<Expense> = {
+    getAll: async () => db.select().from(expenses),
+    create: async (data) => {
+      const [row] = await db
         .insert(expenses)
         .values({
-          code: data.code || `EXP-${Date.now().toString().slice(-4)}`,
-          category: data.category,
-          vendor: data.vendor,
-          date: data.date || new Date().toISOString().slice(0, 10),
-          amount: Number(data.amount) || 0,
-          status: data.status || "Pending",
+          code: text(data.code, `EXP-${Date.now()}`),
+          category: text(data.category),
+          vendor: text(data.vendor),
+          date: text(data.date, new Date().toISOString().slice(0, 10)),
+          amount: integer(data.amount),
+          status: text(data.status, "Pending"),
         })
-        .returning()
-        .catch(() => ({ ...data, id: Date.now() })),
+        .returning();
+      return row;
+    },
   };
-
-  staff = {
-    getAll: async () => db.select().from(staff).catch(() => []),
-    create: async (data: any) =>
-      db
-        .insert(staff)
-        .values({
-          code: data.code || `EMP-${Date.now().toString().slice(-4)}`,
-          name: data.name,
-          department: data.department,
-          role: data.role,
-          salary: Number(data.salary) || 0,
-          status: data.status || "Active",
-          joined: data.joined || new Date().toISOString().slice(0, 10),
-        })
-        .returning()
-        .catch(() => ({ ...data, id: Date.now() })),
-  };
-
-  payroll = {
-    getAll: async () => db.select().from(payrollRuns).catch(() => []),
-  };
-
-  transactions = {
-    getAll: async () => db.select().from(transactions).catch(() => []),
-  };
-
-  purchaseOrders = {
-    getAll: async () => db.select().from(purchaseOrders).catch(() => []),
-  };
-
-  stores = {
-    getAll: async () => [],
-  };
-
-  transfers = {
-    getAll: async () => [],
-  };
-
-  leaveRequests = {
-    getAll: async () => [],
-  };
-
-  chartOfAccounts = {
-    getAll: async () => [],
-  };
-
-  paymentVouchers = {
-    getAll: async () => [],
-  };
-
-  reconciliations = {
-    getAll: async () => [],
-  };
-
-  usersList = {
-    getAll: async () => [],
-  };
-
-  settings = {
-    get: async () => ({ companyName: "Real Enterprise", currency: "TZS" }),
-  };
+  purchaseOrders = { getAll: async () => db.select().from(purchaseOrders) };
 }
 
-export async function resolveDataSource(req?: Request): Promise<IERPRepository> {
-  let requestObj: Request | null = req || null;
-  if (!requestObj) {
-    try {
-      requestObj = getRequest();
-    } catch (e) {
-      // Executed outside HTTP server context
-    }
-  }
-
-  const user = requestObj ? await authenticateRequest(requestObj) : null;
-
-  if (user && user.isTestUser) {
-    return new MockDataSourceRepository(user);
-  }
-
-  return new PostgresDataSourceRepository(user);
-}
+export const resolveDataSource = createServerOnlyFn(
+  async (request?: Request): Promise<IERPRepository> => {
+    const req = request || getRequest();
+    const user = await authenticateRequest(req);
+    if (!user) throw new Error("UNAUTHENTICATED");
+    if (user.isTestUser) throw new Error("Demo accounts are disabled.");
+    return new PostgresRepository(user);
+  },
+);

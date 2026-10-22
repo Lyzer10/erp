@@ -10,7 +10,9 @@ try {
   if (saved === "sw" || saved === "en") {
     currentLang = saved;
   }
-} catch {}
+} catch {
+  // Server rendering and privacy-restricted browsers may not expose localStorage.
+}
 
 try {
   window.addEventListener("storage", (e) => {
@@ -22,7 +24,9 @@ try {
       }
     }
   });
-} catch {}
+} catch {
+  // The storage event is browser-only; the in-memory language still works.
+}
 
 export function getLanguage(): Language {
   return currentLang;
@@ -33,7 +37,9 @@ export function setLanguage(lang: Language) {
     currentLang = lang;
     try {
       localStorage.setItem("erp_lang", lang);
-    } catch {}
+    } catch {
+      // Persistence is optional when browser storage is unavailable.
+    }
     listeners.forEach((l) => l());
   }
 }
@@ -180,7 +186,6 @@ export const translations = {
     forgotPassword: "Forgot password?",
     signingIn: "Signing in...",
     signIn: "Sign In",
-    demoCreds: "Use demo credentials to sign in instantly",
     usernameLabel: "Username",
     usernamePlaceholder: "Enter your username",
     passwordPlaceholder: "Enter your password",
@@ -207,7 +212,8 @@ export const translations = {
     chooseFile: "Choose file (.pdf, .xlsx, .jpg)",
     subTotal: "Sub Total",
     aboutPurchaseOrdersTitle: "About Purchase Orders",
-    aboutPurchaseOrdersDesc: "An LPO authorises a supplier to deliver goods at agreed terms. It is the first step in the procurement cycle.",
+    aboutPurchaseOrdersDesc:
+      "An LPO authorises a supplier to deliver goods at agreed terms. It is the first step in the procurement cycle.",
     aboutPurchaseOrdersBullet1: "Locks supplier pricing",
     aboutPurchaseOrdersBullet2: "Tracks goods receipt",
     aboutPurchaseOrdersBullet3: "Feeds 3-way matching",
@@ -332,7 +338,8 @@ export const translations = {
     vatDisplay: "VAT (18%)",
     proceedWithPayment: "Please proceed with payment at the cashier counter.",
     welcomeShop: "Welcome to DeveleERP Shop",
-    itemsWillAppear: "Items will appear here as the cashier scans them. Please wait to finalize your purchase.",
+    itemsWillAppear:
+      "Items will appear here as the cashier scans them. Please wait to finalize your purchase.",
     weeklyPromo: "Weekly Promo",
     groceriesPromo: "Get 5% Off on Groceries",
     customerCare: "Customer Care",
@@ -570,7 +577,8 @@ export const translations = {
     viewer: "Viewer",
 
     // ── Settings ──────────────────────────────────────────────
-    settingsDesc: "System-wide settings, payment modules, operational configurations, and developer utilities.",
+    settingsDesc:
+      "System-wide settings, payment modules, operational configurations, and developer utilities.",
     saveChanges: "Save Changes",
     updating: "Updating...",
     settingsSaved: "Settings saved successfully!",
@@ -814,7 +822,6 @@ export const translations = {
     forgotPassword: "Umesahau nywila?",
     signingIn: "Kuingia...",
     signIn: "Ingia",
-    demoCreds: "Tumia maelezo ya majaribio kuingia papo hapo",
     usernameLabel: "Jina la mtumiaji",
     usernamePlaceholder: "Ingiza jina la mtumiaji",
     passwordPlaceholder: "Ingiza nywila yako",
@@ -841,7 +848,8 @@ export const translations = {
     chooseFile: "Chagua faili (.pdf, .xlsx, .jpg)",
     subTotal: "Nusu Jumla",
     aboutPurchaseOrdersTitle: "Kuhusu Hati za Manunuzi",
-    aboutPurchaseOrdersDesc: "LPO inaruhusu muuzaji kutoa bidhaa kwa masharti yaliyokubaliwa. Ni hatua ya kwanza katika mzunguko wa ununuzi.",
+    aboutPurchaseOrdersDesc:
+      "LPO inaruhusu muuzaji kutoa bidhaa kwa masharti yaliyokubaliwa. Ni hatua ya kwanza katika mzunguko wa ununuzi.",
     aboutPurchaseOrdersBullet1: "Inafungia bei ya muuzaji",
     aboutPurchaseOrdersBullet2: "Inafuatilia upokeaji wa bidhaa",
     aboutPurchaseOrdersBullet3: "Inalisha ulinganishaji wa njia 3",
@@ -966,7 +974,8 @@ export const translations = {
     vatDisplay: "VAT (18%)",
     proceedWithPayment: "Tafadhali endelea na malipo kwenye kaunta ya mweka hazina.",
     welcomeShop: "Karibu kwenye Duka la DeveleERP",
-    itemsWillAppear: "Bidhaa zitaonekana hapa mweka hazina atakapoziskanisha. Tafadhali subiri kukamilisha ununuzi wako.",
+    itemsWillAppear:
+      "Bidhaa zitaonekana hapa mweka hazina atakapoziskanisha. Tafadhali subiri kukamilisha ununuzi wako.",
     weeklyPromo: "Ofa ya Wiki",
     groceriesPromo: "Pata Punguzo la 5% kwa Vyakula",
     customerCare: "Huduma kwa Wateja",
@@ -1204,7 +1213,8 @@ export const translations = {
     viewer: "Mtazamaji",
 
     // ── Mipangilio ─────────────────────────────────────────────
-    settingsDesc: "Mipangilio ya mfumo, mifumo ya malipo, usanidi wa uendeshaji, na zana za watengenezaji.",
+    settingsDesc:
+      "Mipangilio ya mfumo, mifumo ya malipo, usanidi wa uendeshaji, na zana za watengenezaji.",
     saveChanges: "Hifadhi Mabadiliko",
     updating: "Inasasisha...",
     settingsSaved: "Mipangilio imehifadhiwa kikamilifu!",
@@ -1328,6 +1338,7 @@ export function useTranslate() {
   const lang = useLanguage();
   return {
     lang,
-    t: (key: keyof typeof translations.en) => translations[lang][key] || translations.en[key] || String(key),
+    t: (key: keyof typeof translations.en) =>
+      translations[lang][key] || translations.en[key] || String(key),
   };
 }

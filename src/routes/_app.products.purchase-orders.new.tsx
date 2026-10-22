@@ -1,286 +1,335 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Paperclip, X } from "lucide-react";
-import { FormShell, InfoRail } from "@/components/erp/FormShell";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { FormShell } from "@/components/erp/FormShell";
+import { getProductsFn, getSuppliersFn } from "@/lib/api/domain";
+import { createPurchaseOrderFn } from "@/lib/api/purchases";
 import { useTranslate } from "@/lib/i18n";
 
+type ProductOption = { id: number; name: string; sku: string; cost: number };
+type SupplierOption = { id: number; name: string };
+type PurchaseLine = {
+  key: string;
+  productId: number | "";
+  quantity: number;
+  unitCost: number;
+  batchNumber: string;
+  expiryDate: string;
+};
+
+function emptyLine(): PurchaseLine {
+  return {
+    key: crypto.randomUUID(),
+    productId: "",
+    quantity: 1,
+    unitCost: 0,
+    batchNumber: "",
+    expiryDate: "",
+  };
+}
 
 export const Route = createFileRoute("/_app/products/purchase-orders/new")({
-  head: () => ({ meta: [{ title: "Create LPO — DeveleERP" }] }),
-  component: CreateLPOPage,
+  head: () => ({ meta: [{ title: "New purchase — DeveleERP" }] }),
+  loader: async () => {
+    const [productsResult, suppliersResult] = await Promise.all([
+      getProductsFn(),
+      getSuppliersFn(),
+    ]);
+    return {
+      products: productsResult.data as ProductOption[],
+      suppliers: suppliersResult.data as SupplierOption[],
+      isTestUser: productsResult.isTestUser,
+    };
+  },
+  component: CreatePurchasePage,
 });
 
-const CURRENCIES = ["TZS", "USD", "EUR", "GBP", "KES"];
-const SUPPLIERS = ["Supplier A Co.", "Supplier B Holdings", "Supplier C Industries", "Supplier D Co.", "Supplier E Logistics"];
+const money = (value: number) =>
+  new Intl.NumberFormat("en-TZ", { maximumFractionDigits: 0 }).format(value);
 
-const fmt = (n: number) => new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
+function CreatePurchasePage() {
+  const navigate = useNavigate();
+  const { lang } = useTranslate();
+  const { products, suppliers, isTestUser } = Route.useLoaderData();
+  const [supplierId, setSupplierId] = useState<number | "">("");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [notes, setNotes] = useState("");
+  const [receiveNow, setReceiveNow] = useState(true);
+  const [lines, setLines] = useState<PurchaseLine[]>([emptyLine()]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-function CreateLPOPage() {
-  const router = useRouter();
-  const { lang, t } = useTranslate();
+  const total = useMemo(
+    () => lines.reduce((sum, line) => sum + line.quantity * line.unitCost, 0),
+    [lines],
+  );
 
-  const [product, setProduct] = useState("");
-  const [brandCode, setBrandCode] = useState("");
-  const [unitCost, setUnitCost] = useState("");
-  const [description, setDescription] = useState("");
-  const [qty, setQty] = useState("1");
-  const [date, setDate] = useState("");
-  const [supplier, setSupplier] = useState("");
-  const [withholdingPct, setWithholdingPct] = useState("0");
-  const [currency, setCurrency] = useState("TZS");
-  const [discount, setDiscount] = useState("0");
-  const [comment, setComment] = useState("");
-  const [fileName, setFileName] = useState("");
+  function updateLine(key: string, patch: Partial<PurchaseLine>) {
+    setLines((current) => current.map((line) => (line.key === key ? { ...line, ...patch } : line)));
+  }
 
-  const unitCostNum = parseFloat(unitCost) || 0;
-  const qtyNum = parseInt(qty) || 0;
-  const discountNum = parseFloat(discount) || 0;
-  const withholdingNum = parseFloat(withholdingPct) || 0;
-
-  const lineTotal = unitCostNum * qtyNum;
-  const subTotal = lineTotal;
-  const discountAmount = subTotal * (discountNum / 100);
-  const afterDiscount = subTotal - discountAmount;
-  const withholdingAmount = afterDiscount * (withholdingNum / 100);
-  const vatAmount = (afterDiscount - withholdingAmount) * 0.18;
-  const grandTotal = afterDiscount - withholdingAmount + vatAmount;
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    if (isTestUser) {
+      setError("Demo mode cannot create a production purchase.");
+      return;
+    }
+    if (
+      !supplierId ||
+      lines.some((line) => !line.productId || !line.batchNumber || !line.expiryDate)
+    ) {
+      setError(
+        "Choose a supplier and complete the product, batch and expiry fields for every line.",
+      );
+      return;
+    }
+    setSaving(true);
+    try {
+      await createPurchaseOrderFn({
+        data: {
+          supplierId,
+          date,
+          notes: notes || undefined,
+          receiveNow,
+          items: lines.map((line) => ({
+            productId: Number(line.productId),
+            quantity: line.quantity,
+            unitCost: line.unitCost,
+            batchNumber: line.batchNumber,
+            expiryDate: line.expiryDate,
+          })),
+        },
+      });
+      await navigate({ to: "/products/purchase-orders" });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The purchase could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <FormShell
       header={
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.history.back()}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-            aria-label={t("cancel")}
+            type="button"
+            onClick={() => history.back()}
+            className="rounded-lg border p-2"
+            aria-label="Back"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight">{t("createLpoTitle")}</h1>
-            <p className="text-sm text-muted-foreground">{t("createLpoSub")}</p>
+            <h1 className="text-xl font-bold">
+              {lang === "en" ? "New Pharmacy Purchase" : "Manunuzi Mapya ya Duka la Dawa"}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {lang === "en"
+                ? "Record supplier stock by batch and expiry date."
+                : "Sajili bidhaa kwa kundi na tarehe ya mwisho."}
+            </p>
           </div>
         </div>
-      }
-      aside={
-        <InfoRail
-          about={{
-            title: t("aboutPurchaseOrdersTitle"),
-            description: t("aboutPurchaseOrdersDesc"),
-            bullets: [
-              t("aboutPurchaseOrdersBullet1"),
-              t("aboutPurchaseOrdersBullet2"),
-              t("aboutPurchaseOrdersBullet3"),
-            ],
-          }}
-          tips={[
-            t("quickTip1"),
-            t("quickTip2"),
-            t("quickTip3"),
-            t("quickTip4"),
-          ]}
-          notice={t("lpoNotice")}
-        />
       }
     >
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main form */}
-        <div className="space-y-5 lg:col-span-2">
+      <form onSubmit={submit} className="space-y-5">
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm font-semibold text-rose-700"
+          >
+            {error}
+          </p>
+        )}
 
-          {/* Product details */}
-          <div className="glass-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("productDetails")}</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t("productName")} required>
-                <input
-                  value={product} onChange={(e) => setProduct(e.target.value)}
-                  placeholder={lang === "en" ? "e.g. Office Chair" : "mf. Kiti cha Ofisi"}
-                  className="input-field"
-                />
-              </Field>
-              <Field label={t("brandCode")}>
-                <input
-                  value={brandCode} onChange={(e) => setBrandCode(e.target.value)}
-                  placeholder="e.g. BR-001"
-                  className="input-field"
-                />
-              </Field>
-              <Field label={t("unitCost")} required>
-                <input
-                  type="number" min="0" step="0.01"
-                  value={unitCost} onChange={(e) => setUnitCost(e.target.value)}
-                  placeholder="0.00"
-                  className="input-field"
-                />
-              </Field>
-              <Field label={t("quantity")} required>
-                <input
-                  type="number" min="1"
-                  value={qty} onChange={(e) => setQty(e.target.value)}
-                  className="input-field"
-                />
-              </Field>
-            </div>
-            <Field label={t("description")}>
-              <textarea
-                value={description} onChange={(e) => setDescription(e.target.value)}
-                rows={3} placeholder={lang === "en" ? "Optional product description..." : "Maelezo ya bidhaa ya hiari..."}
-                className="input-field resize-none"
-              />
-            </Field>
-
-            {/* Line total */}
-            <div className="flex items-center justify-between rounded-lg bg-slate-50 px-4 py-2.5">
-              <span className="text-sm font-medium text-slate-600">{lang === "en" ? "Line Total" : "Jumla ya Mstari"}</span>
-              <span className="font-semibold text-slate-900">{currency} {fmt(lineTotal)}</span>
-            </div>
-          </div>
-
-          {/* Order details */}
-          <div className="glass-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("orderDetails")}</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t("selectDate")} required>
-                <input
-                  type="date" value={date} onChange={(e) => setDate(e.target.value)}
-                  className="input-field"
-                />
-              </Field>
-              <Field label={t("selectSupplier")} required>
-                <select value={supplier} onChange={(e) => setSupplier(e.target.value)} className="input-field">
-                  <option value="">{lang === "en" ? "Choose supplier..." : "Chagua muuzaji..."}</option>
-                  {SUPPLIERS.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </Field>
-              <Field label={t("currencyLabel")}>
-                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="input-field">
-                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </Field>
-              <Field label={`${t("withholdingTax")} (${withholdingPct}%)`}>
-                <input
-                  type="number" min="0" max="100" step="0.5"
-                  value={withholdingPct} onChange={(e) => setWithholdingPct(e.target.value)}
-                  className="input-field"
-                />
-              </Field>
-            </div>
-            <Field label={t("discount")}>
-              <input
-                type="number" min="0" max="100" step="0.5"
-                value={discount} onChange={(e) => setDiscount(e.target.value)}
-                placeholder="0"
-                className="input-field max-w-xs"
-              />
-            </Field>
-          </div>
-
-          {/* Attachment + Comment */}
-          <div className="glass-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("attachmentsNotes")}</h2>
-            <Field label={t("attachmentLimit")}>
-              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-white/60 p-3 hover:bg-white/80">
-                <Paperclip className="h-4 w-4 shrink-0 text-slate-400" />
-                <span className="text-sm text-muted-foreground">{fileName || t("chooseFile")}</span>
-                {fileName && (
-                  <button type="button" onClick={(e) => { e.preventDefault(); setFileName(""); }}
-                    className="ml-auto rounded p-0.5 hover:text-rose-600">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-                <input
-                  type="file" className="hidden"
-                  accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f && f.size <= 5 * 1024 * 1024) setFileName(f.name);
-                    else if (f) alert(lang === "en" ? "File exceeds 5 MB limit." : "Faili inazidi kikomo cha MB 5.");
-                  }}
-                />
-              </label>
-            </Field>
-            <Field label={t("comment")}>
-              <textarea
-                value={comment} onChange={(e) => setComment(e.target.value)}
-                rows={3} placeholder={lang === "en" ? "Internal note or instructions..." : "Maelezo ya ndani au maelekezo..."}
-                className="input-field resize-none"
-              />
-            </Field>
-          </div>
-        </div>
-
-        {/* Summary sidebar */}
-        <div className="space-y-4">
-          <div className="glass-card p-5">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t("orderSummary")}</h2>
-            <div className="space-y-2.5 text-sm">
-              <SummaryRow label={t("subTotal")} value={`${currency} ${fmt(subTotal)}`} />
-              <SummaryRow label={`${t("discount").replace(" (%)", "")} (${discountNum}%)`} value={`- ${currency} ${fmt(discountAmount)}`} muted />
-              <SummaryRow label={`${t("withholdingTax")} (${withholdingNum}%)`} value={`- ${currency} ${fmt(withholdingAmount)}`} muted />
-              <div className="my-1 h-px bg-slate-100" />
-              <SummaryRow label={t("vatAmount")} value={`+ ${currency} ${fmt(vatAmount)}`} accent />
-              <div className="my-1 h-px bg-slate-200" />
-              <SummaryRow label={t("grandTotal")} value={`${currency} ${fmt(grandTotal)}`} bold />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              className="w-full rounded-lg bg-[#1f9c88] px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#177d6d] transition cursor-pointer"
-              onClick={() => router.history.back()}
+        <section className="glass-card grid gap-4 p-5 sm:grid-cols-3">
+          <Field label={lang === "en" ? "Supplier" : "Muuzaji"}>
+            <select
+              required
+              value={supplierId}
+              onChange={(event) => setSupplierId(Number(event.target.value) || "")}
+              className="input-field"
             >
-              {t("submitLpo")}
-            </button>
+              <option value="">{lang === "en" ? "Choose supplier" : "Chagua muuzaji"}</option>
+              {suppliers.map((supplier) => (
+                <option key={supplier.id} value={supplier.id}>
+                  {supplier.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label={lang === "en" ? "Purchase date" : "Tarehe ya manunuzi"}>
+            <input
+              required
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              className="input-field"
+            />
+          </Field>
+          <label className="flex items-center gap-3 self-end rounded-xl border border-slate-200 p-3 text-sm font-semibold">
+            <input
+              type="checkbox"
+              checked={receiveNow}
+              onChange={(event) => setReceiveNow(event.target.checked)}
+            />
+            {lang === "en" ? "Receive stock now" : "Pokea bidhaa sasa"}
+          </label>
+        </section>
+
+        <section className="glass-card overflow-x-auto p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-bold">{lang === "en" ? "Purchase items" : "Bidhaa za manunuzi"}</h2>
             <button
-              className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              onClick={() => router.history.back()}
+              type="button"
+              onClick={() => setLines((current) => [...current, emptyLine()])}
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold"
             >
-              {t("cancel")}
+              <Plus className="h-4 w-4" /> {lang === "en" ? "Add line" : "Ongeza mstari"}
             </button>
           </div>
-        </div>
-      </div>
+          <table className="min-w-[900px] w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+                <th className="p-2">Product</th>
+                <th className="p-2">Qty</th>
+                <th className="p-2">Unit cost</th>
+                <th className="p-2">Batch</th>
+                <th className="p-2">Expiry</th>
+                <th className="p-2 text-right">Total</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {lines.map((line) => (
+                <tr key={line.key} className="border-b border-slate-100">
+                  <td className="p-2">
+                    <select
+                      required
+                      value={line.productId}
+                      onChange={(event) => {
+                        const productId = Number(event.target.value);
+                        const selected = products.find((product) => product.id === productId);
+                        updateLine(line.key, {
+                          productId: productId || "",
+                          unitCost: selected?.cost || 0,
+                        });
+                      }}
+                      className="input-field min-w-56"
+                    >
+                      <option value="">Choose product</option>
+                      {products.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name} ({product.sku})
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-2">
+                    <input
+                      required
+                      min={1}
+                      type="number"
+                      value={line.quantity}
+                      onChange={(event) =>
+                        updateLine(line.key, { quantity: Math.max(1, Number(event.target.value)) })
+                      }
+                      className="input-field w-20"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <input
+                      required
+                      min={0}
+                      type="number"
+                      value={line.unitCost}
+                      onChange={(event) =>
+                        updateLine(line.key, { unitCost: Math.max(0, Number(event.target.value)) })
+                      }
+                      className="input-field w-32"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <input
+                      required
+                      value={line.batchNumber}
+                      onChange={(event) =>
+                        updateLine(line.key, { batchNumber: event.target.value })
+                      }
+                      className="input-field w-36"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <input
+                      required
+                      type="date"
+                      value={line.expiryDate}
+                      onChange={(event) => updateLine(line.key, { expiryDate: event.target.value })}
+                      className="input-field w-40"
+                    />
+                  </td>
+                  <td className="p-2 text-right font-semibold">
+                    TZS {money(line.quantity * line.unitCost)}
+                  </td>
+                  <td className="p-2">
+                    <button
+                      type="button"
+                      disabled={lines.length === 1}
+                      onClick={() =>
+                        setLines((current) => current.filter((item) => item.key !== line.key))
+                      }
+                      className="rounded p-2 text-rose-600 disabled:opacity-30"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
-      <style>{`
-        .input-field {
-          width: 100%;
-          border-radius: 0.5rem;
-          border: 1px solid rgb(226 232 240);
-          background: var(--color-slate-50);
-          padding: 0.5rem 0.75rem;
-          font-size: 0.875rem;
-          outline: none;
-          transition: all 0.2s ease;
-        }
-        .input-field:focus {
-          background: #ffffff;
-          border-color: #1f9c88;
-          box-shadow: 0 0 0 2px rgba(31, 156, 136, 0.15);
-        }
-      `}</style>
+        <section className="glass-card grid gap-4 p-5 sm:grid-cols-[1fr_auto]">
+          <Field label={lang === "en" ? "Notes" : "Maelezo"}>
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              className="input-field min-h-20"
+            />
+          </Field>
+          <div className="min-w-52 self-end text-right">
+            <p className="text-xs uppercase text-muted-foreground">Grand total</p>
+            <p className="text-xl font-black">TZS {money(total)}</p>
+          </div>
+        </section>
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => history.back()}
+            className="rounded-xl border px-5 py-2.5 text-sm font-semibold"
+          >
+            Cancel
+          </button>
+          <button
+            disabled={saving}
+            className="rounded-xl bg-[#1f9c88] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {saving ? "Saving..." : receiveNow ? "Save & receive" : "Save order"}
+          </button>
+        </div>
+      </form>
     </FormShell>
-
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1">
-      <label className="block text-xs font-medium text-slate-700">
-        {label}{required && <span className="ml-0.5 text-rose-500">*</span>}
-      </label>
+    <label className="space-y-1 text-xs font-semibold text-slate-700">
+      <span>{label}</span>
       {children}
-    </div>
-  );
-}
-
-function SummaryRow({ label, value, muted, accent, bold }: { label: string; value: string; muted?: boolean; accent?: boolean; bold?: boolean }) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className={muted ? "text-slate-400" : "text-slate-600"}>{label}</span>
-      <span className={`tabular-nums ${bold ? "text-base font-bold text-slate-900" : accent ? "font-medium text-[#1f9c88]" : muted ? "text-slate-400" : "text-slate-700"}`}>
-        {value}
-      </span>
-    </div>
+    </label>
   );
 }

@@ -4,11 +4,12 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-const connectionString = process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/devele_erp";
+const connectionString =
+  process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/devele_erp";
 
 export const pool = new Pool({
   connectionString,
-  max: 10,
+  max: Number(process.env.DB_POOL_MAX || 5),
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 });

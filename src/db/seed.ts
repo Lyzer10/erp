@@ -1,131 +1,48 @@
+import "dotenv/config";
 import bcrypt from "bcryptjs";
-import crypto from "node:crypto";
-import { db, pool } from "./index";
-import { users } from "./schema";
 import { eq } from "drizzle-orm";
-import { seededUserStore } from "../lib/api/auth";
+import { db, pool } from "./index";
+import { businessSettings, users } from "./schema";
 
-export function generateStrongPassword(prefix = "DeveleERP"): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*";
-  const randomBuf = crypto.randomBytes(8);
-  let randomStr = "";
-  for (let i = 0; i < 8; i++) {
-    randomStr += chars[randomBuf[i] % chars.length];
+async function seed() {
+  const username = process.env.ADMIN_USERNAME?.trim();
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+  if (!username || !email || !password || password.length < 12) {
+    throw new Error(
+      "Set ADMIN_USERNAME, ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters before seeding.",
+    );
   }
-  return `${prefix}-${randomStr}`;
-}
-
-export async function seedDatabase() {
-  console.log("--------------------------------------------------");
-  console.log("🌱 SEEDING EVELE ERP DATABASE & USERS SYSTEM...");
-  console.log("--------------------------------------------------");
-
-  const demoPlainPassword = process.env.DEMO_USER_PASSWORD || generateStrongPassword("DemoAdmin");
-  const realPlainPassword = process.env.REAL_USER_PASSWORD || generateStrongPassword("ProdUser");
-
-  const testUserPasswordHash = await bcrypt.hash(demoPlainPassword, 10);
-  const realUserPasswordHash = await bcrypt.hash(realPlainPassword, 10);
-
-  // Populate fallback in-memory user store for bcrypt auth when DB is unseeded/offline
-  seededUserStore["erick"] = {
-    id: 1,
-    username: "erick",
-    email: "demo@devele.co",
-    passwordHash: testUserPasswordHash,
-    isTestUser: true,
-    role: "SuperAdmin",
-  };
-  seededUserStore["demo@devele.co"] = seededUserStore["erick"];
-
-  seededUserStore["realuser"] = {
-    id: 2,
-    username: "realuser",
-    email: "admin@devele.co",
-    passwordHash: realUserPasswordHash,
-    isTestUser: false,
-    role: "Manager",
-  };
-  seededUserStore["admin@devele.co"] = seededUserStore["realuser"];
-
-  // 1. Seed Demo User (is_test_user = true)
-  const existingTestUser = await db
-    .select()
+  const passwordHash = await bcrypt.hash(password, 12);
+  const existing = await db
+    .select({ id: users.id })
     .from(users)
-    .where(eq(users.username, "erick"))
-    .limit(1)
-    .catch(() => []);
-
-  if (existingTestUser.length === 0) {
-    await db
-      .insert(users)
-      .values({
-        username: "erick",
-        email: "demo@devele.co",
-        passwordHash: testUserPasswordHash,
-        isTestUser: true,
-        role: "SuperAdmin",
-        department: "All",
-      })
-      .catch((err) => console.log("Notice: In-memory fallback mode or DB warning:", err.message));
-  } else {
+    .where(eq(users.username, username))
+    .limit(1);
+  if (existing.length) {
     await db
       .update(users)
-      .set({ passwordHash: testUserPasswordHash })
-      .where(eq(users.username, "erick"))
-      .catch(() => {});
-  }
-
-  // 2. Seed Real User (is_test_user = false)
-  const existingRealUser = await db
-    .select()
-    .from(users)
-    .where(eq(users.username, "realuser"))
-    .limit(1)
-    .catch(() => []);
-
-  if (existingRealUser.length === 0) {
-    await db
-      .insert(users)
-      .values({
-        username: "realuser",
-        email: "admin@devele.co",
-        passwordHash: realUserPasswordHash,
-        isTestUser: false,
-        role: "Manager",
-        department: "Operations",
-      })
-      .catch((err) => console.log("Notice: In-memory fallback mode or DB warning:", err.message));
+      .set({ email, passwordHash, role: "SuperAdmin", status: "Active", isTestUser: false })
+      .where(eq(users.id, existing[0].id));
   } else {
-    await db
-      .update(users)
-      .set({ passwordHash: realUserPasswordHash })
-      .where(eq(users.username, "realuser"))
-      .catch(() => {});
+    await db.insert(users).values({
+      username,
+      email,
+      passwordHash,
+      role: "SuperAdmin",
+      status: "Active",
+      isTestUser: false,
+      department: "Administration",
+    });
   }
-
-  console.log("\n==================================================");
-  console.log("🔒 SECURE CREDENTIALS GENERATED FOR THIS DEPLOYMENT:");
-  console.log("==================================================");
-  console.log("🔑 DEMO / TEST USER (is_test_user = true):");
-  console.log(`   Username:    erick`);
-  console.log(`   Email:       demo@devele.co`);
-  console.log(`   Password:    ${demoPlainPassword}`);
-  console.log(`   isTestUser:  true`);
-  console.log(`   Permissions: Full Access (Finance, HR, Sales, Stock, POS)`);
-  console.log("--------------------------------------------------");
-  console.log("🔑 REAL PRODUCTION USER (is_test_user = false):");
-  console.log(`   Username:    realuser`);
-  console.log(`   Email:       admin@devele.co`);
-  console.log(`   Password:    ${realPlainPassword}`);
-  console.log(`   isTestUser:  false`);
-  console.log("==================================================\n");
-
-  return {
-    testUser: { username: "erick", email: "demo@devele.co", password: demoPlainPassword, isTestUser: true },
-    realUser: { username: "realuser", email: "admin@devele.co", password: realPlainPassword, isTestUser: false },
-  };
+  const settings = await db.select({ id: businessSettings.id }).from(businessSettings).limit(1);
+  if (!settings.length)
+    await db.insert(businessSettings).values({
+      businessName: process.env.BUSINESS_NAME?.trim() || "Pharmacy",
+      currency: "TZS",
+      taxRateBasisPoints: 0,
+    });
+  console.log("Production administrator and base settings are ready.");
 }
 
-if (process.argv[1]?.includes("seed")) {
-  seedDatabase().finally(() => pool.end().catch(() => {}));
-}
+seed().finally(() => pool.end());

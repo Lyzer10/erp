@@ -1,0 +1,118 @@
+-- Baseline for a completely empty PostgreSQL database. Later migrations are
+-- intentionally additive so this also remains safe for an existing install.
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  is_test_user BOOLEAN NOT NULL DEFAULT FALSE,
+  role TEXT NOT NULL DEFAULT 'User',
+  department TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  contact TEXT,
+  email TEXT,
+  phone TEXT,
+  balance INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Active',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS suppliers (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  contact TEXT,
+  email TEXT,
+  phone TEXT,
+  payable INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Active',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id SERIAL PRIMARY KEY,
+  sku TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  brand TEXT,
+  price INTEGER NOT NULL CHECK (price >= 0),
+  cost INTEGER NOT NULL CHECK (cost >= 0),
+  stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
+  reorder INTEGER NOT NULL DEFAULT 50 CHECK (reorder >= 0),
+  image TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS invoices (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  customer TEXT NOT NULL,
+  date TEXT NOT NULL,
+  due TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  type TEXT NOT NULL DEFAULT 'Invoice',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS expenses (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  category TEXT NOT NULL,
+  vendor TEXT NOT NULL,
+  date TEXT NOT NULL,
+  amount INTEGER NOT NULL CHECK (amount >= 0),
+  status TEXT NOT NULL DEFAULT 'Pending',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS staff (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  department TEXT NOT NULL,
+  role TEXT NOT NULL,
+  salary INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Active',
+  joined TEXT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  date TEXT NOT NULL,
+  account TEXT NOT NULL,
+  description TEXT NOT NULL,
+  debit INTEGER NOT NULL DEFAULT 0,
+  credit INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS purchase_orders (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  supplier TEXT NOT NULL,
+  date TEXT NOT NULL,
+  items INTEGER NOT NULL DEFAULT 1,
+  total INTEGER NOT NULL CHECK (total >= 0),
+  status TEXT NOT NULL DEFAULT 'Pending',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS payroll_runs (
+  id SERIAL PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  period TEXT NOT NULL,
+  employees INTEGER NOT NULL,
+  gross INTEGER NOT NULL,
+  net INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Completed',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -24,24 +24,24 @@ function LoginPage() {
     setErrorMessage(null);
 
     try {
-      if (username && password) {
-        await loginUserFn({ data: { username, password } }).catch(() => {});
+      const result = await loginUserFn({ data: { username, password } });
+      if (!result.success) {
+        setErrorMessage(result.message || "Invalid username or password.");
+        return;
       }
-    } catch {}
-
-    localStorage.setItem("is_logged_in", "true");
-    document.cookie = "is_logged_in=true; path=/;";
-    setLoading(false);
-    navigate({ to: "/" });
+      await navigate({ to: "/" });
+    } catch {
+      setErrorMessage("Unable to sign in. Check the server connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const copy = {
     signIn: lang === "en" ? "Sign In" : "Ingia",
     signUp: lang === "en" ? "Sign Up" : "Jisajili",
     welcome:
-      lang === "en"
-        ? "Welcome back — sign in to continue."
-        : "Karibu tena — ingia ili kuendelea.",
+      lang === "en" ? "Welcome back — sign in to continue." : "Karibu tena — ingia ili kuendelea.",
     emailPlaceholder: lang === "en" ? "Email or Username" : "Barua pepe au Jina",
     passPlaceholder: lang === "en" ? "Password" : "Nywila",
     forgot: lang === "en" ? "Forgot password?" : "Umesahau nywila?",
@@ -61,8 +61,7 @@ function LoginPage() {
         <div
           className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
-            background:
-              "radial-gradient(circle, rgba(31,156,136,0.18) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(31,156,136,0.18) 0%, transparent 70%)",
           }}
         />
 
@@ -98,9 +97,7 @@ function LoginPage() {
             <h2 className="text-[34px] font-bold leading-none tracking-[-0.02em] text-[#111113]">
               {copy.signIn}
             </h2>
-            <p className="mt-2.5 text-sm font-medium text-[#111113]/55">
-              {copy.welcome}
-            </p>
+            <p className="mt-2.5 text-sm font-medium text-[#111113]/55">{copy.welcome}</p>
           </div>
 
           {errorMessage && (
@@ -159,16 +156,11 @@ function LoginPage() {
               disabled={loading}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-semibold text-white shadow-lg shadow-[#1f9c88]/25 transition duration-150 hover:shadow-xl hover:shadow-[#1f9c88]/35 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f9c88] focus-visible:ring-offset-2"
               style={{
-                background:
-                  "linear-gradient(135deg, #25b89f 0%, #1f9c88 50%, #177d6d 100%)",
+                background: "linear-gradient(135deg, #25b89f 0%, #1f9c88 50%, #177d6d 100%)",
               }}
             >
               {loading ? (
-                <svg
-                  className="h-4 w-4 animate-spin"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -194,9 +186,7 @@ function LoginPage() {
         </div>
 
         <div className="relative mt-6 flex items-center justify-between border-t border-[#e2e8f0]/70 px-8 py-5 sm:px-12">
-          <p className="text-xs font-medium text-[#111113]/40">
-            {copy.copyright}
-          </p>
+          <p className="text-xs font-medium text-[#111113]/40">{copy.copyright}</p>
           <button
             type="button"
             className="text-xs font-medium text-[#111113]/40 transition hover:text-[#111113]/70 focus-visible:outline-none"

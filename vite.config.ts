@@ -4,6 +4,7 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import type { Plugin } from "vite";
+import { nitro } from "nitro/vite";
 
 function stripTanStackStartSourceMap(): Plugin {
   return {
@@ -28,6 +29,7 @@ export default defineConfig({
         autoStaticPathsDiscovery: false,
       },
     }),
+    nitro(),
     viteReact(),
     tailwindcss(),
     tsconfigPaths(),

@@ -1,11 +1,20 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AppShell } from "@/components/erp/AppShell";
+import { getCurrentUserFn } from "@/lib/api/auth";
 
 function AppShellWrapper() {
-  return <AppShell />;
+  const { user } = Route.useRouteContext();
+  return <AppShell user={user} />;
 }
 
 export const Route = createFileRoute("/_app")({
+  beforeLoad: async () => {
+    const user = await getCurrentUserFn();
+    if (!user) {
+      throw redirect({ to: "/login" });
+    }
+    return { user };
+  },
   component: AppShellWrapper,
 });
 

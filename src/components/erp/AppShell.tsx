@@ -5,18 +5,24 @@ import { Topbar } from "./Topbar";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "@/lib/i18n";
+import type { ShellUser } from "./Topbar";
 
-export function AppShell() {
+export function AppShell({ user }: { user: ShellUser }) {
   const { lang } = useTranslate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
+      <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} user={user} />
 
       {/* Mobile sidebar drawer */}
-      <div className={cn("fixed inset-0 z-50 lg:hidden", mobileOpen ? "pointer-events-auto" : "pointer-events-none")}>
+      <div
+        className={cn(
+          "fixed inset-0 z-50 lg:hidden",
+          mobileOpen ? "pointer-events-auto" : "pointer-events-none",
+        )}
+      >
         <div
           className={cn(
             "absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300",
@@ -24,10 +30,12 @@ export function AppShell() {
           )}
           onClick={() => setMobileOpen(false)}
         />
-        <div className={cn(
-          "absolute inset-y-0 left-0 w-64 transition-transform duration-300",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-        )}>
+        <div
+          className={cn(
+            "absolute inset-y-0 left-0 w-64 transition-transform duration-300",
+            mobileOpen ? "translate-x-0" : "-translate-x-full",
+          )}
+        >
           <div className="relative h-full">
             <button
               onClick={() => setMobileOpen(false)}
@@ -37,14 +45,18 @@ export function AppShell() {
               <X className="h-4 w-4" />
             </button>
             <div className="h-full bg-white p-1 lg:hidden">
-              <MobileSidebar onNavigate={() => setMobileOpen(false)} />
+              <MobileSidebar onNavigate={() => setMobileOpen(false)} user={user} />
             </div>
           </div>
         </div>
       </div>
 
       <div className={cn("flex flex-col min-h-screen", collapsed ? "lg:pl-16" : "lg:pl-64")}>
-        <Topbar onMenuClick={() => setMobileOpen(true)} onToggleSidebar={() => setCollapsed((c) => !c)} />
+        <Topbar
+          user={user}
+          onMenuClick={() => setMobileOpen(true)}
+          onToggleSidebar={() => setCollapsed((c) => !c)}
+        />
         <main className="flex-1 mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
@@ -59,7 +71,9 @@ export function AppShell() {
             ) : (
               <>
                 Haki miliki © 2026{" "}
-                <span className="font-semibold text-blue-600">Programu ya Uhasibu ya DeveleERP.</span>{" "}
+                <span className="font-semibold text-blue-600">
+                  Programu ya Uhasibu ya DeveleERP.
+                </span>{" "}
                 Haki zote zimehifadhiwa.
               </>
             )}
@@ -70,10 +84,13 @@ export function AppShell() {
   );
 }
 
-function MobileSidebar({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
+function MobileSidebar({
+  onNavigate,
+  user,
+}: Readonly<{ onNavigate: () => void; user: ShellUser }>) {
   return (
     <div className="[&>aside]:static [&>aside]:flex [&>aside]:h-full [&>aside]:w-64">
-      <AppSidebar onNavigate={onNavigate} collapsed={false} />
+      <AppSidebar onNavigate={onNavigate} collapsed={false} user={user} />
     </div>
   );
 }
