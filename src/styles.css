@@ -2,8 +2,6 @@
 @source "../src";
 @import "tw-animate-css";
 
-
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 6px);
   --radius-md: calc(var(--radius) - 4px);
@@ -120,7 +118,6 @@
   --sidebar-ring: #1f9c88;
 }
 
-
 @utility glass-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -131,7 +128,6 @@
   border-radius: var(--radius-2xl);
 }
 
-
 @utility glass-panel {
   background: var(--card);
   border: 1px solid var(--border);
@@ -140,7 +136,6 @@
     0 2px 4px -2px rgba(0, 0, 0, 0.02),
     0 0 0 1px rgba(0, 0, 0, 0.01);
 }
-
 
 @utility glass-nav {
   background: var(--sidebar);
@@ -164,7 +159,10 @@
     font-size: 0.875rem;
     line-height: 1.25rem;
     outline: none;
-    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease,
+      background-color 150ms ease;
   }
 
   .input-field::placeholder {
@@ -199,13 +197,13 @@
   }
 }
 
-
 @layer base {
   * {
     border-color: var(--color-border);
   }
 
-  html, body {
+  html,
+  body {
     font-family: var(--font-sans);
   }
 
@@ -217,5 +215,4 @@
       radial-gradient(1200px 600px at 10% -10%, rgba(31, 156, 136, 0.06), transparent 60%),
       radial-gradient(900px 500px at 110% 10%, rgba(1, 165, 216, 0.05), transparent 60%);
   }
-
 }

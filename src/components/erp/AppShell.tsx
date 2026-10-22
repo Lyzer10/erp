@@ -51,7 +51,12 @@ export function AppShell({ user }: { user: ShellUser }) {
         </div>
       </div>
 
-      <div className={cn("flex flex-col min-h-screen", collapsed ? "lg:pl-16" : "lg:pl-64")}>
+      <div
+        className={cn(
+          "flex min-h-screen flex-col transition-[padding] duration-200 ease-out",
+          collapsed ? "lg:pl-16" : "lg:pl-64",
+        )}
+      >
         <Topbar
           user={user}
           onMenuClick={() => setMobileOpen(true)}

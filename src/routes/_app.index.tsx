@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileWarning, Package, PackageCheck, PackageX, Receipt, ShoppingCart, TrendingUp, Wallet, type LucideIcon } from "lucide-react";
+import {
+  FileWarning,
+  Package,
+  PackageCheck,
+  PackageX,
+  Receipt,
+  ShoppingCart,
+  TrendingUp,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { KpiCard } from "@/components/erp/KpiCard";
 import { getDashboardFn } from "@/lib/api/operations";
@@ -94,11 +104,16 @@ function Dashboard() {
           {data.topProducts.length ? (
             <div className="space-y-4">
               {data.topProducts.map((product, index) => (
-                <div key={product.name} className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div
+                  key={product.name}
+                  className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center"
+                >
                   <div className="min-w-0">
                     <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
                       <span className="truncate font-medium text-foreground">
-                        <span className="mr-2 text-xs font-semibold text-slate-400">{index + 1}</span>
+                        <span className="mr-2 text-xs font-semibold text-slate-400">
+                          {index + 1}
+                        </span>
                         {product.name}
                       </span>
                       <span className="shrink-0 text-xs text-muted-foreground">
@@ -108,7 +123,9 @@ function Dashboard() {
                     <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                       <div
                         className="h-full rounded-full bg-[#1f9c88]"
-                        style={{ width: `${Math.max((product.revenue / highestProductRevenue) * 100, 4)}%` }}
+                        style={{
+                          width: `${Math.max((product.revenue / highestProductRevenue) * 100, 4)}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -134,8 +151,20 @@ function Dashboard() {
             </p>
           </div>
           <div className="divide-y divide-slate-100">
-            <AlertLink to="/store/stock" icon={PackageCheck} label={lang === "en" ? "Low stock" : "Bidhaa chache"} count={data.lowStock} tone="amber" />
-            <AlertLink to="/store/stock" icon={PackageX} label={lang === "en" ? "Out of stock" : "Bidhaa zimeisha"} count={data.outOfStock} tone="red" />
+            <AlertLink
+              to="/store/stock"
+              icon={PackageCheck}
+              label={lang === "en" ? "Low stock" : "Bidhaa chache"}
+              count={data.lowStock}
+              tone="amber"
+            />
+            <AlertLink
+              to="/store/stock"
+              icon={PackageX}
+              label={lang === "en" ? "Out of stock" : "Bidhaa zimeisha"}
+              count={data.outOfStock}
+              tone="red"
+            />
             <AlertLink
               to="/store/stock"
               icon={FileWarning}
@@ -176,10 +205,15 @@ function AlertLink({
         ? "bg-orange-100 text-orange-700"
         : "bg-amber-100 text-amber-700";
   return (
-    <Link to={to} className="flex items-center gap-3 px-1 py-3 transition-colors hover:bg-slate-50/80">
+    <Link
+      to={to}
+      className="flex items-center gap-3 px-1 py-3 transition-colors hover:bg-slate-50/80"
+    >
       <Icon className="h-4 w-4 shrink-0 text-slate-400" />
       <span className="flex-1 text-sm text-foreground">{label}</span>
-      <span className={`min-w-7 rounded-full px-2 py-0.5 text-center text-xs font-semibold ${badgeColor}`}>
+      <span
+        className={`min-w-7 rounded-full px-2 py-0.5 text-center text-xs font-semibold ${badgeColor}`}
+      >
         {count}
       </span>
     </Link>

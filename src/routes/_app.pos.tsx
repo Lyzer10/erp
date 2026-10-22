@@ -1,5 +1,14 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { Minus, Plus, Search, ShoppingCart, Trash2 } from "lucide-react";
+import {
+  Minus,
+  Package,
+  Plus,
+  Receipt,
+  ScanLine,
+  Search,
+  ShoppingCart,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { getCustomersFn, getProductsFn } from "@/lib/api/domain";
 import { getBusinessSettingsFn } from "@/lib/api/operations";
@@ -144,6 +153,28 @@ function PosPage() {
 
   return (
     <div className="space-y-4">
+      <div className="glass-card flex flex-wrap items-center justify-between gap-4 p-4">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-900 shadow-sm">
+            <ScanLine className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold tracking-tight text-slate-800">
+              {lang === "en" ? "DeveleERP Terminal" : "Kituo cha Mauzo"}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {lang === "en" ? "Live stock and secure checkout" : "Stoo halisi na malipo salama"}
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/sales/receipts"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+        >
+          <Receipt className="h-4 w-4 text-[#1f9c88]" />
+          {lang === "en" ? "View receipts" : "Angalia risiti"}
+        </Link>
+      </div>
       {isTestUser && (
         <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800">
           Demo mode: checkout is disabled so no temporary receipt can be mistaken for a real sale.
@@ -160,49 +191,85 @@ function PosPage() {
           </Link>
         </div>
       )}
-      <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
-        <section className="glass-card p-4">
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={lang === "en" ? "Search name or SKU" : "Tafuta jina au SKU"}
-              className="input-field pl-10"
-            />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <section className="space-y-4 lg:col-span-8">
+          <div className="glass-card p-4">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={
+                  lang === "en" ? "Search catalog by name or SKU..." : "Tafuta jina au SKU..."
+                }
+                className="input-field pl-9"
+              />
+            </div>
           </div>
-          <div className="grid max-h-[72vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 xl:grid-cols-4">
+          <div className="grid max-h-[66vh] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">
             {visibleProducts.map((product) => (
               <button
                 key={product.id}
                 type="button"
                 disabled={product.stock <= 0}
                 onClick={() => add(product)}
-                className="overflow-hidden rounded-xl border bg-white text-left shadow-sm transition hover:border-[#1f9c88] disabled:opacity-50"
+                className="group overflow-hidden rounded-xl border border-slate-200 bg-white text-left transition hover:border-[#1f9c88] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {product.image && (
-                  <img src={product.image} alt="" className="h-24 w-full object-cover" />
-                )}
+                <div className="relative flex h-20 items-end overflow-hidden border-b border-slate-100 bg-slate-100">
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                  ) : (
+                    <Package className="absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 text-slate-300" />
+                  )}
+                  <span className="relative m-2 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
+                    {product.stock > 0 ? `${product.stock} available` : "Out of stock"}
+                  </span>
+                </div>
                 <div className="p-3">
-                  <p className="truncate text-sm font-bold">{product.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {product.sku} · {product.stock} available
+                  <p className="truncate text-sm font-bold text-slate-800 transition-colors group-hover:text-[#177d6d]">
+                    {product.name}
                   </p>
-                  <p className="mt-2 font-black text-[#177d6d]">{money(product.price)}</p>
+                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {product.sku}
+                  </p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-sm font-extrabold text-slate-900">{money(product.price)}</p>
+                    <span className="rounded-lg bg-slate-50 p-1 text-[#1f9c88] transition group-hover:bg-[#1f9c88] group-hover:text-white">
+                      <Plus className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
                 </div>
               </button>
             ))}
+            {!visibleProducts.length && (
+              <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-white py-16 text-center text-sm text-muted-foreground">
+                {lang === "en"
+                  ? "No products match your search."
+                  : "Hakuna bidhaa inayolingana na utafutaji."}
+              </div>
+            )}
           </div>
         </section>
-        <section className="glass-card flex min-h-[70vh] flex-col p-4">
+        <section className="glass-card flex min-h-[70vh] flex-col p-4 lg:col-span-4 lg:h-[76vh]">
           <div className="mb-3 flex items-center gap-2 border-b pb-3">
-            <ShoppingCart className="h-5 w-5" />
-            <h2 className="font-bold">Current sale</h2>
-            <span className="ml-auto text-sm text-muted-foreground">{cart.length} lines</span>
+            <ShoppingCart className="h-4 w-4 text-[#1f9c88]" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              Current sale
+            </h2>
+            <span className="ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-900">
+              {cart.length} items
+            </span>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto">
             {cart.map((item) => (
-              <div key={item.id} className="rounded-xl border p-3">
+              <div
+                key={item.id}
+                className="space-y-2.5 rounded-xl border border-slate-100 bg-slate-50/60 p-3"
+              >
                 <div className="flex items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold">{item.name}</p>
@@ -212,17 +279,26 @@ function PosPage() {
                     onClick={() =>
                       setCart((current) => current.filter((row) => row.id !== item.id))
                     }
-                    className="text-rose-600"
+                    className="rounded-full p-1 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                    aria-label={`Remove ${item.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="mt-2 flex items-center gap-2">
-                  <button onClick={() => quantity(item.id, -1)} className="rounded border p-1">
+                  <button
+                    onClick={() => quantity(item.id, -1)}
+                    className="rounded-md border border-slate-200 bg-white p-1 text-slate-600 transition hover:bg-slate-100"
+                    aria-label={`Decrease ${item.name}`}
+                  >
                     <Minus className="h-3 w-3" />
                   </button>
                   <span className="w-8 text-center font-bold">{item.quantity}</span>
-                  <button onClick={() => quantity(item.id, 1)} className="rounded border p-1">
+                  <button
+                    onClick={() => quantity(item.id, 1)}
+                    className="rounded-md border border-slate-200 bg-white p-1 text-slate-600 transition hover:bg-slate-100"
+                    aria-label={`Increase ${item.name}`}
+                  >
                     <Plus className="h-3 w-3" />
                   </button>
                   <span className="ml-auto font-bold">{money(item.price * item.quantity)}</span>
@@ -292,7 +368,7 @@ function PosPage() {
                 />
               </label>
             )}
-            <div className="space-y-1 rounded-xl bg-slate-50 p-3 text-sm">
+            <div className="space-y-1.5 rounded-xl bg-slate-50 p-3 text-sm">
               <Row label="Subtotal" value={money(subtotal)} />
               <Row label="Discount" value={`- ${money(safeDiscount)}`} />
               <Row label={`Tax (${settings.taxRateBasisPoints / 100}%)`} value={money(tax)} />

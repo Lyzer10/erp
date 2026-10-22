@@ -21,9 +21,12 @@ export function KpiCard({ label, value, delta, hint, icon: Icon }: Props) {
       {(delta !== undefined || hint) && (
         <div className="mt-2 flex items-center gap-2 text-xs">
           {delta !== undefined && (
-            <span className={`inline-flex items-center gap-0.5 font-medium ${positive ? "text-emerald-600" : "text-rose-600"}`}>
+            <span
+              className={`inline-flex items-center gap-0.5 font-medium ${positive ? "text-emerald-600" : "text-rose-600"}`}
+            >
               {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              {positive ? "+" : ""}{delta}%
+              {positive ? "+" : ""}
+              {delta}%
             </span>
           )}
           {hint && <span className="text-muted-foreground">{hint}</span>}
