@@ -1,13 +1,82 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, LogIn, UserPlus, AlertCircle } from "lucide-react";
 import { useTranslate, setLanguage } from "@/lib/i18n";
 import { loginUserFn } from "@/lib/api/auth";
 
+const SLIDES = ["/login-bg-1.jpg", "/login-bg-2.jpg", "/login-bg-3.jpg"];
+const SLIDE_INTERVAL_MS = 8000;
+
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign In — DeveleERP" }] }),
+  head: () => ({
+    meta: [{ title: "Sign In — DeveleERP" }],
+    // Only the first slide is fetched with the page; the rest load after it is interactive.
+    links: [{ rel: "preload", as: "image", href: SLIDES[0], fetchPriority: "high" }],
+  }),
   component: LoginPage,
 });
+
+function BackgroundSlideshow() {
+  const [active, setActive] = useState(0);
+  const [ready, setReady] = useState<boolean[]>(() => SLIDES.map((_, index) => index === 0));
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let cancelled = false;
+    const load = () =>
+      SLIDES.slice(1).forEach((src, offset) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.onload = () =>
+          !cancelled &&
+          setReady((current) => current.map((value, index) => value || index === offset + 1));
+        image.src = src;
+      });
+    const idle = window.requestIdleCallback ?? ((callback: () => void) => setTimeout(callback, 1500));
+    idle(load);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (ready.filter(Boolean).length < 2) return;
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      setActive((current) => {
+        // Skip any slide that has not finished downloading yet.
+        for (let step = 1; step <= SLIDES.length; step++) {
+          const next = (current + step) % SLIDES.length;
+          if (ready[next]) return next;
+        }
+        return current;
+      });
+    }, SLIDE_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [ready]);
+
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      {SLIDES.map((src, index) =>
+        ready[index] ? (
+          <div
+            key={src}
+            className="absolute inset-0 bg-cover bg-center transition-opacity duration-[2000ms] ease-in-out will-change-[opacity]"
+            style={{ backgroundImage: `url('${src}')`, opacity: index === active ? 1 : 0 }}
+          />
+        ) : null,
+      )}
+      {/* Teal-tinted overlay keeps the sign-in card legible over the photos. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(15, 61, 54, 0.72) 0%, rgba(31, 156, 136, 0.45) 100%)",
+        }}
+      />
+    </div>
+  );
+}
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -50,21 +119,15 @@ function LoginPage() {
   };
 
   return (
-    <div
-      className="relative flex min-h-screen w-full items-center justify-center p-4 sm:p-6"
-      style={{
-        // Teal-tinted overlay keeps the sign-in card legible over the pharmacy photo.
-        background:
-          "linear-gradient(135deg, rgba(15, 61, 54, 0.72) 0%, rgba(31, 156, 136, 0.45) 100%), url('/login-bg.jpg') center / cover no-repeat, #0f3d36",
-      }}
-    >
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#0f3d36] p-4 sm:p-6">
+      <BackgroundSlideshow />
       <a
-        href="https://www.magnific.com/free-photo/two-african-american-pharmacist-working-drugstore-hospital-pharmacy-african-healthcare_26075676.htm"
+        href="https://www.magnific.com/author/asphotofamily"
         target="_blank"
         rel="noreferrer"
-        className="absolute bottom-3 right-4 text-[11px] text-white/60 transition hover:text-white/90"
+        className="absolute bottom-3 right-4 z-10 text-[11px] text-white/60 transition hover:text-white/90"
       >
-        Photo by ASphotofamily on Freepik
+        Photos by ASphotofamily on Freepik
       </a>
       <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/[0.04]">
         <div
