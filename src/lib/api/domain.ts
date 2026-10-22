@@ -14,6 +14,7 @@ import {
 } from "../../db/schema";
 import { authenticateRequest } from "../auth";
 import { resolveDataSource } from "../data-source";
+import { isExistingBucketResponse } from "../storage-errors";
 
 export const getCustomersFn = createServerFn({ method: "GET" }).handler(async () => {
   const ds = await resolveDataSource();
@@ -193,8 +194,11 @@ async function uploadProductImage(upload: {
     headers: { ...headers, "Content-Type": "application/json" },
     body: JSON.stringify({ id: "product-images", name: "product-images", public: true }),
   });
-  if (!bucketResponse.ok && bucketResponse.status !== 409) {
-    throw new Error("Product image storage could not be prepared.");
+  if (!bucketResponse.ok) {
+    const bucketError: unknown = await bucketResponse.json().catch(() => null);
+    if (!isExistingBucketResponse(bucketResponse.status, bucketError)) {
+      throw new Error("Product image storage could not be prepared.");
+    }
   }
 
   const extension = upload.contentType === "image/jpeg" ? "jpg" : upload.contentType.split("/")[1];
