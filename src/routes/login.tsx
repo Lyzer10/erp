@@ -68,10 +68,13 @@ function BackgroundSlideshow() {
           />
         ) : null,
       )}
-      {/* Photos stay clear; only a faint bottom shade so the credit line is readable. */}
+      {/* Teal-tinted overlay keeps the sign-in card legible over the photos. */}
       <div
-        className="absolute inset-x-0 bottom-0 h-24"
-        style={{ background: "linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent)" }}
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(15, 61, 54, 0.72) 0%, rgba(31, 156, 136, 0.45) 100%)",
+        }}
       />
     </div>
   );
