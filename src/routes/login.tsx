@@ -32,10 +32,12 @@ function BackgroundSlideshow() {
           setReady((current) => current.map((value, index) => value || index === offset + 1));
         image.src = src;
       });
-    const idle = window.requestIdleCallback ?? ((callback: () => void) => setTimeout(callback, 1500));
-    idle(load);
+    // Start right after the first slide has painted so every photo is ready by its turn.
+    if (document.readyState === "complete") load();
+    else window.addEventListener("load", load, { once: true });
     return () => {
       cancelled = true;
+      window.removeEventListener("load", load);
     };
   }, []);
 
@@ -66,13 +68,10 @@ function BackgroundSlideshow() {
           />
         ) : null,
       )}
-      {/* Teal-tinted overlay keeps the sign-in card legible over the photos. */}
+      {/* Photos stay clear; only a faint bottom shade so the credit line is readable. */}
       <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(15, 61, 54, 0.72) 0%, rgba(31, 156, 136, 0.45) 100%)",
-        }}
+        className="absolute inset-x-0 bottom-0 h-24"
+        style={{ background: "linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent)" }}
       />
     </div>
   );
@@ -129,7 +128,7 @@ function LoginPage() {
       >
         Photos by ASphotofamily on Freepik
       </a>
-      <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/[0.04]">
+      <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-black/30 ring-1 ring-black/[0.04]">
         <div
           className="pointer-events-none absolute -top-32 left-1/2 h-64 w-[120%] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
           style={{
