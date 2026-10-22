@@ -57,9 +57,7 @@ function PosPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
   const [customerId, setCustomerId] = useState<number | "">("");
-  const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
-  const [tendered, setTendered] = useState(0);
   const [mobileReference, setMobileReference] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,10 +74,8 @@ function PosPage() {
     [products, search],
   );
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const safeDiscount = Math.min(Math.max(0, discount), subtotal);
-  const tax = Math.round(((subtotal - safeDiscount) * settings.taxRateBasisPoints) / 10000);
-  const total = subtotal - safeDiscount + tax;
-  const change = paymentMethod === "cash" ? Math.max(0, tendered - total) : 0;
+  const tax = Math.round((subtotal * settings.taxRateBasisPoints) / 10000);
+  const total = subtotal + tax;
 
   function add(product: Product) {
     if (product.stock <= 0) return;
@@ -109,10 +105,6 @@ function PosPage() {
   async function checkout() {
     setError(null);
     if (!cart.length) return;
-    if (paymentMethod === "cash" && tendered < total) {
-      setError("Cash tendered is less than the total.");
-      return;
-    }
     if (paymentMethod === "credit" && !customerId) {
       setError("Choose a registered customer for a credit sale.");
       return;
@@ -131,7 +123,7 @@ function PosPage() {
         data: {
           customerId: customerId || null,
           items: cart.map((item) => ({ productId: item.id, quantity: item.quantity })),
-          discount: safeDiscount,
+          discount: 0,
           taxRateBasisPoints: settings.taxRateBasisPoints,
           payments: [
             { method: paymentMethod, amount: total, reference: mobileReference || undefined },
@@ -140,8 +132,6 @@ function PosPage() {
       });
       setReceipt({ receiptNumber: sale.receiptNumber, total: sale.total });
       setCart([]);
-      setDiscount(0);
-      setTendered(0);
       setMobileReference("");
       await router.invalidate();
     } catch (cause) {
@@ -336,28 +326,6 @@ function PosPage() {
                 </button>
               ))}
             </div>
-            <label className="flex items-center justify-between gap-3 text-sm">
-              Discount (TZS)
-              <input
-                min={0}
-                type="number"
-                value={discount}
-                onChange={(event) => setDiscount(Math.max(0, Number(event.target.value)))}
-                className="input-field w-36"
-              />
-            </label>
-            {paymentMethod === "cash" && (
-              <label className="flex items-center justify-between gap-3 text-sm">
-                Cash tendered
-                <input
-                  min={0}
-                  type="number"
-                  value={tendered}
-                  onChange={(event) => setTendered(Math.max(0, Number(event.target.value)))}
-                  className="input-field w-36"
-                />
-              </label>
-            )}
             {paymentMethod === "mobile" && (
               <label className="block text-sm">
                 Confirmed reference
@@ -370,10 +338,8 @@ function PosPage() {
             )}
             <div className="space-y-1.5 rounded-xl bg-slate-50 p-3 text-sm">
               <Row label="Subtotal" value={money(subtotal)} />
-              <Row label="Discount" value={`- ${money(safeDiscount)}`} />
               <Row label={`Tax (${settings.taxRateBasisPoints / 100}%)`} value={money(tax)} />
               <Row label="Total" value={money(total)} strong />
-              {paymentMethod === "cash" && <Row label="Change" value={money(change)} />}
             </div>
             {error && (
               <p
