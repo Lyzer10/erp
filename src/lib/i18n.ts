@@ -751,11 +751,11 @@ export const translations = {
     openingQuantity: "Quantity being added",
     openingQuantityHelp: "Enter selling units, not boxes. Example: 100 tablets.",
     batchNumber: "Batch number",
-    batchNumberHelp: "The lot or batch code printed on the package.",
+    batchNumberHelp: "If available, enter the lot or batch code printed on the package.",
     expiryDate: "Expiry date",
     expiryDateHelp: "The expiry date printed on this batch.",
     openingStockReason: "Reason / source",
-    openingStockReasonHelp: "For example: Opening balance or supplier delivery.",
+    openingStockReasonHelp: "If useful, note where the stock came from.",
     pharmacyStock: "Pharmacy Stock",
     pharmacyStockDescription:
       "Live stock, batches, expiry dates and an immutable movement history.",
@@ -775,6 +775,7 @@ export const translations = {
     adjustmentAuditWarning:
       "Adjustments cannot be silently deleted; reverse an error with a second explained adjustment.",
     stockAdjustmentFailed: "Stock adjustment failed.",
+    optional: "optional",
   },
 
   sw: {
@@ -1470,11 +1471,11 @@ export const translations = {
     openingQuantity: "Idadi inayoongezwa",
     openingQuantityHelp: "Weka vipimo vya kuuza, si maboksi. Mfano: vidonge 100.",
     batchNumber: "Namba ya kundi",
-    batchNumberHelp: "Namba ya kundi iliyoandikwa kwenye kifurushi.",
+    batchNumberHelp: "Ikiwa ipo, weka namba ya kundi iliyoandikwa kwenye kifurushi.",
     expiryDate: "Tarehe ya mwisho wa matumizi",
     expiryDateHelp: "Tarehe ya mwisho iliyoandikwa kwenye kundi hili.",
     openingStockReason: "Sababu / chanzo",
-    openingStockReasonHelp: "Mfano: Stoo ya kuanzia au mzigo kutoka kwa msambazaji.",
+    openingStockReasonHelp: "Ukitaka, eleza bidhaa zimetoka wapi.",
     pharmacyStock: "Bidhaa za Duka la Dawa",
     pharmacyStockDescription: "Stoo iliyopo, makundi, tarehe za mwisho na historia ya mabadiliko.",
     adjustStock: "Rekebisha stoo",
@@ -1493,6 +1494,7 @@ export const translations = {
     adjustmentAuditWarning:
       "Marekebisho hayawezi kufutwa kimya; sahihisha kosa kwa marekebisho mengine yenye maelezo.",
     stockAdjustmentFailed: "Marekebisho ya stoo yameshindwa.",
+    optional: "si lazima",
   },
 };
 

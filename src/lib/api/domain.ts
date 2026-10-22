@@ -165,9 +165,9 @@ export const createProductFn = createServerFn({ method: "POST" })
       openingStock: z
         .object({
           quantity: z.number().int().positive(),
-          batchNumber: z.string().trim().min(1).max(100),
+          batchNumber: z.string().trim().min(1).max(100).optional(),
           expiryDate: z.string().date(),
-          reason: z.string().trim().min(3).max(300),
+          reason: z.string().trim().min(3).max(300).optional(),
         })
         .optional(),
     }),
@@ -197,7 +197,7 @@ export const createProductFn = createServerFn({ method: "POST" })
           .insert(productBatches)
           .values({
             productId: product.id,
-            batchNumber: openingStock.batchNumber,
+            batchNumber: openingStock.batchNumber || `OPEN-${Date.now()}`,
             expiryDate: openingStock.expiryDate,
             quantity: openingStock.quantity,
             unitCost: product.cost,
@@ -211,7 +211,7 @@ export const createProductFn = createServerFn({ method: "POST" })
           referenceType: "PRODUCT_CREATION",
           referenceId: product.id,
           performedBy: Number(ds.user.id),
-          reason: openingStock.reason,
+          reason: openingStock.reason || "Opening stock",
         });
       }
       return product;

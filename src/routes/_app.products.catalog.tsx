@@ -127,9 +127,9 @@ function CatalogPage() {
           openingStock: form.openingQuantity
             ? {
                 quantity: Number(form.openingQuantity),
-                batchNumber: form.openingBatchNumber,
+                batchNumber: form.openingBatchNumber || undefined,
                 expiryDate: form.openingExpiryDate,
-                reason: form.openingReason,
+                reason: form.openingReason || undefined,
               }
             : undefined,
           imageUpload: imageUpload || undefined,
@@ -601,10 +601,9 @@ function CatalogPage() {
                   min={1}
                 />
                 <Text
-                  label={t("batchNumber")}
+                  label={`${t("batchNumber")} (${t("optional")})`}
                   value={form.openingBatchNumber}
                   setValue={(value) => field("openingBatchNumber", value)}
-                  required={Boolean(form.openingQuantity)}
                   help={t("batchNumberHelp")}
                 />
                 <label className="block text-sm font-semibold">
@@ -621,10 +620,9 @@ function CatalogPage() {
                   </span>
                 </label>
                 <Text
-                  label={t("openingStockReason")}
+                  label={`${t("openingStockReason")} (${t("optional")})`}
                   value={form.openingReason}
                   setValue={(value) => field("openingReason", value)}
-                  required={Boolean(form.openingQuantity)}
                   help={t("openingStockReasonHelp")}
                 />
               </div>
