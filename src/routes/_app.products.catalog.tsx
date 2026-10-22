@@ -52,6 +52,34 @@ export const Route = createFileRoute("/_app/products/catalog")({
 
 const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(value)}`;
 
+const purchaseUnits = [
+  ["box", "Box", "Boksi"],
+  ["carton", "Carton", "Katoni"],
+  ["pack", "Pack", "Pakiti"],
+  ["bottle", "Bottle", "Chupa"],
+  ["strip", "Strip", "Stripu"],
+  ["tube", "Tube", "Tyubu"],
+  ["sachet", "Sachet", "Kifuko"],
+  ["vial", "Vial", "Kichupa cha dawa"],
+  ["ampoule", "Ampoule", "Ampuli"],
+  ["piece", "Single piece", "Moja moja"],
+] as const;
+
+const sellingUnits = [
+  ["tablet", "Tablet", "Kidonge"],
+  ["capsule", "Capsule", "Kapsuli"],
+  ["bottle", "Bottle", "Chupa"],
+  ["strip", "Strip", "Stripu"],
+  ["pack", "Pack", "Pakiti"],
+  ["sachet", "Sachet", "Kifuko"],
+  ["tube", "Tube", "Tyubu"],
+  ["vial", "Vial", "Kichupa cha dawa"],
+  ["ampoule", "Ampoule", "Ampuli"],
+  ["piece", "Piece", "Moja"],
+  ["ml", "Millilitre (ml)", "Mililita (ml)"],
+  ["gram", "Gram (g)", "Gramu (g)"],
+] as const;
+
 function CatalogPage() {
   const navigate = useNavigate();
   const { lang, t } = useTranslate();
@@ -501,16 +529,27 @@ function CatalogPage() {
                 value={form.barcode}
                 setValue={(value) => field("barcode", value)}
               />
-              <Text
+              <SelectField
                 label={t("purchaseUnit")}
                 value={form.purchaseUnit}
                 setValue={(value) => field("purchaseUnit", value)}
+                options={purchaseUnits.map(([value, en, sw]) => ({
+                  value,
+                  label: lang === "en" ? en : sw,
+                }))}
+                placeholder={t("choosePurchaseUnit")}
+                help={t("purchaseUnitHelp")}
                 required
               />
-              <Text
+              <SelectField
                 label={t("sellingUnit")}
                 value={form.sellingUnit}
                 setValue={(value) => field("sellingUnit", value)}
+                options={sellingUnits.map(([value, en, sw]) => ({
+                  value,
+                  label: lang === "en" ? en : sw,
+                }))}
+                placeholder={t("chooseSellingUnit")}
                 help={t("sellingUnitHelp")}
                 required
               />
@@ -632,6 +671,46 @@ function NumberField({
         onChange={(event) => setValue(event.target.value)}
         className="input-field mt-1"
       />
+      {help && <span className="mt-1 block text-xs font-normal text-slate-500">{help}</span>}
+    </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  setValue,
+  options,
+  placeholder,
+  required,
+  help,
+}: {
+  label: string;
+  value: string;
+  setValue: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+  placeholder: string;
+  required?: boolean;
+  help?: string;
+}) {
+  return (
+    <label className="block text-sm font-semibold">
+      {label}
+      <select
+        required={required}
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        className="input-field mt-1"
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
       {help && <span className="mt-1 block text-xs font-normal text-slate-500">{help}</span>}
     </label>
   );

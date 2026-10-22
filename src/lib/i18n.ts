@@ -744,6 +744,9 @@ export const translations = {
     costPerSellingUnitHelp: "Your buying cost for one selling unit, not the full box.",
     sellingPriceHelp: "The amount the customer pays for one selling unit.",
     saveAndAddStock: "Save and add stock",
+    choosePurchaseUnit: "Choose purchase unit",
+    chooseSellingUnit: "Choose selling unit",
+    purchaseUnitHelp: "The package you receive from a supplier, for example a box or carton.",
   },
 
   sw: {
@@ -1432,6 +1435,9 @@ export const translations = {
     costPerSellingUnitHelp: "Gharama yako ya kununua kipimo kimoja, si boksi zima.",
     sellingPriceHelp: "Kiasi anacholipa mteja kwa kipimo kimoja.",
     saveAndAddStock: "Hifadhi na ongeza stoo",
+    choosePurchaseUnit: "Chagua kifurushi cha kununua",
+    chooseSellingUnit: "Chagua kipimo cha kuuza",
+    purchaseUnitHelp: "Kifurushi unachopokea kutoka kwa msambazaji, kwa mfano boksi au katoni.",
   },
 };
 
