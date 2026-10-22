@@ -330,7 +330,7 @@ export const getDashboardFn = createServerFn({ method: "GET" }).handler(async ()
       salesCount: sql<number>`count(*)::int`,
     })
     .from(sales)
-    .where(sql`${sales.createdAt}::date = ${today}::date`);
+    .where(and(eq(sales.status, "Completed"), sql`${sales.createdAt}::date = ${today}::date`));
   const [expenseTotals] = await db
     .select({ amount: sql<number>`coalesce(sum(${expenses.amount}), 0)::int` })
     .from(expenses)
@@ -358,9 +358,44 @@ export const getDashboardFn = createServerFn({ method: "GET" }).handler(async ()
     })
     .from(saleItems)
     .innerJoin(products, eq(products.id, saleItems.productId))
+    .innerJoin(sales, eq(sales.id, saleItems.saleId))
+    .where(eq(sales.status, "Completed"))
     .groupBy(products.id, products.name)
     .orderBy(sql`sum(${saleItems.lineTotal}) desc`)
     .limit(5);
+  const topCustomers = await db
+    .select({
+      name: customers.name,
+      revenue: sql<number>`sum(${sales.total})::int`,
+    })
+    .from(sales)
+    .innerJoin(customers, eq(customers.id, sales.customerId))
+    .where(eq(sales.status, "Completed"))
+    .groupBy(customers.id, customers.name)
+    .orderBy(sql`sum(${sales.total}) desc`)
+    .limit(5);
+  // Last six calendar months including the current one, zero-filled so empty months still plot.
+  const monthRows = await db
+    .select({
+      month: sql<string>`to_char(date_trunc('month', ${sales.createdAt}), 'YYYY-MM')`,
+      revenue: sql<number>`sum(${sales.total})::int`,
+      salesCount: sql<number>`count(*)::int`,
+    })
+    .from(sales)
+    .where(
+      and(
+        eq(sales.status, "Completed"),
+        sql`${sales.createdAt} >= date_trunc('month', current_date) - interval '5 months'`,
+      ),
+    )
+    .groupBy(sql`1`);
+  const now = new Date();
+  const monthlySales = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5 + index, 1));
+    const month = date.toISOString().slice(0, 7);
+    const row = monthRows.find((item) => item.month === month);
+    return { month, revenue: row?.revenue ?? 0, salesCount: row?.salesCount ?? 0 };
+  });
   return {
     revenue: saleTotals.revenue,
     salesCount: saleTotals.salesCount,
@@ -370,6 +405,8 @@ export const getDashboardFn = createServerFn({ method: "GET" }).handler(async ()
     ...stockTotals,
     ...expiryTotals,
     topProducts,
+    topCustomers,
+    monthlySales,
   };
 });
 

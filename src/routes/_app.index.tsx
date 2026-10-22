@@ -10,6 +10,7 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
+import { EChart } from "@/components/charts/EChart";
 import { GlassCard } from "@/components/erp/GlassCard";
 import { KpiCard } from "@/components/erp/KpiCard";
 import { getDashboardFn } from "@/lib/api/operations";
@@ -25,7 +26,20 @@ type DashboardData = {
   outOfStock: number;
   nearExpiry: number;
   topProducts: Array<{ name: string; quantity: number; revenue: number }>;
+  topCustomers: Array<{ name: string; revenue: number }>;
+  monthlySales: Array<{ month: string; revenue: number; salesCount: number }>;
 };
+
+const BRAND = "#1f9c88";
+const BRAND_SOFT = "#a6e3dd";
+const INK_MUTED = "#64748b";
+const GRID = "#f1f5f9";
+
+function compact(value: number) {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`;
+  return String(value);
+}
 
 export const Route = createFileRoute("/_app/")({
   head: () => ({
@@ -73,7 +87,6 @@ function Dashboard() {
       tint: "violet" as const,
     },
   ];
-  const highestProductRevenue = Math.max(...data.topProducts.map((product) => product.revenue), 1);
   return (
     <div className="space-y-6">
       <div>
@@ -92,55 +105,7 @@ function Dashboard() {
         ))}
       </div>
       <div className="grid gap-5 lg:grid-cols-3">
-        <GlassCard className="lg:col-span-2">
-          <div className="mb-4 border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-semibold text-foreground">
-              {lang === "en" ? "Top-selling products" : "Bidhaa Zinazouzwa Zaidi"}
-            </h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {lang === "en" ? "Ranked by today's posted sales" : "Kwa mauzo ya leo yaliyokamilika"}
-            </p>
-          </div>
-          {data.topProducts.length ? (
-            <div className="space-y-4">
-              {data.topProducts.map((product, index) => (
-                <div
-                  key={product.name}
-                  className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center"
-                >
-                  <div className="min-w-0">
-                    <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
-                      <span className="truncate font-medium text-foreground">
-                        <span className="mr-2 text-xs font-semibold text-slate-400">
-                          {index + 1}
-                        </span>
-                        {product.name}
-                      </span>
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {product.quantity} {lang === "en" ? "sold" : "zimeuzwa"}
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                      <div
-                        className="h-full rounded-full bg-[#1f9c88]"
-                        style={{
-                          width: `${Math.max((product.revenue / highestProductRevenue) * 100, 4)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <span className="text-right text-sm font-semibold text-foreground">
-                    {money(product.revenue)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              No completed sales yet.
-            </p>
-          )}
-        </GlassCard>
+        <SalesTrendCard months={data.monthlySales} lang={lang} />
         <GlassCard>
           <div className="mb-2 border-b border-slate-100 pb-3">
             <h2 className="text-sm font-semibold text-foreground">
@@ -181,7 +146,195 @@ function Dashboard() {
           </Link>
         </GlassCard>
       </div>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <RankingCard
+          title={lang === "en" ? "Top-selling products" : "Bidhaa zinazouzwa zaidi"}
+          subtitle={
+            lang === "en" ? "Revenue from completed sales" : "Mapato ya mauzo yaliyokamilika"
+          }
+          rows={data.topProducts}
+          empty={lang === "en" ? "No completed sales yet." : "Bado hakuna mauzo yaliyokamilika."}
+        />
+        <RankingCard
+          title={lang === "en" ? "Top customers" : "Wateja wakubwa"}
+          subtitle={
+            lang === "en"
+              ? "Registered customers by spend"
+              : "Wateja waliosajiliwa kwa manunuzi yao"
+          }
+          rows={data.topCustomers}
+          empty={
+            lang === "en"
+              ? "No sales to registered customers yet."
+              : "Bado hakuna mauzo kwa wateja waliosajiliwa."
+          }
+        />
+      </div>
     </div>
+  );
+}
+
+function SalesTrendCard({ months, lang }: { months: DashboardData["monthlySales"]; lang: string }) {
+  const labels = months.map(({ month }) =>
+    new Date(`${month}-01T00:00:00`).toLocaleString(lang === "en" ? "en-GB" : "sw-TZ", {
+      month: "short",
+    }),
+  );
+  const bestIndex = months.reduce(
+    (top, item, index) => (item.revenue > months[top].revenue ? index : top),
+    0,
+  );
+  const average = Math.round(months.reduce((sum, item) => sum + item.revenue, 0) / months.length);
+  const current = months[months.length - 1];
+  const previous = months[months.length - 2];
+  const growth = previous.revenue
+    ? ((current.revenue - previous.revenue) / previous.revenue) * 100
+    : null;
+  return (
+    <GlassCard className="lg:col-span-2">
+      <div className="mb-2 border-b border-slate-100 pb-3">
+        <h2 className="text-sm font-semibold text-foreground">
+          {lang === "en" ? "Sales trend" : "Mwenendo wa mauzo"}
+        </h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {lang === "en"
+            ? "Completed sales, last 6 months"
+            : "Mauzo yaliyokamilika, miezi 6 iliyopita"}
+        </p>
+      </div>
+      <EChart
+        height={280}
+        option={{
+          legend: { show: false },
+          tooltip: {
+            trigger: "axis",
+            axisPointer: { type: "shadow" },
+            confine: true,
+            valueFormatter: (value) => money(Number(value)),
+          },
+          grid: { left: 8, right: 8, top: 16, bottom: 8, containLabel: true },
+          xAxis: {
+            type: "category",
+            data: labels,
+            axisLine: { lineStyle: { color: "#cbd5e1" } },
+            axisTick: { show: false },
+            axisLabel: { fontSize: 12, color: INK_MUTED },
+          },
+          yAxis: {
+            type: "value",
+            splitLine: { lineStyle: { color: GRID, type: "dashed" } },
+            axisLabel: {
+              formatter: (value: number) => compact(value),
+              fontSize: 11,
+              color: INK_MUTED,
+            },
+          },
+          series: [
+            {
+              name: lang === "en" ? "Revenue" : "Mapato",
+              type: "bar",
+              barMaxWidth: 32,
+              // The current month is emphasised; earlier months recede.
+              data: months.map((item, index) => ({
+                value: item.revenue,
+                itemStyle: { color: index === months.length - 1 ? BRAND : BRAND_SOFT },
+              })),
+              itemStyle: { borderRadius: [4, 4, 0, 0] },
+            },
+          ],
+        }}
+      />
+      <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-4 text-center">
+        <Stat
+          label={lang === "en" ? "Best month" : "Mwezi bora"}
+          value={
+            months[bestIndex].revenue
+              ? `${labels[bestIndex]} · ${money(months[bestIndex].revenue)}`
+              : "—"
+          }
+        />
+        <Stat
+          label={lang === "en" ? "Monthly average" : "Wastani wa mwezi"}
+          value={money(average)}
+        />
+        <Stat
+          label={lang === "en" ? "vs last month" : "Dhidi ya mwezi uliopita"}
+          value={growth === null ? "—" : `${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%`}
+        />
+      </div>
+    </GlassCard>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-slate-50/60 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="mt-1 text-sm font-bold text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function RankingCard({
+  title,
+  subtitle,
+  rows,
+  empty,
+}: {
+  title: string;
+  subtitle: string;
+  rows: Array<{ name: string; revenue: number }>;
+  empty: string;
+}) {
+  // ECharts draws category axes bottom-up, so reverse to put the leader on top.
+  const ordered = [...rows].reverse();
+  return (
+    <GlassCard>
+      <div className="mb-2 border-b border-slate-100 pb-3">
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+      </div>
+      {rows.length ? (
+        <EChart
+          height={Math.max(160, rows.length * 44)}
+          option={{
+            legend: { show: false },
+            tooltip: {
+              trigger: "axis",
+              axisPointer: { type: "shadow" },
+              confine: true,
+              valueFormatter: (value) => money(Number(value)),
+            },
+            grid: { left: 8, right: 56, top: 8, bottom: 8, containLabel: true },
+            xAxis: { type: "value", show: false },
+            yAxis: {
+              type: "category",
+              data: ordered.map((row) => row.name),
+              axisLine: { show: false },
+              axisTick: { show: false },
+              axisLabel: { fontSize: 12, color: "#334155", width: 140, overflow: "truncate" },
+            },
+            series: [
+              {
+                type: "bar",
+                data: ordered.map((row) => row.revenue),
+                barMaxWidth: 16,
+                itemStyle: { color: BRAND, borderRadius: [0, 4, 4, 0] },
+                label: {
+                  show: true,
+                  position: "right",
+                  color: INK_MUTED,
+                  fontSize: 11,
+                  formatter: ({ value }) => compact(Number(value)),
+                },
+              },
+            ],
+          }}
+        />
+      ) : (
+        <p className="py-12 text-center text-sm text-muted-foreground">{empty}</p>
+      )}
+    </GlassCard>
   );
 }
 
