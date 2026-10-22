@@ -16,6 +16,7 @@ import {
 } from "../../db/schema";
 import { authenticateRequest } from "../auth";
 import { calculateSaleTotals } from "../sale-calculations";
+import { requireModuleAccess } from "../permissions";
 
 const saleInput = z.object({
   customerId: z.number().int().positive().nullable().optional(),
@@ -51,6 +52,7 @@ export const createSaleFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const user = await authenticateRequest(getRequest());
     if (!user) throw new Error("UNAUTHENTICATED");
+    await requireModuleAccess(user, "pos");
     if (user.isTestUser) throw new Error("Demo checkout is not a persistent sale.");
     if (!["SuperAdmin", "Admin", "Pharmacist", "Cashier"].includes(user.role)) {
       throw new Error("Your role cannot post sales.");

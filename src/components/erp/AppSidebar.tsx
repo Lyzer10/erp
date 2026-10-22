@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import type { ShellUser } from "./Topbar";
 
 type NavItem = { label: string; to: string };
-type NavGroup = { label: string; icon: LucideIcon; items: NavItem[] };
+type NavGroup = { key: string; label: string; icon: LucideIcon; items: NavItem[] };
 
 export function AppSidebar({
   onNavigate,
@@ -37,6 +37,7 @@ export function AppSidebar({
   const initials = user.username.slice(0, 2).toUpperCase();
   const groups: NavGroup[] = [
     {
+      key: "stakeholders",
       label: t("stakeholders"),
       icon: Users,
       items: [
@@ -45,6 +46,7 @@ export function AppSidebar({
       ],
     },
     {
+      key: "sales",
       label: t("sales"),
       icon: Receipt,
       items: [
@@ -54,6 +56,7 @@ export function AppSidebar({
       ],
     },
     {
+      key: "inventory",
       label: t("inventory"),
       icon: Warehouse,
       items: [
@@ -63,6 +66,7 @@ export function AppSidebar({
       ],
     },
     {
+      key: "procurement",
       label: t("procurement"),
       icon: ShoppingCart,
       items: [
@@ -70,10 +74,11 @@ export function AppSidebar({
         { label: t("purchases"), to: "/products/purchase-orders" },
       ],
     },
-    { label: t("humanResource"), icon: Users, items: [{ label: t("staff"), to: "/hr/staff" }] },
-  ];
-  if (["SuperAdmin", "Admin"].includes(user.role))
+    { key: "hr", label: t("humanResource"), icon: Users, items: [{ label: t("staff"), to: "/hr/staff" }] },
+  ].filter((group) => user.modules.includes(group.key));
+  if (user.modules.includes("administration"))
     groups.push({
+      key: "administration",
       label: t("administration"),
       icon: Settings,
       items: [
@@ -136,22 +141,14 @@ export function AppSidebar({
         </button>
       )}
       <nav className={cn("flex-1 space-y-1 overflow-y-auto py-4", collapsed ? "px-2" : "px-3")}>
-        <DirectLink
-          to="/"
-          label={t("dashboard")}
-          icon={LayoutDashboard}
-          active={pathname === "/"}
-          collapsed={collapsed}
-          onNavigate={onNavigate}
-        />
-        <DirectLink
-          to="/pos"
-          label={t("pointOfSale")}
-          icon={ScanLine}
-          active={pathname === "/pos"}
-          collapsed={collapsed}
-          onNavigate={onNavigate}
-        />
+        {user.modules.includes("dashboard") && <DirectLink
+          to="/" label={t("dashboard")} icon={LayoutDashboard} active={pathname === "/"}
+          collapsed={collapsed} onNavigate={onNavigate}
+        />}
+        {user.modules.includes("pos") && <DirectLink
+          to="/pos" label={t("pointOfSale")} icon={ScanLine} active={pathname === "/pos"}
+          collapsed={collapsed} onNavigate={onNavigate}
+        />}
         <div className="my-3 h-px bg-slate-200" />
         {groups.map((group) => (
           <NavGroupSection

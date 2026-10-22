@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PosDisplayRouteImport } from './routes/pos-display'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
+import { Route as AppAccessDeniedRouteImport } from './routes/_app.access-denied'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
 import { Route as AppAdminSettingsRouteImport } from './routes/_app.admin.settings'
 import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
@@ -63,6 +64,11 @@ const PosDisplayRoute = PosDisplayRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAccessDeniedRoute = AppAccessDeniedRouteImport.update({
+  id: '/access-denied',
+  path: '/access-denied',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPosRoute = AppPosRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/pos-display': typeof PosDisplayRoute
+  '/access-denied': typeof AppAccessDeniedRoute
   '/pos': typeof AppPosRoute
   '/admin/settings': typeof AppAdminSettingsRoute
   '/admin/users': typeof AppAdminUsersRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/pos-display': typeof PosDisplayRoute
+  '/access-denied': typeof AppAccessDeniedRoute
   '/pos': typeof AppPosRoute
   '/': typeof AppIndexRoute
   '/admin/settings': typeof AppAdminSettingsRoute
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/pos-display': typeof PosDisplayRoute
+  '/_app/access-denied': typeof AppAccessDeniedRoute
   '/_app/pos': typeof AppPosRoute
   '/_app/': typeof AppIndexRoute
   '/_app/admin/settings': typeof AppAdminSettingsRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/pos-display'
+    | '/access-denied'
     | '/pos'
     | '/admin/settings'
     | '/admin/users'
@@ -389,6 +399,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/pos-display'
+    | '/access-denied'
     | '/pos'
     | '/'
     | '/admin/settings'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/login'
     | '/pos-display'
+    | '/_app/access-denied'
     | '/_app/pos'
     | '/_app/'
     | '/_app/admin/settings'
@@ -494,6 +506,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/access-denied': {
+      id: '/_app/access-denied'
+      path: '/access-denied'
+      fullPath: '/access-denied'
+      preLoaderRoute: typeof AppAccessDeniedRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/pos': {
@@ -755,6 +774,7 @@ const AppSalesInvoicesRouteWithChildren =
   AppSalesInvoicesRoute._addFileChildren(AppSalesInvoicesRouteChildren)
 
 interface AppRouteChildren {
+  AppAccessDeniedRoute: typeof AppAccessDeniedRoute
   AppPosRoute: typeof AppPosRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAdminSettingsRoute: typeof AppAdminSettingsRoute
@@ -786,6 +806,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccessDeniedRoute: AppAccessDeniedRoute,
   AppPosRoute: AppPosRoute,
   AppIndexRoute: AppIndexRoute,
   AppAdminSettingsRoute: AppAdminSettingsRoute,

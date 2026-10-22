@@ -6,6 +6,7 @@ import { db } from "../../db";
 import { users } from "../../db/schema";
 import { eq, or } from "drizzle-orm";
 import { generateToken, authenticateRequest } from "../auth";
+import { getEffectiveModules } from "../permissions";
 
 export const loginUserInternal = createServerOnlyFn(
   async ({ username, password }: { username: string; password: string }) => {
@@ -109,6 +110,7 @@ export const getCurrentUserFn = createServerFn({ method: "GET" }).handler(async 
         email: user.email,
         role: user.role,
         isTestUser: user.isTestUser,
+        modules: await getEffectiveModules(user),
       }
     : null;
 });

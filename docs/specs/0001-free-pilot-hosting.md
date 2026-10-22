@@ -18,6 +18,7 @@ The system handles pharmacy, customer, staff, inventory, and sales information. 
 
 * As an administrator, I want to sign in to the hosted application so that I can operate the ERP from an internet connected browser.
 * As an operator, I want deployment checks to fail clearly when configuration or the database is unavailable so that a broken release is not mistaken for a working one.
+* As the platform owner, I want a separate test deployment and data store so that trial medicines, sales, and users never appear to a pharmacy.
 
 **Acceptance criteria**:
 
@@ -27,6 +28,7 @@ The system handles pharmacy, customer, staff, inventory, and sales information. 
 * **AC-4**: The configured active administrator can sign in, receive the secure authentication cookie, open a protected route, and sign out.
 * **AC-5**: Invalid credentials return the generic invalid credentials message, while unavailable infrastructure is recorded in server logs without exposing secrets.
 * **AC-6**: Hosting limits and the required upgrade point are documented before real pharmacy use.
+* **AC-7**: A visibly separate test URL uses an isolated database or schema and its own secrets, and production data is unchanged by testing.
 
 ## Options considered
 
@@ -80,6 +82,8 @@ Render can run the application as a Node web service.
 
 Keep the current architecture and deploy it to Vercel `fra1` with a Supabase Frankfurt transaction pooler connection. Use Vercel Hobby only for noncommercial development and UAT. Upgrade the hosting plan before real commercial pharmacy operation.
 
+Create a second Vercel project for testing. Prefer a separate Supabase project. If the free project quota prevents that, use a dedicated PostgreSQL schema with a test only connection search path and a separate product image bucket. Never point the test deployment at the production schema.
+
 ## Rationale
 
 Vercel is the fastest delivery path because the existing Nitro integration and `vercel.json` already target it, and Vercel officially supports TanStack Start. Supabase preserves the PostgreSQL contract already used throughout the application. Matching Frankfurt regions avoids avoidable database round trips. This accepts one firm boundary: free Vercel hosting is for development and UAT only, not live commercial pharmacy use.
@@ -113,6 +117,8 @@ No schema redesign is required. Existing ordered migrations remain the source of
 * Only active, non test accounts can sign in.
 * The hosted database is migrated and checked before users enter data.
 * The administrator password is rotated after first hosted sign in.
+* Test records are written only through the test deployment and isolated data store.
+* Test and production use different JWT secrets and deployment environment variables.
 
 **Security model**:
 
@@ -141,6 +147,7 @@ The current HTTP only cookie and server role checks remain authoritative. Health
 4. Run login verification, preflight, tests, type checking, and production build, satisfies **AC-3** and **AC-5**.
 5. Deploy to Vercel and perform the hosted login and protected route check, satisfies **AC-1** and **AC-4**.
 6. Record free tier limits, backup steps, and the upgrade trigger, satisfies **AC-6**.
+7. Create the isolated test data store and Vercel project, seed only the test SuperAdmin, and verify the test URL without changing production, satisfies **AC-7**.
 
 ## Consequences
 
@@ -165,6 +172,7 @@ The current HTTP only cookie and server role checks remain authoritative. Health
 * [ ] Create the Supabase and Vercel projects and connect the repository.
 * [ ] Rotate the administrator password and hosted JWT secret after initial verification because the current values were shared in chat.
 * [ ] Complete a backup restore drill before entering real pharmacy data.
+* [ ] Verify that a record created on the test URL does not appear on the production URL.
 
 ## References
 

@@ -22,6 +22,34 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const roleModulePermissions = pgTable(
+  "role_module_permissions",
+  {
+    id: serial("id").primaryKey(),
+    role: text("role").notNull(),
+    module: text("module").notNull(),
+    enabled: boolean("enabled").default(true).notNull(),
+    updatedBy: integer("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("role_module_permissions_role_module_unique").on(table.role, table.module)],
+);
+
+export const userModulePermissions = pgTable(
+  "user_module_permissions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    module: text("module").notNull(),
+    enabled: boolean("enabled").notNull(),
+    updatedBy: integer("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("user_module_permissions_user_module_unique").on(table.userId, table.module)],
+);
+
 export const customers = pgTable("customers", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),

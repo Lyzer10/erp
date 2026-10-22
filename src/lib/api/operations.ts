@@ -18,10 +18,12 @@ import {
   suppliers,
 } from "../../db/schema";
 import { authenticateRequest } from "../auth";
+import { requireModuleAccess, type ModuleKey } from "../permissions";
 
-async function currentUser() {
+async function currentUser(module?: ModuleKey) {
   const user = await authenticateRequest(getRequest());
   if (!user) throw new Error("UNAUTHENTICATED");
+  if (module) await requireModuleAccess(user, module);
   return user;
 }
 
@@ -39,7 +41,7 @@ export const createExpenseFn = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const user = await currentUser();
+    const user = await currentUser("sales");
     requireProduction(user);
     if (!["SuperAdmin", "Admin", "Accountant"].includes(user.role))
       throw new Error("Your role cannot post expenses.");
@@ -73,7 +75,7 @@ export const setPartyStatusFn = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const user = await currentUser();
+    const user = await currentUser("stakeholders");
     requireProduction(user);
     if (!["SuperAdmin", "Admin"].includes(user.role))
       throw new Error("Administrator permission is required.");
@@ -91,7 +93,7 @@ export const setPartyStatusFn = createServerFn({ method: "POST" })
   });
 
 export const getInventoryFn = createServerFn({ method: "GET" }).handler(async () => {
-  await currentUser();
+  await currentUser("inventory");
   const [productRows, batchRows, movementRows] = await Promise.all([
     db.select().from(products).orderBy(asc(products.name)),
     db
@@ -132,7 +134,7 @@ export const adjustStockFn = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const user = await currentUser();
+    const user = await currentUser("inventory");
     requireProduction(user);
     if (!["SuperAdmin", "Admin", "Pharmacist", "Storekeeper"].includes(user.role))
       throw new Error("Your role cannot adjust stock.");
@@ -237,7 +239,7 @@ export const adjustStockFn = createServerFn({ method: "POST" })
   });
 
 export const getSalesFn = createServerFn({ method: "GET" }).handler(async () => {
-  await currentUser();
+  await currentUser("sales");
   return db
     .select({
       id: sales.id,
@@ -260,7 +262,7 @@ export const voidSaleFn = createServerFn({ method: "POST" })
     z.object({ saleId: z.number().int().positive(), reason: z.string().trim().min(3).max(300) }),
   )
   .handler(async ({ data }) => {
-    const user = await currentUser();
+    const user = await currentUser("sales");
     requireProduction(user);
     if (!["SuperAdmin", "Admin", "Pharmacist"].includes(user.role))
       throw new Error("Your role cannot void sales.");
@@ -320,7 +322,7 @@ export const voidSaleFn = createServerFn({ method: "POST" })
   });
 
 export const getDashboardFn = createServerFn({ method: "GET" }).handler(async () => {
-  await currentUser();
+  await currentUser("dashboard");
   const today = new Date().toISOString().slice(0, 10);
   const [saleTotals] = await db
     .select({
@@ -407,7 +409,7 @@ export const updateBusinessSettingsFn = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    const user = await currentUser();
+    const user = await currentUser("administration");
     requireProduction(user);
     if (!["SuperAdmin", "Admin"].includes(user.role))
       throw new Error("Administrator permission is required.");

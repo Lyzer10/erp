@@ -9,6 +9,7 @@ export type ShellUser = {
   email: string;
   role: string;
   isTestUser: boolean;
+  modules: string[];
 };
 
 export function Topbar({
@@ -76,13 +77,15 @@ export function Topbar({
           </select>
           <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
         </label>
-        <Link
-          to="/pos"
-          className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#177d6d]"
-        >
-          <ScanLine className="h-4 w-4" />
-          <span className="hidden sm:inline">{t("openPos")}</span>
-        </Link>
+        {user.modules.includes("pos") && (
+          <Link
+            to="/pos"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#177d6d]"
+          >
+            <ScanLine className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("openPos")}</span>
+          </Link>
+        )}
         <div className="group relative">
           <button
             type="button"

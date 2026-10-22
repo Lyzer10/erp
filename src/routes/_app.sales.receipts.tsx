@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/erp/DataTable";
 import { PageHeader } from "@/components/erp/PageHeader";
@@ -28,7 +29,9 @@ const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(va
 
 function ReceiptsPage() {
   const { lang } = useTranslate();
-  const [sales, setSales] = useState<Sale[]>(Route.useLoaderData() as Sale[]);
+  const router = useRouter();
+  // Read loader data directly so background refreshes (e.g. after a POS sale) show up.
+  const sales = Route.useLoaderData() as Sale[];
   const [voiding, setVoiding] = useState<Sale | null>(null);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -39,11 +42,9 @@ function ReceiptsPage() {
     setError(null);
     try {
       await voidSaleFn({ data: { saleId: voiding.id, reason } });
-      setSales((current) =>
-        current.map((sale) => (sale.id === voiding.id ? { ...sale, status: "Voided" } : sale)),
-      );
       setVoiding(null);
       setReason("");
+      await router.invalidate();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Sale could not be voided.");
     }
@@ -57,6 +58,15 @@ function ReceiptsPage() {
           lang === "en"
             ? "Posted sales from the point of sale. Voids restore the original stock batches."
             : "Mauzo halisi kutoka sehemu ya mauzo."
+        }
+        actions={
+          <Link
+            to="/pos"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {lang === "en" ? "Back to POS" : "Rudi Kituo cha Mauzo"}
+          </Link>
         }
       />
       <DataTable

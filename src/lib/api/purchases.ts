@@ -14,6 +14,7 @@ import {
   suppliers,
 } from "../../db/schema";
 import { authenticateRequest } from "../auth";
+import { requireModuleAccess } from "../permissions";
 
 const lineSchema = z.object({
   productId: z.number().int().positive(),
@@ -34,6 +35,7 @@ const createPurchaseSchema = z.object({
 async function requireProductionUser() {
   const user = await authenticateRequest(getRequest());
   if (!user) throw new Error("UNAUTHENTICATED");
+  await requireModuleAccess(user, "procurement");
   if (user.isTestUser) throw new Error("Demo purchases are not persisted.");
   if (!["SuperAdmin", "Admin", "Pharmacist", "Storekeeper"].includes(user.role)) {
     throw new Error("Your role cannot manage purchases.");
