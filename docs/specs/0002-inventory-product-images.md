@@ -36,7 +36,7 @@ AC 6. Images are resized by the browser before upload and lazy loaded where poss
 - [x] Rebuild the product form and inventory table. Satisfies AC 1, AC 2, AC 3, AC 4.
 - [x] Group the requested sidebar modules and localize navigation. Satisfies AC 5.
 - [x] Make the language control a dropdown and localize inventory and POS. Satisfies AC 5.
-- [ ] Run typecheck, tests, build, and deployment checks. Satisfies AC 1 to AC 6.
+- [x] Run typecheck, tests, build, and deployment checks. Satisfies AC 1 to AC 6.
 
 ## Ratify
 
