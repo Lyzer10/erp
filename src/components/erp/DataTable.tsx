@@ -6,7 +6,7 @@ import { useTranslate } from "@/lib/i18n";
 
 export interface Column<T> {
   key: string;
-  header: string;
+  header: ReactNode;
   render?: (row: T) => ReactNode;
   className?: string;
   align?: "left" | "right" | "center";
@@ -48,9 +48,7 @@ export function DataTable<T extends Record<string, unknown>>({
   const filtered = useMemo(() => {
     if (!q) return data;
     const lc = q.toLowerCase();
-    return data.filter((r) =>
-      Object.values(r).some((v) => toStr(v).toLowerCase().includes(lc)),
-    );
+    return data.filter((r) => Object.values(r).some((v) => toStr(v).toLowerCase().includes(lc)));
   }, [data, q]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -65,7 +63,10 @@ export function DataTable<T extends Record<string, unknown>>({
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
               placeholder={t("search") + "..."}
               className="h-8 bg-muted/50 pl-9 text-sm focus-visible:bg-card"
             />
@@ -99,37 +100,43 @@ export function DataTable<T extends Record<string, unknown>>({
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-10 text-center text-sm text-muted-foreground"
+                >
                   {currentEmptyMessage}
                 </td>
               </tr>
-            ) : pageRows.map((row) => (
-              <tr
-                key={rowKey(row)}
-                className="border-b border-blue-100/30 transition-colors last:border-0 hover:bg-blue-50/30"
-              >
-                {columns.map((c) => (
-                  <td
-                    key={c.key}
-                    className={cn(
-                      "px-4 py-3",
-                      c.align === "right" && "text-right",
-                      c.align === "center" && "text-center",
-                      c.className,
-                    )}
-                  >
-                    {c.render ? c.render(row) : toStr(row[c.key])}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            ) : (
+              pageRows.map((row) => (
+                <tr
+                  key={rowKey(row)}
+                  className="border-b border-blue-100/30 transition-colors last:border-0 hover:bg-blue-50/30"
+                >
+                  {columns.map((c) => (
+                    <td
+                      key={c.key}
+                      className={cn(
+                        "px-4 py-3",
+                        c.align === "right" && "text-right",
+                        c.align === "center" && "text-center",
+                        c.className,
+                      )}
+                    >
+                      {c.render ? c.render(row) : toStr(row[c.key])}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-4 py-3">
           <span className="text-xs text-muted-foreground">
-            {lang === "en" ? "Page" : "Ukurasa"} {page} {t("of")} {totalPages} &mdash; {filtered.length} {lang === "en" ? "records" : "kumbukumbu"}
+            {lang === "en" ? "Page" : "Ukurasa"} {page} {t("of")} {totalPages} &mdash;{" "}
+            {filtered.length} {lang === "en" ? "records" : "kumbukumbu"}
           </span>
           <div className="flex gap-1.5">
             <button

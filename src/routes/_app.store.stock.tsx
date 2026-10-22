@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/erp/PageHeader";
 import { TabbedPage } from "@/components/erp/TabbedPage";
 import { adjustStockFn, getInventoryFn } from "@/lib/api/operations";
 import { useTranslate } from "@/lib/i18n";
+import { z } from "zod";
 
 type Product = {
   id: number;
@@ -39,6 +40,10 @@ type Movement = {
 };
 
 export const Route = createFileRoute("/_app/store/stock")({
+  validateSearch: z.object({
+    adjust: z.coerce.boolean().optional(),
+    productId: z.coerce.number().int().positive().optional(),
+  }),
   head: () => ({ meta: [{ title: "Pharmacy Stock — DeveleERP" }] }),
   loader: () => getInventoryFn(),
   component: StockPage,
@@ -47,14 +52,15 @@ export const Route = createFileRoute("/_app/store/stock")({
 const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(value)}`;
 
 function StockPage() {
+  const search = Route.useSearch();
   const router = useRouter();
   const { lang } = useTranslate();
   const initial = Route.useLoaderData();
   const [products, setProducts] = useState<Product[]>(initial.products as Product[]);
   const [batches, setBatches] = useState<Batch[]>(initial.batches as Batch[]);
   const [movements, setMovements] = useState<Movement[]>(initial.movements as Movement[]);
-  const [adjustOpen, setAdjustOpen] = useState(false);
-  const [productId, setProductId] = useState<number | "">("");
+  const [adjustOpen, setAdjustOpen] = useState(search.adjust === true);
+  const [productId, setProductId] = useState<number | "">(search.productId ?? "");
   const [quantity, setQuantity] = useState(0);
   const [reason, setReason] = useState("");
   const [batchNumber, setBatchNumber] = useState("");

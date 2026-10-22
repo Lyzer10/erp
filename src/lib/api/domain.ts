@@ -1,6 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
+import { inArray } from "drizzle-orm";
 import process from "node:process";
 import { z } from "zod";
+import { db } from "../../db";
+import {
+  auditLogs,
+  inventoryMovements,
+  productBatches,
+  products,
+  purchaseOrderItems,
+  saleItems,
+} from "../../db/schema";
+import { authenticateRequest } from "../auth";
 import { resolveDataSource } from "../data-source";
 
 export const getCustomersFn = createServerFn({ method: "GET" }).handler(async () => {
@@ -48,8 +60,80 @@ export const createSupplierFn = createServerFn({ method: "POST" })
 export const getProductsFn = createServerFn({ method: "GET" }).handler(async () => {
   const ds = await resolveDataSource();
   const data = await ds.products.getAll();
-  return { isTestUser: ds.isTestUser, data };
+  return {
+    isTestUser: ds.isTestUser,
+    canDelete: !ds.isTestUser && ["SuperAdmin", "Admin"].includes(ds.user.role),
+    data,
+  };
 });
+
+export const deleteProductsFn = createServerFn({ method: "POST" })
+  .validator(z.object({ productIds: z.array(z.number().int().positive()).min(1).max(100) }))
+  .handler(async ({ data }) => {
+    const actor = await authenticateRequest(getRequest());
+    if (!actor || actor.isTestUser || !["SuperAdmin", "Admin"].includes(actor.role)) {
+      throw new Error("Administrator permission is required to delete products.");
+    }
+    const ids = [...new Set(data.productIds)];
+    return db.transaction(async (tx) => {
+      const selected = await tx
+        .select({ id: products.id, name: products.name, sku: products.sku, stock: products.stock })
+        .from(products)
+        .where(inArray(products.id, ids));
+      const selectedIds = selected.map((product) => product.id);
+      if (!selectedIds.length) return { deleted: [], blocked: [] };
+
+      const [batchRefs, saleRefs, purchaseRefs, movementRefs] = await Promise.all([
+        tx
+          .selectDistinct({ productId: productBatches.productId })
+          .from(productBatches)
+          .where(inArray(productBatches.productId, selectedIds)),
+        tx
+          .selectDistinct({ productId: saleItems.productId })
+          .from(saleItems)
+          .where(inArray(saleItems.productId, selectedIds)),
+        tx
+          .selectDistinct({ productId: purchaseOrderItems.productId })
+          .from(purchaseOrderItems)
+          .where(inArray(purchaseOrderItems.productId, selectedIds)),
+        tx
+          .selectDistinct({ productId: inventoryMovements.productId })
+          .from(inventoryMovements)
+          .where(inArray(inventoryMovements.productId, selectedIds)),
+      ]);
+      const referenced = new Set(
+        [...batchRefs, ...saleRefs, ...purchaseRefs, ...movementRefs].map((row) => row.productId),
+      );
+      const blocked = selected
+        .filter((product) => product.stock > 0 || referenced.has(product.id))
+        .map((product) => ({
+          id: product.id,
+          name: product.name,
+          reason:
+            product.stock > 0 ? "Product still has stock." : "Product has transaction history.",
+        }));
+      const blockedIds = new Set(blocked.map((product) => product.id));
+      const deletable = selected.filter((product) => !blockedIds.has(product.id));
+      if (deletable.length) {
+        await tx.delete(products).where(
+          inArray(
+            products.id,
+            deletable.map((product) => product.id),
+          ),
+        );
+        await tx.insert(auditLogs).values(
+          deletable.map((product) => ({
+            userId: Number(actor.id),
+            action: "DELETE",
+            entityType: "PRODUCT",
+            entityId: String(product.id),
+            summary: `${product.sku}, ${product.name}`,
+          })),
+        );
+      }
+      return { deleted: deletable.map(({ id, name }) => ({ id, name })), blocked };
+    });
+  });
 
 export const createProductFn = createServerFn({ method: "POST" })
   .validator(

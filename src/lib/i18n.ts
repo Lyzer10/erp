@@ -725,6 +725,25 @@ export const translations = {
     imageCouldNotBeRead: "The image could not be read.",
     openingStockHelp:
       "Add opening stock through a supplier purchase or a stock adjustment with its batch and expiry date.",
+    itemsSelected: "items selected",
+    clearSelection: "Clear selection",
+    deleteSelected: "Delete selected",
+    selectAllProducts: "Select all products",
+    selectProduct: "Select product",
+    actions: "Actions",
+    deleteProduct: "Delete product",
+    deleteProductsTitle: "Delete selected products?",
+    deleteProductsHelp:
+      "Unused products will be permanently deleted. Products with stock or transaction history will be kept.",
+    productsCouldNotBeDeleted: "The products could not be deleted.",
+    deleting: "Deleting...",
+    confirmDelete: "Delete products",
+    sellingUnitHelp: "The smallest unit you sell, for example tablet, bottle, or piece.",
+    unitsPerPurchaseUnitHelp:
+      "How many selling units are inside one purchase pack. Example: 100 tablets in 1 box.",
+    costPerSellingUnitHelp: "Your buying cost for one selling unit, not the full box.",
+    sellingPriceHelp: "The amount the customer pays for one selling unit.",
+    saveAndAddStock: "Save and add stock",
   },
 
   sw: {
@@ -1394,6 +1413,25 @@ export const translations = {
     imageCouldNotBeRead: "Picha haikuweza kusomwa.",
     openingStockHelp:
       "Ongeza stoo ya kuanzia kupitia ununuzi kwa msambazaji au marekebisho yenye kundi na tarehe ya mwisho.",
+    itemsSelected: "zimechaguliwa",
+    clearSelection: "Ondoa chaguo",
+    deleteSelected: "Futa zilizochaguliwa",
+    selectAllProducts: "Chagua bidhaa zote",
+    selectProduct: "Chagua bidhaa",
+    actions: "Vitendo",
+    deleteProduct: "Futa bidhaa",
+    deleteProductsTitle: "Ufute bidhaa zilizochaguliwa?",
+    deleteProductsHelp:
+      "Bidhaa ambazo hazijatumika zitafutwa kabisa. Bidhaa zenye stoo au historia ya miamala zitahifadhiwa.",
+    productsCouldNotBeDeleted: "Bidhaa hazikuweza kufutwa.",
+    deleting: "Inafuta...",
+    confirmDelete: "Futa bidhaa",
+    sellingUnitHelp: "Kipimo kidogo unachouza, kwa mfano kidonge, chupa, au moja.",
+    unitsPerPurchaseUnitHelp:
+      "Idadi ya vipimo vya kuuza ndani ya kifurushi kimoja. Mfano: vidonge 100 kwenye boksi 1.",
+    costPerSellingUnitHelp: "Gharama yako ya kununua kipimo kimoja, si boksi zima.",
+    sellingPriceHelp: "Kiasi anacholipa mteja kwa kipimo kimoja.",
+    saveAndAddStock: "Hifadhi na ongeza stoo",
   },
 };
 

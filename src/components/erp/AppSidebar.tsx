@@ -59,7 +59,7 @@ export function AppSidebar({
       items: [
         { label: t("currentStock"), to: "/store/stock" },
         { label: t("manageItems"), to: "/products/catalog" },
-        { label: t("adjustment"), to: "/store/stock?tab=adjustment" },
+        { label: t("adjustment"), to: "/store/stock?adjust=true" },
       ],
     },
     {
