@@ -11,6 +11,7 @@ import {
   products,
   purchaseOrderItems,
   saleItems,
+  suppliers,
 } from "../../db/schema";
 import { authenticateRequest } from "../auth";
 import { resolveDataSource } from "../data-source";
@@ -40,7 +41,11 @@ export const createCustomerFn = createServerFn({ method: "POST" })
 export const getSuppliersFn = createServerFn({ method: "GET" }).handler(async () => {
   const ds = await resolveDataSource();
   const data = await ds.suppliers.getAll();
-  return { isTestUser: ds.isTestUser, data };
+  return {
+    isTestUser: ds.isTestUser,
+    canEdit: ["SuperAdmin", "Admin"].includes(ds.user.role),
+    data,
+  };
 });
 
 export const createSupplierFn = createServerFn({ method: "POST" })
@@ -56,6 +61,46 @@ export const createSupplierFn = createServerFn({ method: "POST" })
     const ds = await resolveDataSource();
     const result = await ds.suppliers.create(data);
     return { isTestUser: ds.isTestUser, result };
+  });
+
+export const updateSupplierFn = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      id: z.number().int().positive(),
+      name: z.string().trim().min(1).max(200),
+      contact: z.string().trim().max(200).optional(),
+      phone: z.string().trim().max(50).optional(),
+      email: z.string().trim().email().max(200).optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const ds = await resolveDataSource();
+    if (!["SuperAdmin", "Admin"].includes(ds.user.role)) {
+      throw new Error("Administrator permission is required to edit suppliers.");
+    }
+    const { id, ...changes } = data;
+    const [result] = await db.transaction(async (tx) => {
+      const updated = await tx
+        .update(suppliers)
+        .set({
+          ...changes,
+          contact: changes.contact || null,
+          phone: changes.phone || null,
+          email: changes.email || null,
+        })
+        .where(eq(suppliers.id, id))
+        .returning();
+      if (!updated.length) throw new Error("Supplier was not found.");
+      await tx.insert(auditLogs).values({
+        userId: Number(ds.user.id),
+        action: "UPDATE",
+        entityType: "SUPPLIER",
+        entityId: String(id),
+        summary: `${updated[0].code}, ${updated[0].name}`,
+      });
+      return updated;
+    });
+    return { result };
   });
 
 export const getProductsFn = createServerFn({ method: "GET" }).handler(async () => {

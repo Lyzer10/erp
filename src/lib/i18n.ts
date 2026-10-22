@@ -780,6 +780,13 @@ export const translations = {
     editProductHelp:
       "Correct the product details or replace its image. Stock is changed separately.",
     currentProductImage: "Current product image",
+    supplier: "Supplier",
+    supplierName: "Supplier name",
+    contactPerson: "Contact person",
+    payable: "Payable",
+    activate: "Activate",
+    editSupplier: "Edit supplier",
+    supplierCouldNotBeSaved: "Supplier could not be saved.",
   },
 
   sw: {
@@ -1502,6 +1509,13 @@ export const translations = {
     editProduct: "Hariri bidhaa",
     editProductHelp: "Sahihisha maelezo ya bidhaa au badilisha picha. Stoo hubadilishwa kando.",
     currentProductImage: "Picha ya sasa ya bidhaa",
+    supplier: "Msambazaji",
+    supplierName: "Jina la msambazaji",
+    contactPerson: "Mtu wa mawasiliano",
+    payable: "Deni la kulipa",
+    activate: "Washa",
+    editSupplier: "Hariri msambazaji",
+    supplierCouldNotBeSaved: "Msambazaji hakuweza kuhifadhiwa.",
   },
 };
 

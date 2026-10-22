@@ -74,7 +74,7 @@ function PurchaseOrdersPage() {
             onClick={() => receive(r)}
             className="rounded-lg bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800"
           >
-            Receive
+            {lang === "en" ? "Receive stock" : "Pokea stoo"}
           </button>
         ),
     },
@@ -91,11 +91,11 @@ function PurchaseOrdersPage() {
         </p>
       )}
       <PageHeader
-        title={lang === "en" ? "Purchase Orders (LPO)" : "Hati za Manunuzi (LPO)"}
+        title={lang === "en" ? "Purchase Orders (LPO)" : "Maagizo ya Manunuzi (LPO)"}
         description={
           lang === "en"
             ? "Create, approve, and reject local purchase orders."
-            : "Tengeneza, idhinisha, na ukatae hati za manunuzi ya ndani (LPO)."
+            : "LPO ni agizo la manunuzi unalotengeneza kwa ajili ya msambazaji."
         }
         actions={
           <div className="flex items-center gap-2">
@@ -110,6 +110,11 @@ function PurchaseOrdersPage() {
           </div>
         }
       />
+      <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+        {lang === "en"
+          ? "An LPO is saved inside DeveleERP as your internal purchase record. It is not automatically sent to the supplier; share it separately by email, WhatsApp, or a printed copy."
+          : "LPO huhifadhiwa ndani ya DeveleERP kama kumbukumbu yako ya manunuzi. Haitumwi moja kwa moja kwa msambazaji; mtumie mwenyewe kwa barua pepe, WhatsApp, au nakala iliyochapishwa."}
+      </p>
       <TabbedPage
         tabs={[
           {

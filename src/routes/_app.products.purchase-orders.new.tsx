@@ -49,7 +49,7 @@ const money = (value: number) =>
 
 function CreatePurchasePage() {
   const navigate = useNavigate();
-  const { lang } = useTranslate();
+  const { lang, t } = useTranslate();
   const { products, suppliers, isTestUser } = Route.useLoaderData();
   const [supplierId, setSupplierId] = useState<number | "">("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -72,7 +72,11 @@ function CreatePurchasePage() {
     event.preventDefault();
     setError(null);
     if (isTestUser) {
-      setError("Demo mode cannot create a production purchase.");
+      setError(
+        lang === "en"
+          ? "Demo mode cannot create a production purchase."
+          : "Hali ya majaribio haiwezi kuhifadhi manunuzi halisi.",
+      );
       return;
     }
     if (
@@ -80,7 +84,9 @@ function CreatePurchasePage() {
       lines.some((line) => !line.productId || !line.batchNumber || !line.expiryDate)
     ) {
       setError(
-        "Choose a supplier and complete the product, batch and expiry fields for every line.",
+        lang === "en"
+          ? "Choose a supplier and complete the product, batch and expiry fields for every line."
+          : "Chagua msambazaji na ujaze bidhaa, kundi na tarehe ya mwisho kwa kila mstari.",
       );
       return;
     }
@@ -103,7 +109,13 @@ function CreatePurchasePage() {
       });
       await navigate({ to: "/products/purchase-orders" });
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The purchase could not be saved.");
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : lang === "en"
+            ? "The purchase could not be saved."
+            : "Manunuzi hayakuweza kuhifadhiwa.",
+      );
     } finally {
       setSaving(false);
     }
@@ -117,7 +129,7 @@ function CreatePurchasePage() {
             type="button"
             onClick={() => history.back()}
             className="rounded-lg border p-2"
-            aria-label="Back"
+            aria-label={lang === "en" ? "Back" : "Rudi"}
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
@@ -143,6 +155,12 @@ function CreatePurchasePage() {
             {error}
           </p>
         )}
+
+        <p className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+          {lang === "en"
+            ? "This creates an internal purchase order in DeveleERP. It does not automatically send anything to the supplier."
+            : "Hii inatengeneza agizo la manunuzi ndani ya DeveleERP. Haitumi taarifa moja kwa moja kwa msambazaji."}
+        </p>
 
         <section className="glass-card grid gap-4 p-5 sm:grid-cols-3">
           <Field label={lang === "en" ? "Supplier" : "Muuzaji"}>
@@ -193,12 +211,12 @@ function CreatePurchasePage() {
           <table className="min-w-[900px] w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase text-muted-foreground">
-                <th className="p-2">Product</th>
-                <th className="p-2">Qty</th>
-                <th className="p-2">Unit cost</th>
-                <th className="p-2">Batch</th>
-                <th className="p-2">Expiry</th>
-                <th className="p-2 text-right">Total</th>
+                <th className="p-2">{lang === "en" ? "Product" : "Bidhaa"}</th>
+                <th className="p-2">{lang === "en" ? "Qty" : "Idadi"}</th>
+                <th className="p-2">{lang === "en" ? "Unit cost" : "Gharama kwa kipimo"}</th>
+                <th className="p-2">{lang === "en" ? "Batch" : "Kundi"}</th>
+                <th className="p-2">{lang === "en" ? "Expiry" : "Mwisho wa matumizi"}</th>
+                <th className="p-2 text-right">{lang === "en" ? "Total" : "Jumla"}</th>
                 <th />
               </tr>
             </thead>
@@ -219,7 +237,7 @@ function CreatePurchasePage() {
                       }}
                       className="input-field min-w-56"
                     >
-                      <option value="">Choose product</option>
+                      <option value="">{lang === "en" ? "Choose product" : "Chagua bidhaa"}</option>
                       {products.map((product) => (
                         <option key={product.id} value={product.id}>
                           {product.name} ({product.sku})
@@ -300,7 +318,9 @@ function CreatePurchasePage() {
             />
           </Field>
           <div className="min-w-52 self-end text-right">
-            <p className="text-xs uppercase text-muted-foreground">Grand total</p>
+            <p className="text-xs uppercase text-muted-foreground">
+              {lang === "en" ? "Grand total" : "Jumla kuu"}
+            </p>
             <p className="text-xl font-black">TZS {money(total)}</p>
           </div>
         </section>
@@ -311,13 +331,21 @@ function CreatePurchasePage() {
             onClick={() => history.back()}
             className="rounded-xl border px-5 py-2.5 text-sm font-semibold"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             disabled={saving}
             className="rounded-xl bg-[#1f9c88] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           >
-            {saving ? "Saving..." : receiveNow ? "Save & receive" : "Save order"}
+            {saving
+              ? t("saving")
+              : receiveNow
+                ? lang === "en"
+                  ? "Save & receive"
+                  : "Hifadhi na pokea"
+                : lang === "en"
+                  ? "Save order"
+                  : "Hifadhi agizo"}
           </button>
         </div>
       </form>
