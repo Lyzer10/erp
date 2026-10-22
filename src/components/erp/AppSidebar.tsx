@@ -1,7 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
 import {
-  ChevronDown,
   ChevronsLeft,
   ChevronsRight,
   LayoutDashboard,
@@ -17,7 +15,18 @@ import { cn } from "@/lib/utils";
 import type { ShellUser } from "./Topbar";
 
 type Item = { label: string; to: string };
-type Group = { label: string; icon: LucideIcon; items: Item[] };
+
+const links: Array<Item & { icon: LucideIcon }> = [
+  { label: "Customers", to: "/stakeholders/customers", icon: Users },
+  { label: "Suppliers", to: "/stakeholders/suppliers", icon: Users },
+  { label: "Receipts", to: "/sales/receipts", icon: Receipt },
+  { label: "Sales reports", to: "/sales/reports", icon: Receipt },
+  { label: "Customer statement", to: "/sales/customer-statement", icon: Receipt },
+  { label: "Medicine catalog", to: "/products/catalog", icon: Package },
+  { label: "Purchase orders", to: "/products/purchase-orders", icon: Package },
+  { label: "Expenses", to: "/products/expenses", icon: Receipt },
+  { label: "Stock & expiry", to: "/store/stock", icon: Warehouse },
+];
 
 export function AppSidebar({
   onNavigate,
@@ -31,59 +40,15 @@ export function AppSidebar({
   readonly user: ShellUser;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const groups: Group[] = [
-    {
-      label: "Stakeholders",
-      icon: Users,
-      items: [
-        { label: "Customers", to: "/stakeholders/customers" },
-        { label: "Suppliers", to: "/stakeholders/suppliers" },
-      ],
-    },
-    {
-      label: "Sales",
-      icon: Receipt,
-      items: [
-        { label: "Receipts", to: "/sales/receipts" },
-        { label: "Sales reports", to: "/sales/reports" },
-        { label: "Customer statement", to: "/sales/customer-statement" },
-      ],
-    },
-    {
-      label: "Products",
-      icon: Package,
-      items: [
-        { label: "Medicine catalog", to: "/products/catalog" },
-        { label: "Purchase orders", to: "/products/purchase-orders" },
-        { label: "Expenses", to: "/products/expenses" },
-      ],
-    },
-    {
-      label: "Store",
-      icon: Warehouse,
-      items: [{ label: "Stock & expiry", to: "/store/stock" }],
-    },
+  const visibleLinks = [
+    ...links,
+    ...(["SuperAdmin", "Admin"].includes(user.role)
+      ? [
+          { label: "Users & audit", to: "/admin/users", icon: Settings },
+          { label: "Business settings", to: "/admin/settings", icon: Settings },
+        ]
+      : []),
   ];
-
-  if (["SuperAdmin", "Admin"].includes(user.role)) {
-    groups.push({
-      label: "Administration",
-      icon: Settings,
-      items: [
-        { label: "Users & audit", to: "/admin/users" },
-        { label: "Business settings", to: "/admin/settings" },
-      ],
-    });
-  }
-
-  const [open, setOpen] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(
-      groups.map((group) => [
-        group.label,
-        group.items.some((item) => pathname === item.to || pathname.startsWith(`${item.to}/`)),
-      ]),
-    ),
-  );
   const initials = user.username.slice(0, 2).toUpperCase();
 
   return (
@@ -166,78 +131,17 @@ export function AppSidebar({
 
         <div className="my-3 h-px bg-slate-200" />
 
-        {groups.map((group) => {
-          const active = group.items.some(
-            (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
-          );
-          const Icon = group.icon;
-          if (collapsed) {
-            return (
-              <Link
-                key={group.label}
-                to={group.items[0].to}
-                onClick={onNavigate}
-                title={group.label}
-                className={cn(
-                  "flex items-center justify-center rounded-xl p-2.5 text-sm transition",
-                  active
-                    ? "bg-blue-100 font-semibold text-blue-900 shadow-sm"
-                    : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </Link>
-            );
-          }
-          return (
-            <div key={group.label}>
-              <button
-                type="button"
-                onClick={() =>
-                  setOpen((current) => ({ ...current, [group.label]: !current[group.label] }))
-                }
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                  active
-                    ? "text-blue-900"
-                    : "text-foreground/75 hover:bg-slate-100 hover:text-foreground",
-                )}
-                aria-expanded={Boolean(open[group.label])}
-              >
-                <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="flex-1 text-left">{group.label}</span>
-                <ChevronDown
-                  className={cn(
-                    "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
-                    open[group.label] && "rotate-180",
-                  )}
-                />
-              </button>
-              {open[group.label] && (
-                <div className="ml-3 mt-1 space-y-0.5 border-l border-slate-200 pb-1 pl-3">
-                  {group.items.map((item) => {
-                    const itemActive = pathname === item.to || pathname.startsWith(`${item.to}/`);
-                    return (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={onNavigate}
-                        className={cn(
-                          "block rounded-lg px-3 py-1.5 text-sm transition",
-                          itemActive
-                            ? "bg-blue-100 font-semibold text-blue-900 shadow-sm"
-                            : "text-foreground/65 hover:bg-slate-100 hover:text-foreground",
-                        )}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {visibleLinks.map(({ label, to, icon }) => (
+          <DirectLink
+            key={to}
+            to={to}
+            label={label}
+            icon={icon}
+            active={pathname === to || pathname.startsWith(`${to}/`)}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+          />
+        ))}
       </nav>
 
       {!collapsed && (
