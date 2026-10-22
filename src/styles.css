@@ -152,6 +152,53 @@
   border-bottom: 1px solid var(--border);
 }
 
+@layer components {
+  .input-field {
+    width: 100%;
+    min-height: 2.625rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    padding: 0.625rem 0.75rem;
+    color: var(--foreground);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  }
+
+  .input-field::placeholder {
+    color: #64748b;
+  }
+
+  .input-field:hover:not(:disabled) {
+    border-color: #94a3b8;
+  }
+
+  .input-field:focus,
+  .input-field:focus-visible {
+    border-color: #1f9c88;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(31, 156, 136, 0.14);
+  }
+
+  .input-field:disabled {
+    cursor: not-allowed;
+    background-color: #f1f5f9;
+    color: #64748b;
+    opacity: 0.75;
+  }
+
+  .input-field[aria-invalid="true"],
+  .input-field:user-invalid {
+    border-color: #e11d48;
+  }
+
+  textarea.input-field {
+    resize: vertical;
+  }
+}
+
 
 @layer base {
   * {
