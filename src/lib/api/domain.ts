@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import process from "node:process";
 import { z } from "zod";
 import { db } from "../../db";
@@ -217,6 +217,67 @@ export const createProductFn = createServerFn({ method: "POST" })
       return product;
     });
     return { isTestUser: ds.isTestUser, result };
+  });
+
+export const updateProductFn = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      id: z.number().int().positive(),
+      name: z.string().trim().min(1).max(200),
+      price: z.number().int().min(0),
+      cost: z.number().int().min(0),
+      reorder: z.number().int().min(0),
+      category: z.string().trim().min(1).max(100),
+      brand: z.string().trim().max(100).optional(),
+      genericName: z.string().trim().max(200).optional(),
+      dosageForm: z.string().trim().max(100).optional(),
+      strength: z.string().trim().max(100).optional(),
+      barcode: z.string().trim().max(100).optional(),
+      purchaseUnit: z.string().trim().min(1).max(50),
+      sellingUnit: z.string().trim().min(1).max(50),
+      unitsPerPurchaseUnit: z.number().int().positive(),
+      requiresPrescription: z.boolean(),
+      imageUpload: z
+        .object({
+          dataUrl: z.string().max(3_000_000),
+          fileName: z.string().trim().min(1).max(180),
+          contentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+        })
+        .optional(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const ds = await resolveDataSource();
+    if (!["SuperAdmin", "Admin"].includes(ds.user.role)) {
+      throw new Error("Administrator permission is required to edit products.");
+    }
+    const image = data.imageUpload ? await uploadProductImage(data.imageUpload) : undefined;
+    const { id, imageUpload: _imageUpload, ...changes } = data;
+    const [result] = await db.transaction(async (tx) => {
+      const updated = await tx
+        .update(products)
+        .set({
+          ...changes,
+          brand: changes.brand || null,
+          genericName: changes.genericName || null,
+          dosageForm: changes.dosageForm || null,
+          strength: changes.strength || null,
+          barcode: changes.barcode || null,
+          ...(image ? { image } : {}),
+        })
+        .where(eq(products.id, id))
+        .returning();
+      if (!updated.length) throw new Error("Product was not found.");
+      await tx.insert(auditLogs).values({
+        userId: Number(ds.user.id),
+        action: "UPDATE",
+        entityType: "PRODUCT",
+        entityId: String(id),
+        summary: `${updated[0].sku}, ${updated[0].name}`,
+      });
+      return updated;
+    });
+    return { result };
   });
 
 async function uploadProductImage(upload: {

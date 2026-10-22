@@ -1,9 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, ImagePlus, Package, Plus, Trash2, X } from "lucide-react";
+import { AlertTriangle, ImagePlus, Package, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/erp/DataTable";
 import { PageHeader } from "@/components/erp/PageHeader";
-import { createProductFn, deleteProductsFn, getProductsFn } from "@/lib/api/domain";
+import {
+  createProductFn,
+  deleteProductsFn,
+  getProductsFn,
+  updateProductFn,
+} from "@/lib/api/domain";
 import { useTranslate } from "@/lib/i18n";
 
 type Product = {
@@ -89,6 +94,7 @@ function CatalogPage() {
   const loaded = Route.useLoaderData();
   const [products, setProducts] = useState<Product[]>(loaded.data as Product[]);
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [imageUpload, setImageUpload] = useState<{
     dataUrl: string;
@@ -102,41 +108,98 @@ function CatalogPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
 
-  async function create(event: React.FormEvent) {
+  const editingProduct = editingId ? products.find((product) => product.id === editingId) : null;
+
+  function openNewProduct() {
+    setEditingId(null);
+    setForm(emptyForm());
+    setImageUpload(null);
+    setError(null);
+    setOpen(true);
+  }
+
+  function openEditProduct(product: Product) {
+    setEditingId(product.id);
+    setForm({
+      name: product.name,
+      genericName: product.genericName || "",
+      category: product.category,
+      brand: product.brand || "",
+      dosageForm: product.dosageForm || "",
+      strength: product.strength || "",
+      barcode: product.barcode || "",
+      purchaseUnit: product.purchaseUnit,
+      sellingUnit: product.sellingUnit,
+      unitsPerPurchaseUnit: String(product.unitsPerPurchaseUnit),
+      requiresPrescription: product.requiresPrescription,
+      price: String(product.price),
+      cost: String(product.cost),
+      reorder: String(product.reorder),
+      openingQuantity: "",
+      openingBatchNumber: "",
+      openingExpiryDate: "",
+      openingReason: "",
+    });
+    setImageUpload(null);
+    setError(null);
+    setOpen(true);
+  }
+
+  function closeProductForm() {
+    setOpen(false);
+    setEditingId(null);
+    setImageUpload(null);
+    setError(null);
+  }
+
+  async function saveProduct(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
     setError(null);
     try {
-      const response = await createProductFn({
-        data: {
-          name: form.name,
-          genericName: form.genericName || undefined,
-          category: form.category,
-          brand: form.brand || undefined,
-          dosageForm: form.dosageForm || undefined,
-          strength: form.strength || undefined,
-          barcode: form.barcode || undefined,
-          purchaseUnit: form.purchaseUnit,
-          sellingUnit: form.sellingUnit,
-          unitsPerPurchaseUnit: Number(form.unitsPerPurchaseUnit),
-          requiresPrescription: form.requiresPrescription,
-          price: Number(form.price),
-          cost: Number(form.cost),
-          reorder: Number(form.reorder),
-          stock: 0,
-          openingStock: form.openingQuantity
-            ? {
-                quantity: Number(form.openingQuantity),
-                batchNumber: form.openingBatchNumber || undefined,
-                expiryDate: form.openingExpiryDate,
-                reason: form.openingReason || undefined,
-              }
-            : undefined,
-          imageUpload: imageUpload || undefined,
-        },
-      });
-      setProducts((current) => [response.result as Product, ...current]);
+      const productData = {
+        name: form.name,
+        genericName: form.genericName || undefined,
+        category: form.category,
+        brand: form.brand || undefined,
+        dosageForm: form.dosageForm || undefined,
+        strength: form.strength || undefined,
+        barcode: form.barcode || undefined,
+        purchaseUnit: form.purchaseUnit,
+        sellingUnit: form.sellingUnit,
+        unitsPerPurchaseUnit: Number(form.unitsPerPurchaseUnit),
+        requiresPrescription: form.requiresPrescription,
+        price: Number(form.price),
+        cost: Number(form.cost),
+        reorder: Number(form.reorder),
+        imageUpload: imageUpload || undefined,
+      };
+      if (editingId) {
+        const response = await updateProductFn({ data: { id: editingId, ...productData } });
+        setProducts((current) =>
+          current.map((product) =>
+            product.id === editingId ? (response.result as Product) : product,
+          ),
+        );
+      } else {
+        const response = await createProductFn({
+          data: {
+            ...productData,
+            stock: 0,
+            openingStock: form.openingQuantity
+              ? {
+                  quantity: Number(form.openingQuantity),
+                  batchNumber: form.openingBatchNumber || undefined,
+                  expiryDate: form.openingExpiryDate,
+                  reason: form.openingReason || undefined,
+                }
+              : undefined,
+          },
+        });
+        setProducts((current) => [response.result as Product, ...current]);
+      }
       setOpen(false);
+      setEditingId(null);
       setForm(emptyForm());
       setImageUpload(null);
     } catch (cause) {
@@ -220,7 +283,7 @@ function CatalogPage() {
         }
         actions={
           <button
-            onClick={() => setOpen(true)}
+            onClick={openNewProduct}
             className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
           >
             <Plus className="h-4 w-4" /> {t("newProduct")}
@@ -361,15 +424,26 @@ function CatalogPage() {
                   header: t("actions"),
                   align: "right" as const,
                   render: (row: Product) => (
-                    <button
-                      type="button"
-                      onClick={() => requestSingleDelete(row.id)}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
-                      aria-label={`${t("deleteProduct")} ${row.name}`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      {t("delete")}
-                    </button>
+                    <div className="flex justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() => openEditProduct(row)}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#087b69] hover:bg-emerald-50"
+                        aria-label={`${t("editProduct")} ${row.name}`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        {t("edit")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => requestSingleDelete(row.id)}
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                        aria-label={`${t("deleteProduct")} ${row.name}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {t("delete")}
+                      </button>
+                    </div>
                   ),
                 },
               ]
@@ -442,21 +516,25 @@ function CatalogPage() {
       {open && (
         <div
           className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/40 p-4"
-          onMouseDown={() => setOpen(false)}
+          onMouseDown={closeProductForm}
         >
           <form
-            onSubmit={create}
+            onSubmit={saveProduct}
             onMouseDown={(event) => event.stopPropagation()}
             className="my-8 w-full max-w-2xl space-y-4 rounded-2xl bg-white p-6"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold">{t("newMedicineOrProduct")}</h2>
-                <p className="text-sm text-muted-foreground">{t("productFormHelp")}</p>
+                <h2 className="text-lg font-bold">
+                  {editingId ? t("editProduct") : t("newMedicineOrProduct")}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {editingId ? t("editProductHelp") : t("productFormHelp")}
+                </p>
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeProductForm}
                 className="rounded-lg p-2 hover:bg-slate-100"
                 aria-label={t("close")}
               >
@@ -468,9 +546,9 @@ function CatalogPage() {
               <label className="sm:col-span-2 block text-sm font-semibold">
                 {t("productImage")}
                 <span className="mt-1 flex min-h-28 items-center gap-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3">
-                  {imageUpload ? (
+                  {imageUpload || editingProduct?.image ? (
                     <img
-                      src={imageUpload.dataUrl}
+                      src={imageUpload?.dataUrl || editingProduct?.image || ""}
                       alt={t("productImagePreview")}
                       className="h-24 w-24 rounded-lg object-cover"
                     />
@@ -481,7 +559,11 @@ function CatalogPage() {
                   )}
                   <span className="min-w-0 flex-1">
                     <span className="block font-semibold text-slate-800">
-                      {imageUpload ? imageUpload.fileName : t("chooseProductImage")}
+                      {imageUpload
+                        ? imageUpload.fileName
+                        : editingProduct?.image
+                          ? t("currentProductImage")
+                          : t("chooseProductImage")}
                     </span>
                     <span className="mt-1 block text-xs font-normal text-muted-foreground">
                       {t("imageHelp")}
@@ -589,48 +671,53 @@ function CatalogPage() {
               />{" "}
               {t("requiresPrescription")}
             </label>
-            <fieldset className="space-y-3 rounded-xl border border-slate-200 p-4">
-              <legend className="px-1 text-sm font-bold text-slate-900">{t("openingStock")}</legend>
-              <p className="text-xs text-slate-600">{t("openingStockHelp")}</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <NumberField
-                  label={t("openingQuantity")}
-                  value={form.openingQuantity}
-                  setValue={(value) => field("openingQuantity", value)}
-                  help={t("openingQuantityHelp")}
-                  min={1}
-                />
-                <Text
-                  label={`${t("batchNumber")} (${t("optional")})`}
-                  value={form.openingBatchNumber}
-                  setValue={(value) => field("openingBatchNumber", value)}
-                  help={t("batchNumberHelp")}
-                />
-                <label className="block text-sm font-semibold">
-                  {t("expiryDate")}
-                  <input
-                    required={Boolean(form.openingQuantity)}
-                    type="date"
-                    value={form.openingExpiryDate}
-                    onChange={(event) => field("openingExpiryDate", event.target.value)}
-                    className="input-field mt-1"
+            {!editingId && (
+              <fieldset className="space-y-3 rounded-xl border border-slate-200 p-4">
+                <legend className="px-1 text-sm font-bold text-slate-900">
+                  {t("openingStock")}
+                </legend>
+                <p className="text-xs text-slate-600">{t("openingStockHelp")}</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <NumberField
+                    label={t("openingQuantity")}
+                    value={form.openingQuantity}
+                    setValue={(value) => field("openingQuantity", value)}
+                    help={t("openingQuantityHelp")}
+                    min={1}
+                    required={false}
                   />
-                  <span className="mt-1 block text-xs font-normal text-slate-500">
-                    {t("expiryDateHelp")}
-                  </span>
-                </label>
-                <Text
-                  label={`${t("openingStockReason")} (${t("optional")})`}
-                  value={form.openingReason}
-                  setValue={(value) => field("openingReason", value)}
-                  help={t("openingStockReasonHelp")}
-                />
-              </div>
-            </fieldset>
+                  <Text
+                    label={`${t("batchNumber")} (${t("optional")})`}
+                    value={form.openingBatchNumber}
+                    setValue={(value) => field("openingBatchNumber", value)}
+                    help={t("batchNumberHelp")}
+                  />
+                  <label className="block text-sm font-semibold">
+                    {t("expiryDate")}
+                    <input
+                      required={Boolean(form.openingQuantity)}
+                      type="date"
+                      value={form.openingExpiryDate}
+                      onChange={(event) => field("openingExpiryDate", event.target.value)}
+                      className="input-field mt-1"
+                    />
+                    <span className="mt-1 block text-xs font-normal text-slate-500">
+                      {t("expiryDateHelp")}
+                    </span>
+                  </label>
+                  <Text
+                    label={`${t("openingStockReason")} (${t("optional")})`}
+                    value={form.openingReason}
+                    setValue={(value) => field("openingReason", value)}
+                    help={t("openingStockReasonHelp")}
+                  />
+                </div>
+              </fieldset>
+            )}
             <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeProductForm}
                 className="rounded-xl border px-4 py-2 text-sm font-semibold"
               >
                 {t("cancel")}
@@ -641,7 +728,7 @@ function CatalogPage() {
                 value="save"
                 className="rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-semibold text-white"
               >
-                {saving ? t("saving") : t("saveProduct")}
+                {saving ? t("saving") : editingId ? t("saveChanges") : t("saveProduct")}
               </button>
             </div>
           </form>
@@ -683,18 +770,20 @@ function NumberField({
   setValue,
   min = 0,
   help,
+  required = true,
 }: {
   label: string;
   value: string;
   setValue: (value: string) => void;
   min?: number;
   help?: string;
+  required?: boolean;
 }) {
   return (
     <label className="block text-sm font-semibold">
       {label}
       <input
-        required
+        required={required}
         min={min}
         type="number"
         value={value}

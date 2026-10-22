@@ -776,6 +776,10 @@ export const translations = {
       "Adjustments cannot be silently deleted; reverse an error with a second explained adjustment.",
     stockAdjustmentFailed: "Stock adjustment failed.",
     optional: "optional",
+    editProduct: "Edit product",
+    editProductHelp:
+      "Correct the product details or replace its image. Stock is changed separately.",
+    currentProductImage: "Current product image",
   },
 
   sw: {
@@ -1495,6 +1499,9 @@ export const translations = {
       "Marekebisho hayawezi kufutwa kimya; sahihisha kosa kwa marekebisho mengine yenye maelezo.",
     stockAdjustmentFailed: "Marekebisho ya stoo yameshindwa.",
     optional: "si lazima",
+    editProduct: "Hariri bidhaa",
+    editProductHelp: "Sahihisha maelezo ya bidhaa au badilisha picha. Stoo hubadilishwa kando.",
+    currentProductImage: "Picha ya sasa ya bidhaa",
   },
 };
 
