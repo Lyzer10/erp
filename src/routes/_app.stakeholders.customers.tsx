@@ -7,6 +7,7 @@ import { StatusPill } from "@/components/erp/StatusPill";
 import { createCustomerFn, getCustomersFn } from "@/lib/api/domain";
 import { setPartyStatusFn } from "@/lib/api/operations";
 import { useTranslate } from "@/lib/i18n";
+import { DirectoryExcelActions } from "@/components/erp/DirectoryExcelActions";
 
 type Customer = {
   id: number;
@@ -104,14 +105,14 @@ function CustomersPage() {
             ? "Customer directory and credit balances."
             : "Orodha ya wateja na salio la mikopo."
         }
-        actions={
+        actions={<div className="flex flex-wrap items-start justify-end gap-2"><DirectoryExcelActions kind="customer" rows={customers as unknown as Array<Record<string, unknown>>} lang={lang} canImport={loaded.canEdit} onImported={refresh} />
           <button
             onClick={() => setOpen(true)}
             className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
           >
             <Plus className="h-4 w-4" /> New customer
           </button>
-        }
+        </div>}
       />
       <DataTable
         data={customers}

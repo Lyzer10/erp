@@ -159,7 +159,10 @@ export const getAuditLogsFn = createServerFn({ method: "GET" }).handler(async ()
   if (actor.role === "SuperAdmin") return logs;
   const protectedUsers = await db.select({ id: users.id }).from(users).where(inArray(users.role, ["SuperAdmin", "Admin"]));
   const protectedIds = new Set(protectedUsers.map((user) => String(user.id)));
-  return logs.filter((log) => Number(log.userId) !== Number(actor.id) && !(log.entityType === "USER" && log.entityId && protectedIds.has(log.entityId)));
+  return logs.filter((log) =>
+    (Number(log.userId) === Number(actor.id) || !protectedIds.has(String(log.userId))) &&
+    !(log.entityType === "USER" && log.entityId && protectedIds.has(log.entityId)),
+  );
 });
 
 export const getPermissionMatrixFn = createServerFn({ method: "GET" }).handler(async () => {
@@ -198,4 +201,48 @@ export const setUserPermissionFn = createServerFn({ method: "POST" })
     await setUserModule(target.id, data.module, data.enabled, Number(actor.id));
     await db.insert(auditLogs).values({ userId: Number(actor.id), action: "PERMISSION_CHANGE", entityType: "USER", entityId: String(target.id), summary: `${data.module}: ${data.enabled === null ? "role default" : data.enabled ? "enabled" : "disabled"}` });
     return { success: true };
+  });
+
+const permissionChange = z.discriminatedUnion("scope", [
+  z.object({ scope: z.literal("role"), role: z.enum(MANAGEABLE_ROLES), module: z.enum(MODULE_KEYS), enabled: z.boolean() }),
+  z.object({ scope: z.literal("user"), userId: z.number().int().positive(), module: z.enum(MODULE_KEYS), enabled: z.boolean().nullable() }),
+]);
+
+export const savePermissionChangesFn = createServerFn({ method: "POST" })
+  .validator(z.object({ changes: z.array(permissionChange).min(1).max(200) }))
+  .handler(async ({ data }) => {
+    const actor = await requireSuperAdmin();
+    const allowedUserIds = new Set(
+      (await db.select({ id: users.id }).from(users).where(and(ne(users.status, "Removed"), ne(users.role, "SuperAdmin")))).map((row) => row.id),
+    );
+    await db.transaction(async (tx) => {
+      for (const change of data.changes) {
+        if (change.scope === "role") {
+          await tx.insert(roleModulePermissions).values({ role: change.role, module: change.module, enabled: change.enabled, updatedBy: Number(actor.id), updatedAt: new Date() }).onConflictDoUpdate({
+            target: [roleModulePermissions.role, roleModulePermissions.module],
+            set: { enabled: change.enabled, updatedBy: Number(actor.id), updatedAt: new Date() },
+          });
+        } else {
+          if (!allowedUserIds.has(change.userId)) throw new Error("A selected user is not available.");
+          if (change.enabled === null) {
+            await tx.delete(userModulePermissions).where(and(eq(userModulePermissions.userId, change.userId), eq(userModulePermissions.module, change.module)));
+          } else {
+            await tx.insert(userModulePermissions).values({ userId: change.userId, module: change.module, enabled: change.enabled, updatedBy: Number(actor.id), updatedAt: new Date() }).onConflictDoUpdate({
+              target: [userModulePermissions.userId, userModulePermissions.module],
+              set: { enabled: change.enabled, updatedBy: Number(actor.id), updatedAt: new Date() },
+            });
+          }
+        }
+      }
+      const details = data.changes.map((change) =>
+        change.scope === "role"
+          ? `${change.role}.${change.module}=${change.enabled ? "on" : "off"}`
+          : `user ${change.userId}.${change.module}=${change.enabled === null ? "role default" : change.enabled ? "on" : "off"}`,
+      );
+      await tx.insert(auditLogs).values({
+        userId: Number(actor.id), action: "PERMISSIONS_SAVED", entityType: "ACCESS_CONTROL", entityId: null,
+        summary: details.join("; "),
+      });
+    });
+    return { success: true, changed: data.changes.length };
   });

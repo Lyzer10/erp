@@ -11,8 +11,7 @@ import {
   getUsersFn,
   removeUserFn,
   resetUserPasswordFn,
-  setRolePermissionFn,
-  setUserPermissionFn,
+  savePermissionChangesFn,
   setUserStatusFn,
   updateUserFn,
 } from "@/lib/api/admin";
@@ -42,6 +41,9 @@ type PermissionMatrix = {
   roles: { role: PermissionRole; permissions: Record<ModuleKey, boolean> }[];
   users: (UserRow & { effectiveModules: ModuleKey[]; overrides: Partial<Record<ModuleKey, boolean>> })[];
 };
+type PendingPermission =
+  | { scope: "role"; role: PermissionRole; module: ModuleKey; enabled: boolean }
+  | { scope: "user"; userId: number; module: ModuleKey; enabled: boolean | null };
 
 export const Route = createFileRoute("/_app/admin/users")({
   head: () => ({ meta: [{ title: "Users & Audit — DeveleERP" }] }),
@@ -64,6 +66,8 @@ function UsersPage() {
   const [permissions, setPermissions] = useState(initial.permissions);
   const [permissionRole, setPermissionRole] = useState<PermissionRole>("Admin");
   const [permissionUserId, setPermissionUserId] = useState<number | null>(initial.permissions?.users[0]?.id ?? null);
+  const [pendingPermissions, setPendingPermissions] = useState<PendingPermission[]>([]);
+  const [savingPermissions, setSavingPermissions] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -141,23 +145,24 @@ function UsersPage() {
     setPermissions(await getPermissionMatrixFn() as unknown as PermissionMatrix);
   }
   async function changeRolePermission(module: ModuleKey, enabled: boolean) {
-    setError(null);
-    try {
-      await setRolePermissionFn({ data: { role: permissionRole, module, enabled } });
-      await Promise.all([refreshPermissions(), refreshLogs()]);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Permission could not be saved.");
-    }
+    setPermissions((current) => current ? { ...current, roles: current.roles.map((item) => item.role === permissionRole ? { ...item, permissions: { ...item.permissions, [module]: enabled } } : item) } : current);
+    setPendingPermissions((current) => [...current.filter((change) => !(change.scope === "role" && change.role === permissionRole && change.module === module)), { scope: "role", role: permissionRole, module, enabled }]);
   }
   async function changeUserPermission(module: ModuleKey, value: string) {
     if (!permissionUserId) return;
-    setError(null);
+    const enabled = value === "default" ? null : value === "allow";
+    setPermissions((current) => current ? { ...current, users: current.users.map((item) => item.id === permissionUserId ? { ...item, overrides: { ...item.overrides, [module]: enabled === null ? undefined : enabled } } : item) } : current);
+    setPendingPermissions((current) => [...current.filter((change) => !(change.scope === "user" && change.userId === permissionUserId && change.module === module)), { scope: "user", userId: permissionUserId, module, enabled }]);
+  }
+  async function savePermissions() {
+    if (!pendingPermissions.length) return;
+    setSavingPermissions(true); setError(null);
     try {
-      await setUserPermissionFn({ data: { userId: permissionUserId, module, enabled: value === "default" ? null : value === "allow" } });
+      await savePermissionChangesFn({ data: { changes: pendingPermissions } });
+      setPendingPermissions([]);
       await Promise.all([refreshPermissions(), refreshLogs()]);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Permission could not be saved.");
-    }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Permissions could not be saved."); }
+    finally { setSavingPermissions(false); }
   }
   async function toggle(user: UserRow) {
     const status = user.status === "Active" ? "Inactive" : "Active";
@@ -255,6 +260,9 @@ function UsersPage() {
           setUserId={setPermissionUserId}
           onRoleChange={changeRolePermission}
           onUserChange={changeUserPermission}
+          onSave={savePermissions}
+          pendingCount={pendingPermissions.length}
+          saving={savingPermissions}
           lang={lang}
         />
       )}
@@ -372,6 +380,9 @@ function PermissionPanel({
   setUserId,
   onRoleChange,
   onUserChange,
+  onSave,
+  pendingCount,
+  saving,
   lang,
 }: {
   matrix: PermissionMatrix;
@@ -381,6 +392,9 @@ function PermissionPanel({
   setUserId: (id: number | null) => void;
   onRoleChange: (module: ModuleKey, enabled: boolean) => Promise<void>;
   onUserChange: (module: ModuleKey, value: string) => Promise<void>;
+  onSave: () => Promise<void>;
+  pendingCount: number;
+  saving: boolean;
   lang: "en" | "sw";
 }) {
   const selectedRole = matrix.roles.find((item) => item.role === role)!;
@@ -394,6 +408,16 @@ function PermissionPanel({
             ? "Set the normal access for a role, then add an exception for one user only when needed."
             : "Weka ruhusa za kawaida kwa jukumu, kisha badilisha kwa mtumiaji mmoja tu inapohitajika."}
         </p>
+      </div>
+      <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+        <p className="text-sm text-slate-600">
+          {pendingCount
+            ? (lang === "en" ? `${pendingCount} unsaved change(s)` : `Mabadiliko ${pendingCount} hayajahifadhiwa`)
+            : (lang === "en" ? "All permission changes are saved." : "Mabadiliko yote yamehifadhiwa.")}
+        </p>
+        <button type="button" disabled={!pendingCount || saving} onClick={() => void onSave()} className="rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">
+          {saving ? (lang === "en" ? "Saving..." : "Inahifadhi...") : (lang === "en" ? "Save changes" : "Hifadhi mabadiliko")}
+        </button>
       </div>
       <div className="grid gap-6 xl:grid-cols-2">
         <div>

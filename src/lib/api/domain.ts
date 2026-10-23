@@ -20,7 +20,7 @@ import { isExistingBucketResponse } from "../storage-errors";
 export const getCustomersFn = createServerFn({ method: "GET" }).handler(async () => {
   const ds = await resolveDataSource();
   const data = await ds.customers.getAll();
-  return { isTestUser: ds.isTestUser, data };
+  return { isTestUser: ds.isTestUser, canEdit: ["SuperAdmin", "Admin"].includes(ds.user.role), data };
 });
 
 export const createCustomerFn = createServerFn({ method: "POST" })
