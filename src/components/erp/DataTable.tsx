@@ -18,6 +18,7 @@ interface Props<T> {
   searchable?: boolean;
   pageSize?: number;
   emptyMessage?: string;
+  tableClassName?: string;
 }
 
 function toStr(v: unknown): string {
@@ -38,6 +39,7 @@ export function DataTable<T extends Record<string, unknown>>({
   searchable = true,
   pageSize = 10,
   emptyMessage,
+  tableClassName,
 }: Readonly<Props<T>>) {
   const { t, lang } = useTranslate();
   const [q, setQ] = useState("");
@@ -77,7 +79,7 @@ export function DataTable<T extends Record<string, unknown>>({
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className={cn("w-full text-sm", tableClassName)}>
           <thead>
             <tr className="border-b border-blue-100 bg-blue-50/50">
               {columns.map((c, idx) => (

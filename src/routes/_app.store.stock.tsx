@@ -243,10 +243,12 @@ function StockPage() {
                 />
                 <DataTable
                   data={visibleProducts}
+                  tableClassName="table-fixed"
                   columns={[
                     {
                       key: "image",
                       header: t("image"),
+                      className: "w-[8%]",
                       render: (row: Product) =>
                         row.image ? (
                           <img
@@ -261,13 +263,14 @@ function StockPage() {
                           </span>
                         ),
                     },
-                    { key: "sku", header: "SKU" },
-                    { key: "name", header: t("productName") },
-                    { key: "category", header: t("category") },
+                    { key: "sku", header: "SKU", className: "w-[19%]" },
+                    { key: "name", header: t("productName"), className: "w-[16%]" },
+                    { key: "category", header: t("category"), className: "w-[18%]" },
                     {
                       key: "stock",
                       header: t("onHand"),
                       align: "right",
+                      className: "w-[9%] whitespace-nowrap",
                       render: (row: Product) => (
                         <span
                           className={
@@ -278,10 +281,16 @@ function StockPage() {
                         </span>
                       ),
                     },
-                    { key: "reorder", header: t("reorder"), align: "right" },
+                    {
+                      key: "reorder",
+                      header: t("reorder"),
+                      align: "right",
+                      className: "w-[9%] whitespace-nowrap",
+                    },
                     {
                       key: "level",
                       header: en ? "Status" : "Hali",
+                      className: "w-[10%] whitespace-nowrap",
                       render: (row: Product) => {
                         const level = stockLevel(row);
                         if (level === "out")
@@ -307,6 +316,7 @@ function StockPage() {
                       key: "value",
                       header: t("value"),
                       align: "right",
+                      className: "w-[11%] whitespace-nowrap",
                       render: (row: Product) => money(row.stock * row.cost),
                     },
                   ]}
