@@ -1,5 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, ImagePlus, Package, Pencil, Plus, Trash2, X } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  AlertTriangle,
+  FileSpreadsheet,
+  ImagePlus,
+  Package,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { DataTable } from "@/components/erp/DataTable";
 import { PageHeader } from "@/components/erp/PageHeader";
@@ -10,6 +19,8 @@ import {
   updateProductFn,
 } from "@/lib/api/domain";
 import { useTranslate } from "@/lib/i18n";
+import { resizeProductImage } from "@/lib/image-resize";
+import { PURCHASE_UNITS, SELLING_UNITS } from "@/lib/product-import";
 
 type Product = {
   id: number;
@@ -61,33 +72,8 @@ export const Route = createFileRoute("/_app/products/catalog")({
 
 const money = (value: number) => `TZS ${new Intl.NumberFormat("en-TZ").format(value)}`;
 
-const purchaseUnits = [
-  ["box", "Box", "Boksi"],
-  ["carton", "Carton", "Katoni"],
-  ["pack", "Pack", "Pakiti"],
-  ["bottle", "Bottle", "Chupa"],
-  ["strip", "Strip", "Stripu"],
-  ["tube", "Tube", "Tyubu"],
-  ["sachet", "Sachet", "Kifuko"],
-  ["vial", "Vial", "Kichupa cha dawa"],
-  ["ampoule", "Ampoule", "Ampuli"],
-  ["piece", "Single piece", "Moja moja"],
-] as const;
-
-const sellingUnits = [
-  ["tablet", "Tablet", "Kidonge"],
-  ["capsule", "Capsule", "Kapsuli"],
-  ["bottle", "Bottle", "Chupa"],
-  ["strip", "Strip", "Stripu"],
-  ["pack", "Pack", "Pakiti"],
-  ["sachet", "Sachet", "Kifuko"],
-  ["tube", "Tube", "Tyubu"],
-  ["vial", "Vial", "Kichupa cha dawa"],
-  ["ampoule", "Ampoule", "Ampuli"],
-  ["piece", "Piece", "Moja"],
-  ["ml", "Millilitre (ml)", "Mililita (ml)"],
-  ["gram", "Gram (g)", "Gramu (g)"],
-] as const;
+const purchaseUnits = PURCHASE_UNITS;
+const sellingUnits = SELLING_UNITS;
 
 function CatalogPage() {
   const { lang, t } = useTranslate();
@@ -282,12 +268,21 @@ function CatalogPage() {
             : "Dawa, vipimo, bei na kiwango cha kuagiza."
         }
         actions={
-          <button
-            onClick={openNewProduct}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
-          >
-            <Plus className="h-4 w-4" /> {t("newProduct")}
-          </button>
+          <>
+            <Link
+              to="/products/catalog/import"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              <FileSpreadsheet className="h-4 w-4 text-[#1f9c88]" />
+              {lang === "en" ? "Import / export Excel" : "Ingiza / hamisha Excel"}
+            </Link>
+            <button
+              onClick={openNewProduct}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1f9c88] px-4 py-2 text-sm font-bold text-white"
+            >
+              <Plus className="h-4 w-4" /> {t("newProduct")}
+            </button>
+          </>
         }
       />
       {deleteNotice && !deleteOpen && (
@@ -833,22 +828,4 @@ function SelectField({
       {help && <span className="mt-1 block text-xs font-normal text-slate-500">{help}</span>}
     </label>
   );
-}
-
-async function resizeProductImage(file: File) {
-  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-    throw new Error("Use a JPG, PNG, or WebP image.");
-  }
-  if (file.size > 8_000_000) throw new Error("Choose an image smaller than 8 MB.");
-  const source = await createImageBitmap(file);
-  const scale = Math.min(1, 1200 / Math.max(source.width, source.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(source.width * scale));
-  canvas.height = Math.max(1, Math.round(source.height * scale));
-  canvas.getContext("2d")?.drawImage(source, 0, 0, canvas.width, canvas.height);
-  source.close();
-  const contentType = "image/webp" as const;
-  const dataUrl = canvas.toDataURL(contentType, 0.82);
-  if (dataUrl.length > 2_700_000) throw new Error("The compressed image is still too large.");
-  return { dataUrl, fileName: file.name, contentType };
 }

@@ -41,6 +41,7 @@ import { Route as AppStakeholdersSuppliersRouteImport } from './routes/_app.stak
 import { Route as AppStoreStockRouteImport } from './routes/_app.store.stock'
 import { Route as AppStoreStoresRouteImport } from './routes/_app.store.stores'
 import { Route as AppStoreTransfersRouteImport } from './routes/_app.store.transfers'
+import { Route as AppProductsCatalogImportRouteImport } from './routes/_app.products.catalog_.import'
 import { Route as AppProductsPurchaseOrdersIndexRouteImport } from './routes/_app.products.purchase-orders.index'
 import { Route as AppProductsPurchaseOrdersNewRouteImport } from './routes/_app.products.purchase-orders.new'
 import { Route as AppSalesInvoicesIndexRouteImport } from './routes/_app.sales.invoices.index'
@@ -213,6 +214,12 @@ const AppStoreTransfersRoute = AppStoreTransfersRouteImport.update({
   path: '/store/transfers',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProductsCatalogImportRoute =
+  AppProductsCatalogImportRouteImport.update({
+    id: '/products/catalog_/import',
+    path: '/products/catalog/import',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppProductsPurchaseOrdersIndexRoute =
   AppProductsPurchaseOrdersIndexRouteImport.update({
     id: '/',
@@ -274,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/store/stock': typeof AppStoreStockRoute
   '/store/stores': typeof AppStoreStoresRoute
   '/store/transfers': typeof AppStoreTransfersRoute
+  '/products/catalog/import': typeof AppProductsCatalogImportRoute
   '/products/purchase-orders/new': typeof AppProductsPurchaseOrdersNewRoute
   '/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
@@ -310,6 +318,7 @@ export interface FileRoutesByTo {
   '/store/stock': typeof AppStoreStockRoute
   '/store/stores': typeof AppStoreStoresRoute
   '/store/transfers': typeof AppStoreTransfersRoute
+  '/products/catalog/import': typeof AppProductsCatalogImportRoute
   '/products/purchase-orders/new': typeof AppProductsPurchaseOrdersNewRoute
   '/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
@@ -350,6 +359,7 @@ export interface FileRoutesById {
   '/_app/store/stock': typeof AppStoreStockRoute
   '/_app/store/stores': typeof AppStoreStoresRoute
   '/_app/store/transfers': typeof AppStoreTransfersRoute
+  '/_app/products/catalog_/import': typeof AppProductsCatalogImportRoute
   '/_app/products/purchase-orders/new': typeof AppProductsPurchaseOrdersNewRoute
   '/_app/sales/invoices/new': typeof AppSalesInvoicesNewRoute
   '/_app/sales/invoices/proforma': typeof AppSalesInvoicesProformaRoute
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/store/stock'
     | '/store/stores'
     | '/store/transfers'
+    | '/products/catalog/import'
     | '/products/purchase-orders/new'
     | '/sales/invoices/new'
     | '/sales/invoices/proforma'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/store/stock'
     | '/store/stores'
     | '/store/transfers'
+    | '/products/catalog/import'
     | '/products/purchase-orders/new'
     | '/sales/invoices/new'
     | '/sales/invoices/proforma'
@@ -465,6 +477,7 @@ export interface FileRouteTypes {
     | '/_app/store/stock'
     | '/_app/store/stores'
     | '/_app/store/transfers'
+    | '/_app/products/catalog_/import'
     | '/_app/products/purchase-orders/new'
     | '/_app/sales/invoices/new'
     | '/_app/sales/invoices/proforma'
@@ -704,6 +717,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStoreTransfersRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/products/catalog_/import': {
+      id: '/_app/products/catalog_/import'
+      path: '/products/catalog/import'
+      fullPath: '/products/catalog/import'
+      preLoaderRoute: typeof AppProductsCatalogImportRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/products/purchase-orders/': {
       id: '/_app/products/purchase-orders/'
       path: '/'
@@ -803,6 +823,7 @@ interface AppRouteChildren {
   AppStoreStockRoute: typeof AppStoreStockRoute
   AppStoreStoresRoute: typeof AppStoreStoresRoute
   AppStoreTransfersRoute: typeof AppStoreTransfersRoute
+  AppProductsCatalogImportRoute: typeof AppProductsCatalogImportRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -835,6 +856,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStoreStockRoute: AppStoreStockRoute,
   AppStoreStoresRoute: AppStoreStoresRoute,
   AppStoreTransfersRoute: AppStoreTransfersRoute,
+  AppProductsCatalogImportRoute: AppProductsCatalogImportRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

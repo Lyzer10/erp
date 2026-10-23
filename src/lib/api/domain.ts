@@ -325,7 +325,7 @@ export const updateProductFn = createServerFn({ method: "POST" })
     return { result };
   });
 
-async function uploadProductImage(upload: {
+export async function uploadProductImage(upload: {
   dataUrl: string;
   fileName: string;
   contentType: "image/jpeg" | "image/png" | "image/webp";
