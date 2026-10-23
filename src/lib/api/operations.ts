@@ -258,6 +258,22 @@ export const getSalesFn = createServerFn({ method: "GET" }).handler(async () => 
     .orderBy(sql`${sales.createdAt} desc`);
 });
 
+export const getFinancialSaleItemsFn = createServerFn({ method: "GET" }).handler(async () => {
+  await currentUser("sales");
+  return db
+    .select({
+      saleId: saleItems.saleId,
+      quantity: saleItems.quantity,
+      unitCost: sql<number>`coalesce(${productBatches.unitCost}, ${products.cost})`,
+      createdAt: sales.createdAt,
+      status: sales.status,
+    })
+    .from(saleItems)
+    .innerJoin(sales, eq(sales.id, saleItems.saleId))
+    .innerJoin(products, eq(products.id, saleItems.productId))
+    .leftJoin(productBatches, eq(productBatches.id, saleItems.batchId));
+});
+
 export const getSaleReceiptFn = createServerFn({ method: "GET" })
   .validator(z.object({ saleId: z.number().int().positive() }))
   .handler(async ({ data }) => {
