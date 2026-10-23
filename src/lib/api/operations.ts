@@ -16,6 +16,7 @@ import {
   salePayments,
   sales,
   suppliers,
+  users,
 } from "../../db/schema";
 import { authenticateRequest } from "../auth";
 import { requireModuleAccess, type ModuleKey } from "../permissions";
@@ -256,6 +257,39 @@ export const getSalesFn = createServerFn({ method: "GET" }).handler(async () => 
     .leftJoin(customers, eq(customers.id, sales.customerId))
     .orderBy(sql`${sales.createdAt} desc`);
 });
+
+export const getSaleReceiptFn = createServerFn({ method: "GET" })
+  .validator(z.object({ saleId: z.number().int().positive() }))
+  .handler(async ({ data }) => {
+    await currentUser("sales");
+    const [receipt] = await db
+      .select({
+        id: sales.id,
+        receiptNumber: sales.receiptNumber,
+        customer: customers.name,
+        cashier: users.username,
+        subtotal: sales.subtotal,
+        discount: sales.discount,
+        tax: sales.tax,
+        total: sales.total,
+        status: sales.status,
+        createdAt: sales.createdAt,
+      })
+      .from(sales)
+      .leftJoin(customers, eq(customers.id, sales.customerId))
+      .innerJoin(users, eq(users.id, sales.cashierId))
+      .where(eq(sales.id, data.saleId))
+      .limit(1);
+    if (!receipt) throw new Error("Receipt was not found.");
+    const [items, payments, settings] = await Promise.all([
+      db.select({ id: saleItems.id, product: products.name, quantity: saleItems.quantity, unitPrice: saleItems.unitPrice, lineTotal: saleItems.lineTotal })
+        .from(saleItems).innerJoin(products, eq(products.id, saleItems.productId)).where(eq(saleItems.saleId, data.saleId)).orderBy(asc(saleItems.id)),
+      db.select({ id: salePayments.id, method: salePayments.method, amount: salePayments.amount, reference: salePayments.reference })
+        .from(salePayments).where(eq(salePayments.saleId, data.saleId)).orderBy(asc(salePayments.id)),
+      db.select({ businessName: businessSettings.businessName, phone: businessSettings.phone, email: businessSettings.email, address: businessSettings.address, tin: businessSettings.tin }).from(businessSettings).orderBy(asc(businessSettings.id)).limit(1),
+    ]);
+    return { receipt, items, payments, business: settings[0] ?? { businessName: "DeveleERP Pharmacy", phone: null, email: null, address: null, tin: null } };
+  });
 
 export const voidSaleFn = createServerFn({ method: "POST" })
   .validator(
