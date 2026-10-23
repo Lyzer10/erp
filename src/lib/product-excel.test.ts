@@ -43,3 +43,39 @@ test("an empty template reports that there are no product rows", async () => {
   const { problems } = await readProductWorkbook(new File([buffer], "template.xlsx"));
   assert.deepEqual(problems, ["The Products sheet has no product rows."]);
 });
+
+test("a Swahili export uses Swahili words and imports back to the same values", async () => {
+  const workbook = await buildProductWorkbook(
+    ["Antibiotics"],
+    [
+      {
+        name: "Amoxyl",
+        category: "Antibiotics",
+        strength: "250mg",
+        price: 500,
+        cost: 300,
+        purchaseUnit: "box",
+        sellingUnit: "capsule",
+        unitsPerPurchaseUnit: 100,
+        reorder: 20,
+        requiresPrescription: true,
+      },
+    ],
+    "sw",
+  );
+  const sheet = workbook.getWorksheet("Bidhaa")!;
+  assert.equal(sheet.getCell("A1").value, "Jina la bidhaa *");
+  assert.equal(sheet.getCell("D2").value, "Viuavijasumu");
+  assert.equal(sheet.getCell("J2").value, "Boksi");
+  assert.equal(sheet.getCell("N2").value, "Ndiyo");
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const { rows, problems } = await readProductWorkbook(new File([buffer], "bidhaa.xlsx"));
+  assert.deepEqual(problems, []);
+  const { values, errors } = parseRow(rows[0].rowNumber, rows[0].raw);
+  assert.deepEqual(errors, []);
+  assert.equal(values.category, "Antibiotics");
+  assert.equal(values.purchaseUnit, "box");
+  assert.equal(values.sellingUnit, "capsule");
+  assert.equal(values.requiresPrescription, true);
+});

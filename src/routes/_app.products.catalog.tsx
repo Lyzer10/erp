@@ -20,6 +20,7 @@ import {
 } from "@/lib/api/domain";
 import { useTranslate } from "@/lib/i18n";
 import { resizeProductImage } from "@/lib/image-resize";
+import { categoryLabel, categoryOptions } from "@/lib/product-categories";
 import { PURCHASE_UNITS, SELLING_UNITS } from "@/lib/product-import";
 
 type Product = {
@@ -79,6 +80,19 @@ function CatalogPage() {
   const { lang, t } = useTranslate();
   const loaded = Route.useLoaderData();
   const [products, setProducts] = useState<Product[]>(loaded.data as Product[]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const visibleProducts = categoryFilter
+    ? products.filter((product) => product.category === categoryFilter)
+    : products;
+  const allCategories = categoryOptions(products.map((product) => product.category));
+  const usedCategories = [
+    ...products
+      .reduce(
+        (counts, product) => counts.set(product.category, (counts.get(product.category) ?? 0) + 1),
+        new Map<string, number>(),
+      )
+      .entries(),
+  ].sort(([a], [b]) => categoryLabel(a, lang).localeCompare(categoryLabel(b, lang)));
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -218,8 +232,11 @@ function CatalogPage() {
   }
 
   function toggleAll() {
+    // Only the products currently shown, so a filter never selects hidden rows for deletion.
     setSelected((current) =>
-      current.size === products.length ? new Set() : new Set(products.map((product) => product.id)),
+      current.size === visibleProducts.length
+        ? new Set()
+        : new Set(visibleProducts.map((product) => product.id)),
     );
   }
 
@@ -328,8 +345,31 @@ function CatalogPage() {
           </div>
         </div>
       )}
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="text-sm font-semibold text-slate-700" htmlFor="category-filter">
+          {t("category")}
+        </label>
+        <select
+          id="category-filter"
+          value={categoryFilter}
+          onChange={(event) => {
+            setCategoryFilter(event.target.value);
+            setSelected(new Set());
+          }}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+        >
+          <option value="">
+            {lang === "en" ? "All categories" : "Makundi yote"} ({products.length})
+          </option>
+          {usedCategories.map(([category, count]) => (
+            <option key={category} value={category}>
+              {categoryLabel(category, lang)} ({count})
+            </option>
+          ))}
+        </select>
+      </div>
       <DataTable
-        data={products}
+        data={visibleProducts}
         columns={[
           ...(loaded.canDelete
             ? [
@@ -338,7 +378,9 @@ function CatalogPage() {
                   header: (
                     <input
                       type="checkbox"
-                      checked={products.length > 0 && selected.size === products.length}
+                      checked={
+                        visibleProducts.length > 0 && selected.size === visibleProducts.length
+                      }
                       onChange={toggleAll}
                       aria-label={t("selectAllProducts")}
                       className="h-4 w-4 accent-[#1f9c88]"
@@ -377,6 +419,11 @@ function CatalogPage() {
           { key: "barcode", header: t("barcode") },
           { key: "name", header: t("productName") },
           { key: "genericName", header: t("genericName") },
+          {
+            key: "category",
+            header: t("category"),
+            render: (row: Product) => categoryLabel(row.category, lang),
+          },
           { key: "strength", header: t("strength") },
           { key: "dosageForm", header: t("dosageForm") },
           {
@@ -583,11 +630,12 @@ function CatalogPage() {
                 value={form.genericName}
                 setValue={(value) => field("genericName", value)}
               />
-              <Text
+              <CategoryField
                 label={t("category")}
                 value={form.category}
                 setValue={(value) => field("category", value)}
-                required
+                options={allCategories}
+                lang={lang}
               />
               <Text
                 label={t("brandManufacturer")}
@@ -730,6 +778,61 @@ function CatalogPage() {
         </div>
       )}
     </div>
+  );
+}
+
+const NEW_CATEGORY = "__new__";
+
+function CategoryField({
+  label,
+  value,
+  setValue,
+  options,
+  lang,
+}: {
+  label: string;
+  value: string;
+  setValue: (value: string) => void;
+  options: string[];
+  lang: "en" | "sw";
+}) {
+  const [typing, setTyping] = useState(() => Boolean(value) && !options.includes(value));
+  return (
+    <label className="block text-sm font-semibold">
+      {label}
+      <select
+        required={!typing}
+        value={typing ? NEW_CATEGORY : value}
+        onChange={(event) => {
+          const next = event.target.value;
+          setTyping(next === NEW_CATEGORY);
+          setValue(next === NEW_CATEGORY ? "" : next);
+        }}
+        className="input-field mt-1"
+      >
+        <option value="" disabled>
+          {lang === "en" ? "Choose a category" : "Chagua kundi"}
+        </option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {categoryLabel(option, lang)}
+          </option>
+        ))}
+        <option value={NEW_CATEGORY}>
+          {lang === "en" ? "Type a new category…" : "Andika kundi jipya…"}
+        </option>
+      </select>
+      {typing && (
+        <input
+          required
+          autoFocus
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder={lang === "en" ? "New category name" : "Jina la kundi jipya"}
+          className="input-field mt-2"
+        />
+      )}
+    </label>
   );
 }
 

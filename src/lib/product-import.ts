@@ -1,6 +1,7 @@
 // Client-safe rules for the Excel product import. The browser uses them to read the
 // spreadsheet and the server re-applies them before anything is saved.
 import { z } from "zod";
+import { canonicalCategory } from "./product-categories";
 
 export const PURCHASE_UNITS = [
   ["box", "Box", "Boksi"],
@@ -77,7 +78,7 @@ export const IMPORT_COLUMNS: ImportColumn[] = [
     kind: "text",
     required: true,
     width: 20,
-    note: "Pick from the list or type a new one.",
+    note: "Pick a standard category from the list, or type your own if none fits.",
     example: "Painkillers",
   },
   {
@@ -186,6 +187,59 @@ export const IMPORT_COLUMNS: ImportColumn[] = [
     example: "2027-06-30",
   },
 ];
+
+const SWAHILI_COLUMNS: Record<ImportColumn["key"], { header: string; note: string }> = {
+  rowNumber: { header: "", note: "" },
+  name: { header: "Jina la bidhaa *", note: "Jina linaloonekana kwenye mauzo (POS)." },
+  genericName: { header: "Jina la kisayansi", note: "Kiambato hai cha dawa." },
+  brand: { header: "Chapa / mtengenezaji", note: "Si lazima." },
+  category: {
+    header: "Kundi *",
+    note: "Chagua kundi kwenye orodha, au andika lako ikiwa hakuna linalofaa.",
+  },
+  dosageForm: { header: "Aina ya dawa", note: "Mfano: Kidonge, Sharubati, Sindano." },
+  strength: { header: "Nguvu ya dawa", note: "Mfano: 500mg, 5mg/5ml." },
+  barcode: {
+    header: "Barcode",
+    note: "Hutumika kulinganisha picha na bidhaa zilizopo. Weka safu hii kama Text ili sifuri za mwanzo zibaki.",
+  },
+  price: { header: "Bei ya kuuza (TZS) *", note: "Shilingi kamili, kwa kipimo cha kuuza." },
+  cost: {
+    header: "Bei ya kununua (TZS)",
+    note: "Shilingi kamili. Ikiachwa wazi ni 0 kwa bidhaa mpya.",
+  },
+  purchaseUnit: { header: "Kipimo cha kununua", note: "Unavyonunua. Chagua kwenye orodha." },
+  sellingUnit: { header: "Kipimo cha kuuza", note: "Unavyouza. Chagua kwenye orodha." },
+  unitsPerPurchaseUnit: {
+    header: "Idadi kwa kipimo cha kununua",
+    note: "Mfano: vidonge 100 kwenye boksi.",
+  },
+  reorder: { header: "Kiwango cha kuagiza", note: "Onya stoo ikifika kiwango hiki." },
+  requiresPrescription: { header: "Inahitaji cheti cha daktari", note: "Ndiyo au Hapana." },
+  openingQuantity: {
+    header: "Idadi ya stoo ya kuanzia",
+    note: "Kwa bidhaa mpya tu. Huhesabiwa kwa kipimo cha kuuza.",
+  },
+  batchNumber: { header: "Namba ya batch", note: "Kwa bidhaa mpya tu. Si lazima." },
+  expiryDate: {
+    header: "Tarehe ya kuisha muda",
+    note: "Inahitajika pamoja na stoo ya kuanzia. Tumia YYYY-MM-DD au DD/MM/YYYY.",
+  },
+};
+
+export function columnText(column: ImportColumn, lang: "en" | "sw") {
+  return lang === "sw" ? SWAHILI_COLUMNS[column.key] : { header: column.header, note: column.note };
+}
+
+// Uploads accept headers in either language, whatever language the system is set to.
+export function columnForHeader(header: string) {
+  const wanted = normalizeHeader(header);
+  return IMPORT_COLUMNS.find(
+    (column) =>
+      normalizeHeader(column.header) === wanted ||
+      normalizeHeader(SWAHILI_COLUMNS[column.key].header) === wanted,
+  );
+}
 
 const text = (max: number) => z.string().trim().min(1).max(max).optional();
 
@@ -341,6 +395,7 @@ export function parseRow(
     }
     if (parsed !== undefined) (values as Record<string, unknown>)[column.key] = parsed;
   }
+  if (values.category) values.category = canonicalCategory(values.category);
   if (values.openingQuantity === 0) delete values.openingQuantity;
   if (values.openingQuantity && !values.expiryDate)
     errors.push("Expiry date is required when opening stock is given.");

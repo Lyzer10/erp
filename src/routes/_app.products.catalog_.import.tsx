@@ -71,7 +71,7 @@ function ImportPage() {
   async function download(withProducts: boolean) {
     setBusy(withProducts ? "export" : "template");
     try {
-      await downloadProductWorkbook(categories, withProducts ? products : undefined);
+      await downloadProductWorkbook(categories, withProducts ? products : undefined, lang);
     } finally {
       setBusy(null);
     }
