@@ -79,3 +79,23 @@ test("a Swahili export uses Swahili words and imports back to the same values", 
   assert.equal(values.sellingUnit, "capsule");
   assert.equal(values.requiresPrescription, true);
 });
+
+test("reads files whose cell notes were saved by other tools such as openpyxl", async () => {
+  const { default: JSZip } = await import("jszip");
+  const workbook = await buildProductWorkbook(
+    [],
+    [{ name: "Panadol", category: "Pain & fever", price: 200, cost: 100, reorder: 10 }],
+  );
+  // openpyxl points to notes with absolute paths, which ExcelJS cannot follow.
+  const zip = await JSZip.loadAsync(await workbook.xlsx.writeBuffer());
+  for (const name of Object.keys(zip.files).filter(
+    (n) => n.endsWith(".xml.rels") && n.includes("worksheets/_rels/"),
+  )) {
+    const xml = await zip.file(name)!.async("string");
+    zip.file(name, xml.replace(/Target="\.\.\//g, 'Target="/xl/'));
+  }
+  const bytes = await zip.generateAsync({ type: "arraybuffer" });
+  const { rows, problems } = await readProductWorkbook(new File([bytes], "openpyxl.xlsx"));
+  assert.deepEqual(problems, []);
+  assert.equal(rows.length, 1);
+});

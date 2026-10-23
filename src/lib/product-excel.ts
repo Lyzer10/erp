@@ -259,6 +259,26 @@ export async function downloadProductWorkbook(
   );
 }
 
+async function withoutCellNotes(bytes: ArrayBuffer) {
+  const { default: JSZip } = await import("jszip");
+  const zip = await JSZip.loadAsync(bytes);
+  for (const name of Object.keys(zip.files)) {
+    const entry = zip.file(name);
+    if (!entry) continue;
+    if (/^xl\/worksheets\/_rels\/.+\.rels$/.test(name)) {
+      const xml = await entry.async("string");
+      zip.file(
+        name,
+        xml.replace(/<Relationship\b[^>]*\/relationships\/(comments|vmlDrawing)"[^>]*\/>/g, ""),
+      );
+    } else if (/^xl\/worksheets\/[^/]+\.xml$/.test(name)) {
+      const xml = await entry.async("string");
+      zip.file(name, xml.replace(/<legacyDrawing\b[^>]*\/>/g, ""));
+    }
+  }
+  return zip.generateAsync({ type: "arraybuffer" });
+}
+
 export type ReadResult = {
   rows: Array<{ rowNumber: number; raw: Record<string, unknown> }>;
   problems: string[];
@@ -266,9 +286,17 @@ export type ReadResult = {
 
 export async function readProductWorkbook(file: File): Promise<ReadResult> {
   const { default: ExcelJS } = await import("exceljs");
-  const workbook = new ExcelJS.Workbook();
+  const bytes = await file.arrayBuffer();
+  let workbook = new ExcelJS.Workbook();
   try {
-    await workbook.xlsx.load(await file.arrayBuffer());
+    try {
+      await workbook.xlsx.load(bytes);
+    } catch {
+      // Files saved by other tools (e.g. openpyxl, Google Sheets) can store cell notes in a way
+      // ExcelJS cannot read. Notes are not needed for importing, so drop them and retry.
+      workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await withoutCellNotes(bytes));
+    }
   } catch {
     return {
       rows: [],
