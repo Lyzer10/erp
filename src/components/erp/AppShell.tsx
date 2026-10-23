@@ -1,6 +1,7 @@
 import { Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppSidebar } from "./AppSidebar";
+import { IdleLogout } from "./IdleLogout";
 import { Topbar } from "./Topbar";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ export function AppShell({ user }: { user: ShellUser }) {
 
   return (
     <div className="min-h-screen bg-background">
+      <IdleLogout />
       <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} user={user} />
 
       {/* Mobile sidebar drawer */}

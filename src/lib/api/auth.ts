@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { eq, or } from "drizzle-orm";
-import { generateToken, authenticateRequest } from "../auth";
+import { SESSION_IDLE_MINUTES, generateToken, authenticateRequest } from "../auth";
 import { getEffectiveModules } from "../permissions";
 
 export const loginUserInternal = createServerOnlyFn(
@@ -77,28 +77,32 @@ export const loginUserFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const res = await loginUserInternal(data);
-    if (res.success && res.token) {
-      try {
-        setCookie("auth_token", res.token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-          maxAge: 7 * 24 * 60 * 60,
-        });
-        setCookie("is_test_user", res.user?.isTestUser ? "true" : "false", {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-          maxAge: 7 * 24 * 60 * 60,
-        });
-      } catch {
-        // Fallback when invoked outside HTTP context
-      }
-    }
+    if (res.success && res.token) setSessionCookies(res.token, Boolean(res.user?.isTestUser));
     return res;
   });
+
+function setSessionCookies(token: string, isTestUser: boolean) {
+  const options = {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: SESSION_IDLE_MINUTES * 60,
+  };
+  try {
+    setCookie("auth_token", token, { ...options, httpOnly: true });
+    setCookie("is_test_user", isTestUser ? "true" : "false", { ...options, httpOnly: false });
+  } catch {
+    // Fallback when invoked outside HTTP context
+  }
+}
+
+// Called by the client while the user is active, sliding the idle expiry forward.
+export const refreshSessionFn = createServerFn({ method: "POST" }).handler(async () => {
+  const user = await authenticateRequest(getRequest());
+  if (!user) return { success: false };
+  setSessionCookies(generateToken(user), user.isTestUser);
+  return { success: true };
+});
 
 export const getCurrentUserFn = createServerFn({ method: "GET" }).handler(async () => {
   const req = getRequest();

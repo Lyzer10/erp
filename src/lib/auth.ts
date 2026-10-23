@@ -4,6 +4,7 @@ import { db } from "../db";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { createServerOnlyFn } from "@tanstack/react-start";
+import { SESSION_IDLE_MINUTES } from "./session";
 
 export const getJwtSecret = createServerOnlyFn((): string => {
   const secret = process.env.JWT_SECRET;
@@ -22,6 +23,8 @@ export type AuthUser = {
   sessionId: string;
 };
 
+export { SESSION_IDLE_MINUTES };
+
 export const generateToken = createServerOnlyFn((user: Partial<AuthUser>): string => {
   const secret = getJwtSecret();
   const sessionId = user.sessionId || crypto.randomUUID();
@@ -35,7 +38,7 @@ export const generateToken = createServerOnlyFn((user: Partial<AuthUser>): strin
       sessionId,
     },
     secret,
-    { expiresIn: "7d" },
+    { expiresIn: `${SESSION_IDLE_MINUTES}m` },
   );
 });
 
