@@ -343,6 +343,9 @@ export const getDashboardFn = createServerFn({ method: "GET" }).handler(async ()
     .select({
       lowStock: sql<number>`count(*) filter (where ${products.stock} > 0 and ${products.stock} <= ${products.reorder})::int`,
       outOfStock: sql<number>`count(*) filter (where ${products.stock} <= 0)::int`,
+      stockValue: sql<number>`coalesce(sum(${products.stock}::bigint * ${products.cost}::bigint), 0)`.mapWith(Number),
+      stockUnits: sql<number>`coalesce(sum(${products.stock}), 0)::int`,
+      stockedProducts: sql<number>`count(*) filter (where ${products.stock} > 0)::int`,
     })
     .from(products);
   const [expiryTotals] = await db

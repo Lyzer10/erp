@@ -23,6 +23,9 @@ type DashboardData = {
   expenses: number;
   purchases: number;
   grossMargin: number;
+  stockValue: number;
+  stockUnits: number;
+  stockedProducts: number;
   lowStock: number;
   outOfStock: number;
   expired: number;
@@ -88,6 +91,16 @@ function Dashboard() {
       icon: TrendingUp,
       tint: "violet" as const,
     },
+    {
+      label: lang === "en" ? "Stock value" : "Thamani ya stoo",
+      value: money(data.stockValue),
+      note:
+        lang === "en"
+          ? `${data.stockUnits} units across ${data.stockedProducts} products`
+          : `Vipimo ${data.stockUnits} katika bidhaa ${data.stockedProducts}`,
+      icon: Package,
+      tint: "emerald" as const,
+    },
   ];
   return (
     <div className="space-y-6">
@@ -101,7 +114,7 @@ function Dashboard() {
             : "Takwimu halisi za miamala ya leo."}
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {cards.map(({ label, value, note, icon, tint }) => (
           <KpiCard key={label} label={label} value={value} hint={note} icon={icon} tint={tint} />
         ))}
