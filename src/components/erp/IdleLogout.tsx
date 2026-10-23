@@ -62,7 +62,7 @@ export function IdleLogout() {
       if (idle >= IDLE_MS) {
         signingOut = true;
         await logoutUserFn().catch(() => undefined);
-        window.location.href = "/login?reason=idle";
+        window.location.href = "/login";
         return;
       }
 
@@ -74,7 +74,7 @@ export function IdleLogout() {
         const result = await refreshSessionFn().catch(() => null);
         if (result && !result.success) {
           signingOut = true;
-          window.location.href = "/login?reason=idle";
+          window.location.href = "/login";
         }
       }
     };

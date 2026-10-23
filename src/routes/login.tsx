@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, LogIn, UserPlus, AlertCircle, Clock } from "lucide-react";
-import { z } from "zod";
+import { Eye, EyeOff, LogIn, UserPlus, AlertCircle } from "lucide-react";
 import { useTranslate, setLanguage } from "@/lib/i18n";
 import { loginUserFn } from "@/lib/api/auth";
 
@@ -9,7 +8,6 @@ const SLIDES = ["/login-bg-1.jpg", "/login-bg-2.jpg", "/login-bg-3.jpg"];
 const SLIDE_INTERVAL_MS = 8000;
 
 export const Route = createFileRoute("/login")({
-  validateSearch: z.object({ reason: z.enum(["idle"]).optional() }),
   head: () => ({
     meta: [{ title: "Sign In — DeveleERP" }],
     // Only the first slide is fetched with the page; the rest load after it is interactive.
@@ -84,7 +82,6 @@ function BackgroundSlideshow() {
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { reason } = Route.useSearch();
   const { lang } = useTranslate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -176,17 +173,6 @@ function LoginPage() {
             </h2>
             <p className="mt-2.5 text-sm font-medium text-[#111113]/55">{copy.welcome}</p>
           </div>
-
-          {reason === "idle" && !errorMessage && (
-            <div className="mt-6 flex items-center gap-2.5 rounded-2xl border border-amber-200/70 bg-amber-50 p-4 text-sm font-medium text-amber-800">
-              <Clock className="h-5 w-5 shrink-0 text-amber-500" />
-              <span>
-                {lang === "en"
-                  ? "You were signed out after 1 hour of inactivity. Please sign in again."
-                  : "Umetolewa baada ya saa 1 bila kutumia mfumo. Tafadhali ingia tena."}
-              </span>
-            </div>
-          )}
 
           {errorMessage && (
             <div className="mt-6 flex items-center gap-2.5 rounded-2xl bg-rose-50 border border-rose-200/60 p-4 text-sm font-medium text-rose-700">
