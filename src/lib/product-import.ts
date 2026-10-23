@@ -291,7 +291,7 @@ export function normalizeHeader(header: string) {
   return header.replace(/\*/g, "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
-function parseWholeNumber(value: unknown, label: string, errors: string[]) {
+export function parseWholeNumber(value: unknown, label: string, errors: string[]) {
   if (typeof value === "number") {
     if (!Number.isInteger(value)) errors.push(`${label} must be a whole number.`);
     return Math.round(value);
@@ -315,7 +315,7 @@ function toIsoDate(year: number, month: number, day: number) {
   return date.toISOString().slice(0, 10);
 }
 
-function parseDate(value: unknown, label: string, errors: string[]) {
+export function parseDate(value: unknown, label: string, errors: string[]) {
   if (value instanceof Date && !Number.isNaN(value.getTime()))
     return value.toISOString().slice(0, 10);
   if (typeof value === "number") {

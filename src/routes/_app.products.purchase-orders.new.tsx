@@ -1,12 +1,24 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowLeft, Download, FileSpreadsheet, Loader2, Plus, Trash2 } from "lucide-react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { FormShell } from "@/components/erp/FormShell";
 import { getProductsFn, getSuppliersFn } from "@/lib/api/domain";
 import { createPurchaseOrderFn } from "@/lib/api/purchases";
 import { useTranslate } from "@/lib/i18n";
+import { downloadPurchaseTemplate, readPurchaseWorkbook } from "@/lib/purchase-excel";
+import { matchPurchaseRows } from "@/lib/purchase-import";
 
-type ProductOption = { id: number; name: string; sku: string; cost: number };
+type ProductOption = {
+  id: number;
+  name: string;
+  sku: string;
+  cost: number;
+  strength?: string | null;
+  barcode?: string | null;
+  purchaseUnit?: string | null;
+  sellingUnit?: string | null;
+  unitsPerPurchaseUnit?: number | null;
+};
 type SupplierOption = { id: number; name: string };
 type PurchaseLine = {
   key: string;
@@ -15,6 +27,10 @@ type PurchaseLine = {
   unitCost: number;
   batchNumber: string;
   expiryDate: string;
+  // Set for lines filled from Excel; problems block saving until the line is edited.
+  excelRow?: number;
+  issues?: string[];
+  warnings?: string[];
 };
 
 function emptyLine(): PurchaseLine {
@@ -58,6 +74,10 @@ function CreatePurchasePage() {
   const [lines, setLines] = useState<PurchaseLine[]>([emptyLine()]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [excelBusy, setExcelBusy] = useState<"template" | "upload" | null>(null);
+  const [excelNotice, setExcelNotice] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const en = lang === "en";
 
   const total = useMemo(
     () => lines.reduce((sum, line) => sum + line.quantity * line.unitCost, 0),
@@ -65,7 +85,52 @@ function CreatePurchasePage() {
   );
 
   function updateLine(key: string, patch: Partial<PurchaseLine>) {
-    setLines((current) => current.map((line) => (line.key === key ? { ...line, ...patch } : line)));
+    // Editing a line from Excel clears its flags; the form's own checks still apply.
+    setLines((current) =>
+      current.map((line) =>
+        line.key === key ? { ...line, ...patch, issues: undefined, warnings: undefined } : line,
+      ),
+    );
+  }
+
+  async function uploadExcel(file: File) {
+    setExcelBusy("upload");
+    setError(null);
+    setExcelNotice(null);
+    try {
+      const read = await readPurchaseWorkbook(file, lang);
+      if (read.problem) {
+        setError(read.problem);
+        return;
+      }
+      const imported = matchPurchaseRows(read.rows, products).map((line) => ({
+        key: crypto.randomUUID(),
+        productId: line.productId,
+        quantity: line.quantity,
+        unitCost: line.unitCost,
+        batchNumber: line.batchNumber,
+        expiryDate: line.expiryDate,
+        excelRow: line.rowNumber,
+        issues: line.errors.length ? line.errors : undefined,
+        warnings: line.warnings.length ? line.warnings : undefined,
+      }));
+      // Keep lines the user already filled in; drop untouched blank ones.
+      setLines((current) => [
+        ...current.filter((line) => line.productId || line.batchNumber || line.expiryDate),
+        ...imported,
+      ]);
+      const problems = imported.filter((line) => line.issues).length;
+      setExcelNotice(
+        en
+          ? `Added ${imported.length} line(s) from ${file.name}.${problems ? ` ${problems} need attention — see the red notes.` : " Check them, then save."}`
+          : `Mistari ${imported.length} imeongezwa kutoka ${file.name}.${problems ? ` Mistari ${problems} inahitaji marekebisho — angalia maelezo mekundu.` : " Ikague, kisha uhifadhi."}`,
+      );
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setExcelBusy(null);
+      if (fileInput.current) fileInput.current.value = "";
+    }
   }
 
   async function submit(event: React.FormEvent) {
@@ -76,6 +141,14 @@ function CreatePurchasePage() {
         lang === "en"
           ? "Demo mode cannot create a production purchase."
           : "Hali ya majaribio haiwezi kuhifadhi manunuzi halisi.",
+      );
+      return;
+    }
+    if (lines.some((line) => line.issues?.length)) {
+      setError(
+        en
+          ? "Some lines from Excel have problems. Fix or remove the lines marked in red before saving."
+          : "Baadhi ya mistari kutoka Excel ina matatizo. Rekebisha au ondoa mistari yenye alama nyekundu kabla ya kuhifadhi.",
       );
       return;
     }
@@ -200,14 +273,67 @@ function CreatePurchasePage() {
         <section className="glass-card overflow-x-auto p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-bold">{lang === "en" ? "Purchase items" : "Bidhaa za manunuzi"}</h2>
-            <button
-              type="button"
-              onClick={() => setLines((current) => [...current, emptyLine()])}
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold"
-            >
-              <Plus className="h-4 w-4" /> {lang === "en" ? "Add line" : "Ongeza mstari"}
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={excelBusy !== null}
+                onClick={async () => {
+                  setExcelBusy("template");
+                  try {
+                    await downloadPurchaseTemplate(products, lang);
+                  } finally {
+                    setExcelBusy(null);
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 disabled:opacity-60"
+              >
+                {excelBusy === "template" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                {en ? "Excel template" : "Kiolezo cha Excel"}
+              </button>
+              <button
+                type="button"
+                disabled={excelBusy !== null}
+                onClick={() => fileInput.current?.click()}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#1f9c88] bg-white px-3 py-2 text-sm font-semibold text-[#1f9c88] disabled:opacity-60"
+              >
+                {excelBusy === "upload" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <FileSpreadsheet className="h-4 w-4" />
+                )}
+                {en ? "Upload from Excel" : "Pakia kutoka Excel"}
+              </button>
+              <input
+                ref={fileInput}
+                type="file"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void uploadExcel(file);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setLines((current) => [...current, emptyLine()])}
+                className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold"
+              >
+                <Plus className="h-4 w-4" /> {lang === "en" ? "Add line" : "Ongeza mstari"}
+              </button>
+            </div>
           </div>
+          {excelNotice && (
+            <p
+              role="status"
+              className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900"
+            >
+              {excelNotice}
+            </p>
+          )}
           <table className="min-w-[900px] w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase text-muted-foreground">
@@ -222,88 +348,123 @@ function CreatePurchasePage() {
             </thead>
             <tbody>
               {lines.map((line) => (
-                <tr key={line.key} className="border-b border-slate-100">
-                  <td className="p-2">
-                    <select
-                      required
-                      value={line.productId}
-                      onChange={(event) => {
-                        const productId = Number(event.target.value);
-                        const selected = products.find((product) => product.id === productId);
-                        updateLine(line.key, {
-                          productId: productId || "",
-                          unitCost: selected?.cost || 0,
-                        });
-                      }}
-                      className="input-field min-w-56"
-                    >
-                      <option value="">{lang === "en" ? "Choose product" : "Chagua bidhaa"}</option>
-                      {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name} ({product.sku})
+                <Fragment key={line.key}>
+                  <tr
+                    className={
+                      line.issues?.length
+                        ? "bg-rose-50/60"
+                        : line.issues || line.warnings?.length
+                          ? "bg-amber-50/50"
+                          : "border-b border-slate-100"
+                    }
+                  >
+                    <td className="p-2">
+                      <select
+                        required
+                        value={line.productId}
+                        onChange={(event) => {
+                          const productId = Number(event.target.value);
+                          const selected = products.find((product) => product.id === productId);
+                          updateLine(line.key, {
+                            productId: productId || "",
+                            unitCost: selected?.cost || 0,
+                          });
+                        }}
+                        className="input-field min-w-56"
+                      >
+                        <option value="">
+                          {lang === "en" ? "Choose product" : "Chagua bidhaa"}
                         </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="p-2">
-                    <input
-                      required
-                      min={1}
-                      type="number"
-                      value={line.quantity}
-                      onChange={(event) =>
-                        updateLine(line.key, { quantity: Math.max(1, Number(event.target.value)) })
-                      }
-                      className="input-field w-20"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      required
-                      min={0}
-                      type="number"
-                      value={line.unitCost}
-                      onChange={(event) =>
-                        updateLine(line.key, { unitCost: Math.max(0, Number(event.target.value)) })
-                      }
-                      className="input-field w-32"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      required
-                      value={line.batchNumber}
-                      onChange={(event) =>
-                        updateLine(line.key, { batchNumber: event.target.value })
-                      }
-                      className="input-field w-36"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      required
-                      type="date"
-                      value={line.expiryDate}
-                      onChange={(event) => updateLine(line.key, { expiryDate: event.target.value })}
-                      className="input-field w-40"
-                    />
-                  </td>
-                  <td className="p-2 text-right font-semibold">
-                    TZS {money(line.quantity * line.unitCost)}
-                  </td>
-                  <td className="p-2">
-                    <button
-                      type="button"
-                      disabled={lines.length === 1}
-                      onClick={() =>
-                        setLines((current) => current.filter((item) => item.key !== line.key))
-                      }
-                      className="rounded p-2 text-rose-600 disabled:opacity-30"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
+                        {products.map((product) => (
+                          <option key={product.id} value={product.id}>
+                            {[product.name, product.strength].filter(Boolean).join(" ")} (
+                            {product.barcode || product.sku})
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <input
+                        required
+                        min={1}
+                        type="number"
+                        value={line.quantity}
+                        onChange={(event) =>
+                          updateLine(line.key, {
+                            quantity: Math.max(1, Number(event.target.value)),
+                          })
+                        }
+                        className="input-field w-20"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        required
+                        min={0}
+                        type="number"
+                        value={line.unitCost}
+                        onChange={(event) =>
+                          updateLine(line.key, {
+                            unitCost: Math.max(0, Number(event.target.value)),
+                          })
+                        }
+                        className="input-field w-32"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        required
+                        value={line.batchNumber}
+                        onChange={(event) =>
+                          updateLine(line.key, { batchNumber: event.target.value })
+                        }
+                        className="input-field w-36"
+                      />
+                    </td>
+                    <td className="p-2">
+                      <input
+                        required
+                        type="date"
+                        value={line.expiryDate}
+                        onChange={(event) =>
+                          updateLine(line.key, { expiryDate: event.target.value })
+                        }
+                        className="input-field w-40"
+                      />
+                    </td>
+                    <td className="p-2 text-right font-semibold">
+                      TZS {money(line.quantity * line.unitCost)}
+                    </td>
+                    <td className="p-2">
+                      <button
+                        type="button"
+                        disabled={lines.length === 1}
+                        onClick={() =>
+                          setLines((current) => current.filter((item) => item.key !== line.key))
+                        }
+                        className="rounded p-2 text-rose-600 disabled:opacity-30"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                  {(line.issues?.length || line.warnings?.length) && (
+                    <tr className="border-b border-slate-100">
+                      <td colSpan={7} className="px-2 pb-3 text-xs">
+                        {line.issues?.map((issue) => (
+                          <p key={issue} className="font-semibold text-rose-700">
+                            {en ? "Excel row" : "Mstari wa Excel"} {line.excelRow}: {issue}
+                          </p>
+                        ))}
+                        {line.warnings?.map((warning) => (
+                          <p key={warning} className="text-amber-700">
+                            {en ? "Excel row" : "Mstari wa Excel"} {line.excelRow}: {warning}
+                          </p>
+                        ))}
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>

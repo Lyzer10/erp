@@ -89,14 +89,14 @@ export type ExportableProduct = {
   requiresPrescription?: boolean | null;
 };
 
-function columnLetter(index: number) {
+export function columnLetter(index: number) {
   let letter = "";
   for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26))
     letter = String.fromCharCode(65 + ((n - 1) % 26)) + letter;
   return letter;
 }
 
-async function downloadWorkbook(
+export async function downloadWorkbook(
   workbook: { xlsx: { writeBuffer: () => Promise<ArrayBuffer> } },
   fileName: string,
 ) {
@@ -259,7 +259,7 @@ export async function downloadProductWorkbook(
   );
 }
 
-async function withoutCellNotes(bytes: ArrayBuffer) {
+export async function withoutCellNotes(bytes: ArrayBuffer) {
   const { default: JSZip } = await import("jszip");
   const zip = await JSZip.loadAsync(bytes);
   for (const name of Object.keys(zip.files)) {
